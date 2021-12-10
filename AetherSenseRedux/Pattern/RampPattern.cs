@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dalamud.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,11 +15,11 @@ namespace AetherSenseRedux.Pattern
         private readonly long duration;
 
 
-        public RampPattern(Dictionary<string, dynamic> config)
+        public RampPattern(RampPatternConfig config)
         {
-            startLevel = (double)config["start"];
-            endLevel = (double)config["end"];
-            this.duration = (long)config["duration"];
+            startLevel = config.Start;
+            endLevel = config.End;
+            this.duration = config.Duration;
             Expires = DateTime.UtcNow + TimeSpan.FromMilliseconds(duration);
         }
 
@@ -28,18 +29,20 @@ namespace AetherSenseRedux.Pattern
             {
                 throw new PatternExpiredException();
             }
-            double progress = (Expires.Ticks - time.Ticks) / TimeSpan.FromMilliseconds(duration).Ticks;
+            double progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)duration*10000));
             return (endLevel - startLevel) * progress + startLevel;
         }
 
-        public static Dictionary<string, dynamic> GetDefaultConfiguration()
+        public static PatternConfig GetDefaultConfiguration()
         {
-            return new Dictionary<string, dynamic>
-            {
-                {"start", 0 },
-                {"end", 1 },
-                {"duration", 1000 }
-            };
+            return new RampPatternConfig();
         }
+    }
+    [Serializable]
+    public class RampPatternConfig : PatternConfig
+    {
+        public override string Type { get; } = "Ramp";
+        public double Start { get; set; } = 0;
+        public double End { get; set; } = 1;
     }
 }

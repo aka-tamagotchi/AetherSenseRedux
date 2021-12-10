@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 
 using Buttplug;
 using AetherSenseRedux.Trigger;
+using System.Collections.Concurrent;
+using AetherSenseRedux.Pattern;
 
 namespace AetherSenseRedux
 {
@@ -21,16 +23,17 @@ namespace AetherSenseRedux
     {
         public string Name => "AetherSense Redux";
 
-        private const string commandName = "/as";
+        public bool Running = false;
+
+        private const string commandName = "/asr";
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
-        private Configuration Configuration { get; init; }
+        private Configuration Configuration { get; set; }
         [PluginService] private ChatGui ChatGui { get; init; } = null!;
         private PluginUI PluginUi { get; init; }
 
-
-        private readonly ButtplugClient Buttplug;
+        private ButtplugClient Buttplug;
 
         private List<Device> DevicePool;
 
@@ -55,10 +58,15 @@ namespace AetherSenseRedux
 
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
+            Configuration.FixDeserialization();
+            if (!Configuration.Initialized)
+            {
+                Configuration.LoadDefaults();
+            }
 
             // you might normally want to embed resources and load them from the manifest stream
             var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            PluginUi = new PluginUI(Configuration);
+            PluginUi = new PluginUI(Configuration, this);
 
             CommandManager.AddHandler(commandName, new CommandInfo(OnShowUI)
             {
@@ -67,8 +75,6 @@ namespace AetherSenseRedux
 
             PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
-            //temporary
-            ChatGui.ChatMessage += OnChatReceived;
         }
 
         public void Dispose()
@@ -78,6 +84,7 @@ namespace AetherSenseRedux
             CommandManager.RemoveHandler(commandName);
         }
 
+        // EVENT HANDLERS
         private void OnDeviceAdded(object? sender, DeviceAddedEventArgs e)
         {
 
@@ -87,34 +94,45 @@ namespace AetherSenseRedux
             if (!Configuration.SeenDevices.Contains(newDevice.Name)){
                 Configuration.SeenDevices.Add(newDevice.Name);
             }
-            Task.Run(() => newDevice.Run());
+            newDevice.Start();
 
         }
 
         private void OnDeviceRemoved(object? sender, DeviceRemovedEventArgs e)
         {
             PluginLog.Information("Device {0} removed", e.Device.Name);
-            foreach (Device device in this.DevicePool)
+            var toRemove = new List<Device>();
+            lock (this.DevicePool)
             {
-                if (device.ClientDevice == e.Device)
+                foreach (Device device in this.DevicePool)
                 {
-                    try
+                    if (device.ClientDevice == e.Device)
                     {
-                        device.Stop();
+                        try
+                        {
+                            device.Stop();
+                        }
+                        catch (Exception ex)
+                        {
+                            PluginLog.Error(ex, "Could not stop device {0}, device disconnected?", device.Name);
+                        }
+                        toRemove.Add(device);
                     }
-                    catch (Exception)
-                    {
-                        PluginLog.Error("Could not stop device {0}, device disconnected?", device.Name);
-                    }
+                }
+            }
+            foreach (Device device in toRemove)
+            {
+                lock (this.DevicePool)
+                {
                     this.DevicePool.Remove(device);
                 }
+                    
             }
         }
 
-        // Instead of constant async scanning, it may make sense to simply scan when a command is issued
         private void OnScanComplete(object? sender, EventArgs e)
         {
-            Task.Run(DoScan);
+            Task.Run(DoScan).ConfigureAwait(false);
         }
 
         private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
@@ -124,22 +142,92 @@ namespace AetherSenseRedux
             {
                 t.Queue(chatMessage);
             }
-            PluginLog.Debug(chatMessage.ToString());
+            if (Configuration.LogChat)
+            {
+                PluginLog.Debug(chatMessage.ToString());
+            }
         }
+        // END EVENT HANDLERS
+
+        // SOME FUNCTIONS THAT DO THINGS
+        public void DoPatternTest(dynamic patternConfig)
+        {
+            if (!Buttplug.Connected)
+            {
+                return;
+            }
+            lock (DevicePool) {
+                foreach (var device in this.DevicePool)
+                {
+                    lock (device.Patterns)
+                    {
+                        device.Patterns.Add(PatternFactory.GetPatternFromObject(patternConfig));
+                    }
+            }
+            }
+        }
+
+        private async Task DoScan()
+        {
+            await Task.Delay(1000);
+            try
+            {
+                await Buttplug.StartScanningAsync();
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "Asynchronous scanning failed.");
+            }
+        }
+        // END SOME FUNCTIONS THAT DO THINGS
+
+        // START AND STOP FUNCTIONS
         private void InitButtplug()
         {
-            //TODO: connect to buttplug and start scanning for devices
+            if (!Buttplug.Connected)
+            {
+                try
+                {
+                    ButtplugWebsocketConnectorOptions wsOptions = new ButtplugWebsocketConnectorOptions(new Uri(Configuration.Address));
+                    var t = Buttplug.ConnectAsync(wsOptions);
+                    t.Wait();
+                }
+                catch (Exception ex)
+                {
+                    PluginLog.Error(ex, "Buttplug failed to connect");
+                    Stop();
+                }
+            }
+            Task.Run(DoScan).ConfigureAwait(false);
+            PluginLog.Debug("Buttplug created.");
         }
 
         private void DestroyButtplug()
         {
-            foreach (Device device in DevicePool)
+            lock (DevicePool)
             {
-                device.Stop();
+                foreach (Device device in DevicePool)
+                {
+                    PluginLog.Debug("Stopping device {0}", device.Name);
+                    device.Stop();
+                }
+                DevicePool.Clear();
             }
-            DevicePool.Clear();
-            //TODO: disconnect from buttplug
+            try {
+                var t = Buttplug.DisconnectAsync();
+                t.Wait(); 
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "Buttplug failed to disconnect, reinitalizing ButtplugClient.");
+                Buttplug = new ButtplugClient("AetherSense Redux");
+                Buttplug.DeviceAdded += OnDeviceAdded;
+                Buttplug.DeviceRemoved += OnDeviceRemoved;
+                Buttplug.ScanningFinished += OnScanComplete;
+            }
+            PluginLog.Debug("Buttplug destroyed.");
         }
+
         private void InitTriggers()
         {
             foreach (var d in Configuration.Triggers)
@@ -156,64 +244,54 @@ namespace AetherSenseRedux
 
             foreach (ChatTrigger t in ChatTriggerPool)
             {
-                Task.Run(() => t.Run());
+                PluginLog.Debug("Starting chat trigger {0}",t.Name);
+                t.Start();
             }
 
             ChatGui.ChatMessage += OnChatReceived;
+            PluginLog.Debug("Triggers created");
         }
+
         private void DestroyTriggers()
         {
             foreach (ChatTrigger t in ChatTriggerPool)
             {
-                t.Enabled = false;
+                PluginLog.Debug("Stopping chat trigger {0}",t.Name);
+                t.Stop();
             }
             ChatGui.ChatMessage -= OnChatReceived;
             ChatTriggerPool.Clear();
+            PluginLog.Debug("Triggers destroyed.");
         }
-        private void Start()
+
+        public void Start()
         {
-            //Configuration.Enabled = true;            
+            Running = true;            
             InitTriggers();
             InitButtplug();
         }
 
-        private void Restart()
+        public void Restart()
         {
             DestroyTriggers();
-
-            // while this works, a cleaner restart that doesn't drop the intiface connection may be in order
-            //Stop();
-            //Start();
-
             InitTriggers();
         }
 
-        private void Stop()
+        public void Stop()
         {
             DestroyTriggers();
             DestroyButtplug();
-            //Configuration.Enabled = false;
+            Running = false;
 
 
         }
+        // END START AND STOP FUNCTIONS
 
-        private async Task DoScan()
-        {
-            await Task.Delay(1000);
-            try
-            {
-                await Buttplug.StartScanningAsync();
-            }
-            catch (Exception ex)
-            {
-                PluginLog.Error(ex, "Asynchronous scanning failed.");
-            }
-        }
-
+        // UI FUNCTIONS
         private void OnShowUI(string command, string args)
         {
             // in response to the slash command, just display our main ui
-            PluginUi.Visible = true;
+            PluginUi.SettingsVisible = true;
         }
 
         private void DrawUI()
@@ -225,5 +303,6 @@ namespace AetherSenseRedux
         {
             PluginUi.SettingsVisible = true;
         }
+        // END UI FUNCTIONS
     }
 }

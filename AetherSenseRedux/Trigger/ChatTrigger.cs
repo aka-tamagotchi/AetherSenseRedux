@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Dalamud.Logging;
+using System.Collections.Concurrent;
 
 namespace AetherSenseRedux.Trigger
 {
@@ -16,32 +18,35 @@ namespace AetherSenseRedux.Trigger
         public bool Enabled { get; set; }
         public string Type { get; } = "ChatTrigger";
         public string Name { get; init; }
-        private readonly List<Device> Devices;
-        private readonly List<string> EnabledDevices;
-        private readonly string Pattern;
-        private readonly Dictionary<string, dynamic> PatternSettings;
+        public List<Device> Devices { get; init; }
+        public List<string> EnabledDevices { get; init; }
+        public string Pattern { get; init; }
+        public PatternConfig PatternSettings { get; init; }
 
         // ChatTrigger properties
-        private readonly List<ChatMessage> _messages;
-        private readonly Regex _regex;
-        private readonly long _retriggerDelay;
-        private DateTime _retriggerTime;
+        private ConcurrentQueue<ChatMessage> _messages;
+        public Regex Regex { get; init; }
+        public long RetriggerDelay { get; init; }
+        private DateTime RetriggerTime { get; set; }
+        private object queueLock = new object();
+        private Guid Guid { get; set; }
 
-        public ChatTrigger(string name, ref List<Device> devices, List<string> enabledDevices, string pattern, Dictionary<string, dynamic> patternSettings, string regex, long retriggerDelay)
+        public ChatTrigger(ChatTriggerConfig configuration, ref List<Device> devices)
         {
             // ITrigger properties
             Enabled = true;
-            Name = name;
+            Name = configuration.Name;
+            Devices = devices;
+            EnabledDevices = configuration.EnabledDevices;
+            Pattern = configuration.Pattern;
+            PatternSettings = PatternFactory.GetPatternConfigFromObject(configuration.PatternSettings);
+            Regex = new Regex(configuration.Regex);
+            RetriggerDelay = configuration.RetriggerDelay;
 
             // ChatTrigger properties
-            Devices = devices;
-            EnabledDevices = enabledDevices;
-            Pattern = pattern;
-            PatternSettings = patternSettings;
-            _messages = new List<ChatMessage>();
-            _regex = new Regex(regex);
-            _retriggerDelay = retriggerDelay;
-            _retriggerTime = DateTime.MinValue;
+            _messages = new ConcurrentQueue<ChatMessage>();
+            RetriggerTime = DateTime.MinValue;
+            Guid = Guid.NewGuid();
 
         }
 
@@ -50,67 +55,85 @@ namespace AetherSenseRedux.Trigger
         {
             if (Enabled)
             {
-                _messages.Add(message);
+                 PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
+                 _messages.Enqueue(message);
             }
         }
 
         private void OnTrigger()
         {
-            if (_retriggerDelay > 0)
+            if (RetriggerDelay > 0)
             {
-                if (DateTime.UtcNow < _retriggerTime)
+                if (DateTime.UtcNow < RetriggerTime)
                 {
+                    PluginLog.Debug("Trigger discarded, too soon");
                     return;
                 }
                 else
                 {
-                    _retriggerTime = DateTime.UtcNow + TimeSpan.FromMilliseconds(_retriggerDelay);
+                    RetriggerTime = DateTime.UtcNow + TimeSpan.FromMilliseconds(RetriggerDelay);
                 }
             }
-            foreach (Device device in Devices)
+            lock (Devices)
             {
-                if (EnabledDevices.Contains(device.Name))
+                foreach (Device device in Devices)
                 {
-                    device.Patterns.Add(PatternFactory.GetPatternFromString(Pattern, PatternSettings));
-                }
+                    if (EnabledDevices.Contains(device.Name))
+                    {
+                        lock (device.Patterns)
+                        {
+                            device.Patterns.Add(PatternFactory.GetPatternFromObject(PatternSettings));
+                        }
+                    }
 
+                }
             }
         }
 
-        public async Task Run()
+        public void Start()
+        {
+            Task.Run(MainLoop).ConfigureAwait(false); ;
+        }
+
+        public void Stop()
+        {
+            Enabled = false;
+        }
+
+        public async Task MainLoop()
         {
             while (Enabled)
             {
-                if (_messages.Count > 0)
+                ChatMessage message;
+                if (_messages.TryDequeue(out message))
                 {
-                    foreach (ChatMessage message in _messages)
+                    PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
+                    if (Regex.IsMatch(message.ToString()))
                     {
-                        
-                        if (_regex.IsMatch(message.ToString()))
-                        {
-                            OnTrigger();
-                        }
-
-                        _messages.Remove(message);
-                        await Task.Yield();
+                        OnTrigger();
+                        PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
                     }
+                    await Task.Yield();
+                } else
+                {
+                    await Task.Delay(50);
                 }
-                await Task.Delay(10);
             }
         }
-        static Dictionary<string, dynamic> GetDefaultConfiguration()
+        static TriggerConfig GetDefaultConfiguration()
         {
-            return new Dictionary<string, dynamic>
-            {
-                {"type", "Chat" },
-                { "name", "New Chat Trigger" },
-                { "enabledDevices", new List<string>()},
-                { "pattern", "Constant" },
-                { "patternSettings", PatternFactory.GetDefaultsFromString("Constant") },
-                { "regex", "" },
-                { "retriggerDelay", 0 }
-            };
+            return new ChatTriggerConfig();
         }
+    }
+
+    [Serializable]
+    public class ChatTriggerConfig : TriggerConfig
+    {
+        public override string Type { get; } = "Chat";
+        public override string Name { get; set; } = "New Chat Trigger";
+        public string Regex { get; set; } = "Your Regex Here";
+        public long RetriggerDelay { get; set; } = 0;
+
     }
 
     struct ChatMessage
