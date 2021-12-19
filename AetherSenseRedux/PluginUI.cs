@@ -35,18 +35,23 @@ namespace AetherSenseRedux
 
         private Configuration? WorkingCopy;
 
-        // passing in the image here just for simplicity
         public PluginUI(Configuration configuration, Plugin plugin)
         {
             this.configuration = configuration;
             this.plugin = plugin;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Draw()
         {
             // This is our only draw handler attached to UIBuilder, so it needs to be
@@ -59,6 +64,10 @@ namespace AetherSenseRedux
             DrawSettingsWindow();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="i"></param>
         public void DrawChatTriggerConfig(int i)
         {
             if (WorkingCopy!.Triggers.Count == 0)
@@ -209,6 +218,10 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pattern"></param>
         public void DrawConstantPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
@@ -223,6 +236,10 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pattern"></param>
         public void DrawRampPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
@@ -242,6 +259,10 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pattern"></param>
         public void DrawRandomPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
@@ -261,6 +282,10 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pattern"></param>
         public void DrawSquarePatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
@@ -295,6 +320,9 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void DrawSettingsWindow()
         {
             if (!SettingsVisible)
@@ -363,10 +391,13 @@ namespace AetherSenseRedux
                             {
                                 foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
                                 {
+                                    ImGui.PushID(i);
                                     if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
                                     {
                                         SelectedTrigger = i;
                                     }
+                                    ImGui.PopID();
+
 
                                 }
                                 ImGui.EndChild();

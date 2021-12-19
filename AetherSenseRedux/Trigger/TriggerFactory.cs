@@ -39,7 +39,7 @@ namespace AetherSenseRedux.Trigger
                         EnabledDevices = devices,
                         Pattern = (string)o.Pattern,
                         PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings)
-            };
+                    };
                 default:
                     throw new ArgumentException(String.Format("Invalid trigger {0} specified", o.Type));
             }

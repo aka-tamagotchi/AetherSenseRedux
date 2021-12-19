@@ -39,6 +39,11 @@ namespace AetherSenseRedux
 
         private readonly List<ChatTrigger> ChatTriggerPool;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pluginInterface"></param>
+        /// <param name="commandManager"></param>
         public Plugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager commandManager)
@@ -77,6 +82,9 @@ namespace AetherSenseRedux
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             Stop();
@@ -85,6 +93,11 @@ namespace AetherSenseRedux
         }
 
         // EVENT HANDLERS
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnDeviceAdded(object? sender, DeviceAddedEventArgs e)
         {
 
@@ -98,6 +111,11 @@ namespace AetherSenseRedux
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnDeviceRemoved(object? sender, DeviceRemovedEventArgs e)
         {
             PluginLog.Information("Device {0} removed", e.Device.Name);
@@ -130,6 +148,11 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnScanComplete(object? sender, EventArgs e)
         {
             Task.Run(DoScan).ConfigureAwait(false);
@@ -150,6 +173,10 @@ namespace AetherSenseRedux
         // END EVENT HANDLERS
 
         // SOME FUNCTIONS THAT DO THINGS
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="patternConfig">A pattern configuration.</param>
         public void DoPatternTest(dynamic patternConfig)
         {
             if (!Buttplug.Connected)
@@ -167,6 +194,10 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The task associated with this method.</returns>
         private async Task DoScan()
         {
             await Task.Delay(1000);
@@ -182,6 +213,9 @@ namespace AetherSenseRedux
         // END SOME FUNCTIONS THAT DO THINGS
 
         // START AND STOP FUNCTIONS
+        /// <summary>
+        /// 
+        /// </summary>
         private void InitButtplug()
         {
             if (!Buttplug.Connected)
@@ -202,6 +236,9 @@ namespace AetherSenseRedux
             PluginLog.Debug("Buttplug created.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void DestroyButtplug()
         {
             lock (DevicePool)
@@ -228,10 +265,16 @@ namespace AetherSenseRedux
             PluginLog.Debug("Buttplug destroyed.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void InitTriggers()
         {
             foreach (var d in Configuration.Triggers)
             {
+                // We pass DevicePool by reference so that triggers don't get stuck with outdated copies
+                // of the device pool, should it be replaced with a new List<Device> - currently this doesn't
+                // happen but it's possible it may happen in the future.
                 var Trigger = TriggerFactory.GetTriggerFromConfig(d, ref DevicePool);
                 if (Trigger.Type == "ChatTrigger")
                 {
@@ -252,6 +295,9 @@ namespace AetherSenseRedux
             PluginLog.Debug("Triggers created");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void DestroyTriggers()
         {
             foreach (ChatTrigger t in ChatTriggerPool)
@@ -264,6 +310,9 @@ namespace AetherSenseRedux
             PluginLog.Debug("Triggers destroyed.");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Start()
         {
             Running = true;            
@@ -271,12 +320,18 @@ namespace AetherSenseRedux
             InitButtplug();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Restart()
         {
             DestroyTriggers();
             InitTriggers();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Stop()
         {
             DestroyTriggers();
@@ -288,17 +343,28 @@ namespace AetherSenseRedux
         // END START AND STOP FUNCTIONS
 
         // UI FUNCTIONS
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="args"></param>
         private void OnShowUI(string command, string args)
         {
             // in response to the slash command, just display our main ui
             PluginUi.SettingsVisible = true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void DrawUI()
         {
             PluginUi.Draw();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void DrawConfigUI()
         {
             PluginUi.SettingsVisible = true;

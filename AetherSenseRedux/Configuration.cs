@@ -13,14 +13,9 @@ namespace AetherSenseRedux
     {
         public int Version { get; set; } = 1;
         public bool Initialized = false;
-
         public bool LogChat { get; set; } = false;
-
-        public bool Enabled { get; set; } = false;
         public string Address { get; set; } = "ws://127.0.0.1:12345";
-
         public List<string> SeenDevices { get; set; } = new();
-
         public List<dynamic> Triggers { get; set; } = new List<dynamic>();
 
         // the below exist just to make saving less cumbersome
