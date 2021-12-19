@@ -391,10 +391,12 @@ namespace AetherSenseRedux
                             {
                                 foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
                                 {
+                                    ImGui.PushID(i);
                                     if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
                                     {
                                         SelectedTrigger = i;
                                     }
+                                    ImGui.PopID();
 
 
                                 }
