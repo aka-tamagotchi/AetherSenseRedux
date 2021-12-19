@@ -330,7 +330,7 @@ namespace AetherSenseRedux
 
                 if (WorkingCopy != null)
                 {
-                    PluginLog.Debug("Making WorkingCopy null at settingsvisible statement,");
+                    PluginLog.Debug("Making WorkingCopy null.");
                     WorkingCopy = null;
                 }
                 return;
@@ -391,14 +391,12 @@ namespace AetherSenseRedux
                             {
                                 foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
                                 {
-                                    ImGui.PushID(i);
+                                    ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
                                     if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
                                     {
                                         SelectedTrigger = i;
                                     }
                                     ImGui.PopID();
-
-
                                 }
                                 ImGui.EndChild();
                             }
