@@ -30,7 +30,13 @@ namespace AetherSenseRedux.Trigger
         private DateTime RetriggerTime { get; set; }
         private object queueLock = new object();
         private Guid Guid { get; set; }
-
+        
+        /// <summary>
+        /// Instantiates a new ChatTrigger.
+        /// </summary>
+        /// <param name="configuration">The configuration object for this trigger.</param>
+        /// <param name="devices">A reference to the list of Buttplug Devices.</param>
+        /// <returns>A ChatTrigger object.</returns>
         public ChatTrigger(ChatTriggerConfig configuration, ref List<Device> devices)
         {
             // ITrigger properties
@@ -50,7 +56,10 @@ namespace AetherSenseRedux.Trigger
 
         }
 
-
+        /// <summary>
+        /// Adds a chat message to the trigger's processing queue.
+        /// </summary>
+        /// <param name="message">The chat message.</param>
         public void Queue(ChatMessage message)
         {
             if (Enabled)
@@ -60,6 +69,9 @@ namespace AetherSenseRedux.Trigger
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void OnTrigger()
         {
             if (RetriggerDelay > 0)
@@ -90,16 +102,26 @@ namespace AetherSenseRedux.Trigger
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Start()
         {
             Task.Run(MainLoop).ConfigureAwait(false); ;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Stop()
         {
             Enabled = false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task MainLoop()
         {
             while (Enabled)
@@ -138,7 +160,14 @@ namespace AetherSenseRedux.Trigger
 
     struct ChatMessage
     {
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="chatType"></param>
+        /// <param name="senderId"></param>
+        /// <param name="sender"></param>
+        /// <param name="message"></param>
+        /// <param name="isHandled"></param>
         public ChatMessage(XivChatType chatType, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
             ChatType = chatType;
