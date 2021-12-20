@@ -453,7 +453,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for constant patterns
         /// </summary>
         /// <param name="pattern">A ConstantPatternConfig object containing the current configuration for the pattern.</param>
         private static void DrawConstantPatternSettings(dynamic pattern)
@@ -471,7 +471,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// Draws the configuration interface for constant patterns
+        /// Draws the configuration interface for ramp patterns
         /// </summary>
         /// <param name="pattern">A RampPatternConfig object containing the current configuration for the pattern.</param>
         private static void DrawRampPatternSettings(dynamic pattern)
@@ -490,6 +490,34 @@ namespace AetherSenseRedux
             if (ImGui.InputDouble("End", ref end))
             {
                 pattern.End = end;
+            }
+        }
+
+        /// <summary>
+        /// Draws the configuration interface for saw patterns
+        /// </summary>
+        /// <param name="pattern">A SawPatternConfig object containing the current configuration for the pattern.</param>
+        private static void DrawSawPatternSettings(dynamic pattern)
+        {
+            int duration = (int)pattern.Duration;
+            if (ImGui.InputInt("Duration (ms)", ref duration))
+            {
+                pattern.Duration = (long)duration;
+            }
+            double start = (double)pattern.Start;
+            if (ImGui.InputDouble("Start", ref start))
+            {
+                pattern.Start = start;
+            }
+            double end = (double)pattern.End;
+            if (ImGui.InputDouble("End", ref end))
+            {
+                pattern.End = end;
+            }
+            int duration1 = (int)pattern.Duration1;
+            if (ImGui.InputInt("Saw Duration (ms)", ref duration1))
+            {
+                pattern.Duration1 = (long)duration1;
             }
         }
 
