@@ -22,6 +22,6 @@ namespace AetherSenseRedux.Trigger
         public abstract string Type { get; }
         public abstract string Name { get; set; }
         public List<string> EnabledDevices { get; set; } = new List<string>();
-        public dynamic PatternSettings { get; set; } = null!;
+        public dynamic? PatternSettings { get; set; }
     }
 }
