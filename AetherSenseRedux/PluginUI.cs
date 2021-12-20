@@ -157,7 +157,11 @@ namespace AetherSenseRedux
                     //end enabled devices selection
                     ImGui.EndTabItem();
                 }
-                if (ImGui.BeginTabItem("Pattern"))
+                if (ImGui.BeginTabItem("Filters"))
+                {
+                    ImGui.EndTabItem();
+                }
+                    if (ImGui.BeginTabItem("Pattern"))
                 {
                     string[] patterns = { "Constant", "Ramp", "Random", "Square"};
 
@@ -347,19 +351,10 @@ namespace AetherSenseRedux
                 }
                 if (ImGui.BeginMenuBar())
                 {
-                    if (ImGui.BeginMenu("Buttplug"))
+                    if (ImGui.BeginMenu("File"))
                     {
-                        if (plugin.Running)
-                        {
-                            if (ImGui.MenuItem("Disconnect")){
-                                plugin.Stop();
-                            }
-                        } else
-                        {
-                            if (ImGui.MenuItem("Connect")){
-                                plugin.Start();
-                            }
-                        }
+                        ImGui.Selectable("Import...",false,ImGuiSelectableFlags.Disabled);
+                        ImGui.Selectable("Export...", false, ImGuiSelectableFlags.Disabled);
                         ImGui.EndMenu();
                     }
                     ImGui.EndMenuBar();
@@ -376,8 +371,26 @@ namespace AetherSenseRedux
                             {
                                 WorkingCopy.Address = address;
                             }
+                            ImGui.SameLine();
+                            if (plugin.Running)
+                            {
+                                if (ImGui.Button("Disconnect"))
+                                {
+                                    plugin.Stop();
+                                }
+                            }
+                            else
+                            {
+                                if (ImGui.Button("Connect"))
+                                {
+                                    configuration.Address = WorkingCopy.Address;
+                                    plugin.Start();
+                                }
+                            }
+                            ImGui.Spacing();
+                            ImGui.BeginChild("status", new Vector2(0, 0), true);
 
-
+                            ImGui.EndChild();
                             ImGui.EndTabItem();
                         }
                         if (ImGui.BeginTabItem("Triggers"))
