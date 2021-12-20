@@ -52,7 +52,6 @@ namespace AetherSenseRedux
                 {
                     Name = "Casted",
                     EnabledDevices = new List<string>(),
-                    Pattern = "Constant",
                     PatternSettings = new ConstantPatternConfig()
                     {
                         Level = 1,
@@ -66,7 +65,6 @@ namespace AetherSenseRedux
 
                     Name = "Casting",
                     EnabledDevices = new List<string>(),
-                    Pattern = "Ramp",
                     PatternSettings = new RampPatternConfig()
                     {
                         Start = 0,
