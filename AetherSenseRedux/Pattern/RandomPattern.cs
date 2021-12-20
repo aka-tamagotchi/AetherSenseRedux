@@ -9,7 +9,7 @@ namespace AetherSenseRedux.Pattern
     internal class RandomPattern : IPattern
     {
         public DateTime Expires { get; set; }
-        private readonly Random rand = new Random();
+        private readonly Random rand = new();
         private readonly double min;
         private readonly double max;
 

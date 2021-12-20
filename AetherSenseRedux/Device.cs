@@ -49,7 +49,7 @@ namespace AetherSenseRedux
 
         private void OnTick()
         {
-            List<double> intensities = new List<double>();
+            List<double> intensities = new();
             DateTime t = DateTime.UtcNow;
             var patternsToRemove = new List<IPattern>();
 

@@ -456,7 +456,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <param name="pattern">A ConstantPatternConfig object containing the current configuration for the pattern.</param>
-        private void DrawConstantPatternSettings(dynamic pattern)
+        private static void DrawConstantPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -474,7 +474,7 @@ namespace AetherSenseRedux
         /// Draws the configuration interface for constant patterns
         /// </summary>
         /// <param name="pattern">A RampPatternConfig object containing the current configuration for the pattern.</param>
-        private void DrawRampPatternSettings(dynamic pattern)
+        private static void DrawRampPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -497,7 +497,7 @@ namespace AetherSenseRedux
         /// Draws the configuration interface for random patterns
         /// </summary>
         /// <param name="pattern">A RandomPatternConfig object containing the current configuration for the pattern.</param>
-        private void DrawRandomPatternSettings(dynamic pattern)
+        private static void DrawRandomPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -520,7 +520,7 @@ namespace AetherSenseRedux
         /// Draws the configuration interface for square patterns
         /// </summary>
         /// <param name="pattern">A SquarePatternConfig object containing the current configuration for the pattern.</param>
-        private void DrawSquarePatternSettings(dynamic pattern)
+        private static void DrawSquarePatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))

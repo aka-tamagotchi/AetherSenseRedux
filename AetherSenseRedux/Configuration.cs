@@ -30,7 +30,7 @@ namespace AetherSenseRedux
 
         public void FixDeserialization()
         {
-            List<TriggerConfig> triggers = new List<TriggerConfig>();
+            List<TriggerConfig> triggers = new();
             foreach (dynamic t in Triggers)
             {
                 triggers.Add(TriggerFactory.GetTriggerConfigFromObject(t));
