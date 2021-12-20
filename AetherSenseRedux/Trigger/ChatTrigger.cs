@@ -20,7 +20,6 @@ namespace AetherSenseRedux.Trigger
         public string Name { get; init; }
         public List<Device> Devices { get; init; }
         public List<string> EnabledDevices { get; init; }
-        public string Pattern { get; init; }
         public PatternConfig PatternSettings { get; init; }
 
         // ChatTrigger properties
@@ -43,7 +42,6 @@ namespace AetherSenseRedux.Trigger
             Name = configuration.Name;
             Devices = devices;
             EnabledDevices = configuration.EnabledDevices;
-            Pattern = configuration.Pattern;
             PatternSettings = PatternFactory.GetPatternConfigFromObject(configuration.PatternSettings);
             Regex = new Regex(configuration.Regex);
             RetriggerDelay = configuration.RetriggerDelay;
@@ -172,7 +170,7 @@ namespace AetherSenseRedux.Trigger
             ChatType = (uint)chatType & 0x7F;
             Source = (uint)chatType >> 11;
             Destination = ((uint)chatType >> 7) & 0xF;
-            FilterString = String.Format("{0:X1}{1:X1}{2:D2}",Source,Destination,ChatType);
+            FilterString = String.Format("{0:X1}{1:X1}{2:X2}",Source,Destination,ChatType);
             //SenderId = senderId;
             Sender = sender.TextValue;
             Message = message.TextValue;
@@ -222,9 +220,9 @@ namespace AetherSenseRedux.Trigger
         StandardEmote = 29,
         Yell = 30,
         
-        CrossWorldParty = 32,
+        CrossWorldParty = 32, // not verified
 
-        PvP = 36,
+        PvPTeam = 36,
         Cwls1 = 37,
 
         AttackHit = 41,
