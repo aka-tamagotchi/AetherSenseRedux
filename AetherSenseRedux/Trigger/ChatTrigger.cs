@@ -28,7 +28,6 @@ namespace AetherSenseRedux.Trigger
         public Regex Regex { get; init; }
         public long RetriggerDelay { get; init; }
         private DateTime RetriggerTime { get; set; }
-        private object queueLock = new object();
         private Guid Guid { get; set; }
         
         /// <summary>

@@ -8,13 +8,11 @@ using Dalamud.Game.Text.SeStringHandling;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using Buttplug;
 using AetherSenseRedux.Trigger;
-using System.Collections.Concurrent;
 using AetherSenseRedux.Pattern;
 
 namespace AetherSenseRedux
@@ -33,7 +31,7 @@ namespace AetherSenseRedux
         [PluginService] private ChatGui ChatGui { get; init; } = null!;
         private PluginUI PluginUi { get; init; }
 
-        private ButtplugClient Buttplug;
+        private ButtplugClient? Buttplug;
 
         private List<Device> DevicePool;
 
@@ -52,11 +50,6 @@ namespace AetherSenseRedux
             CommandManager = commandManager;
 
             PluginInterface.Inject(this);
-
-            Buttplug = new ButtplugClient("AetherSense Redux");
-            Buttplug.DeviceAdded += OnDeviceAdded;
-            Buttplug.DeviceRemoved += OnDeviceRemoved;
-            Buttplug.ScanningFinished += OnScanComplete;
 
             this.DevicePool = new List<Device>();
             this.ChatTriggerPool = new List<ChatTrigger>();
@@ -102,7 +95,7 @@ namespace AetherSenseRedux
         {
 
             PluginLog.Information("Device {0} added", e.Device.Name);
-            Device newDevice = new Device(e.Device);
+            Device newDevice = new(e.Device);
             this.DevicePool.Add(newDevice);
             if (!Configuration.SeenDevices.Contains(newDevice.Name)){
                 Configuration.SeenDevices.Add(newDevice.Name);
@@ -160,7 +153,7 @@ namespace AetherSenseRedux
 
         private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
-            ChatMessage chatMessage = new ChatMessage(type, senderId, ref sender, ref message, ref isHandled);
+            ChatMessage chatMessage = new(type, senderId, ref sender, ref message, ref isHandled);
             foreach (ChatTrigger t in ChatTriggerPool)
             {
                 t.Queue(chatMessage);
@@ -179,6 +172,10 @@ namespace AetherSenseRedux
         /// <param name="patternConfig">A pattern configuration.</param>
         public void DoPatternTest(dynamic patternConfig)
         {
+            if (Buttplug == null)
+            {
+                return;
+            }
             if (!Buttplug.Connected)
             {
                 return;
@@ -203,7 +200,7 @@ namespace AetherSenseRedux
             await Task.Delay(1000);
             try
             {
-                await Buttplug.StartScanningAsync();
+                await Buttplug!.StartScanningAsync();
             }
             catch (Exception ex)
             {
@@ -218,11 +215,19 @@ namespace AetherSenseRedux
         /// </summary>
         private void InitButtplug()
         {
+            if (Buttplug == null)
+            {
+                Buttplug = new ButtplugClient("AetherSense Redux");
+                Buttplug.DeviceAdded += OnDeviceAdded;
+                Buttplug.DeviceRemoved += OnDeviceRemoved;
+                Buttplug.ScanningFinished += OnScanComplete;
+            }
+
             if (!Buttplug.Connected)
             {
                 try
                 {
-                    ButtplugWebsocketConnectorOptions wsOptions = new ButtplugWebsocketConnectorOptions(new Uri(Configuration.Address));
+                    ButtplugWebsocketConnectorOptions wsOptions = new(new Uri(Configuration.Address));
                     var t = Buttplug.ConnectAsync(wsOptions);
                     t.Wait();
                 }
@@ -250,18 +255,23 @@ namespace AetherSenseRedux
                 }
                 DevicePool.Clear();
             }
+
+            if (Buttplug == null)
+            {
+                return;
+            }
+
             try {
                 var t = Buttplug.DisconnectAsync();
                 t.Wait(); 
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "Buttplug failed to disconnect, reinitalizing ButtplugClient.");
-                Buttplug = new ButtplugClient("AetherSense Redux");
-                Buttplug.DeviceAdded += OnDeviceAdded;
-                Buttplug.DeviceRemoved += OnDeviceRemoved;
-                Buttplug.ScanningFinished += OnScanComplete;
+                PluginLog.Error(ex, "Buttplug failed to disconnect.");
             }
+
+            Buttplug.Dispose();
+            Buttplug = null;
             PluginLog.Debug("Buttplug destroyed.");
         }
 
