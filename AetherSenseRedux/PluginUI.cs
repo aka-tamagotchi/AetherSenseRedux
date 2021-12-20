@@ -16,7 +16,7 @@ namespace AetherSenseRedux
         private Configuration configuration;
         private Plugin plugin;
 
-        // this extra bool exists for ImGui, since you can't ref a property
+        // this extra bool exists for ImGui, since you can't ref a property but you can ref a field
 
         private bool settingsVisible = false;
         public bool SettingsVisible
@@ -25,7 +25,7 @@ namespace AetherSenseRedux
             set { settingsVisible = value; }
         }
 
-        // C# doesn't have static variables so we fake it by making values that need to be static into properties.
+        // C# doesn't have static variables so we fake it by making values that need to be static into fields
         private int SelectedTrigger = 0;
 
         // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
@@ -471,7 +471,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for constant patterns
         /// </summary>
         /// <param name="pattern">A RampPatternConfig object containing the current configuration for the pattern.</param>
         private void DrawRampPatternSettings(dynamic pattern)
@@ -494,7 +494,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for random patterns
         /// </summary>
         /// <param name="pattern">A RandomPatternConfig object containing the current configuration for the pattern.</param>
         private void DrawRandomPatternSettings(dynamic pattern)
@@ -517,7 +517,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for square patterns
         /// </summary>
         /// <param name="pattern">A SquarePatternConfig object containing the current configuration for the pattern.</param>
         private void DrawSquarePatternSettings(dynamic pattern)
