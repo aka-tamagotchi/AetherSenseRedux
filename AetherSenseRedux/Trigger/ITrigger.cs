@@ -15,10 +15,6 @@ namespace AetherSenseRedux.Trigger
 
         Task MainLoop();
 
-        static Dictionary<string, dynamic> GetDefaultConfiguration()
-        {
-            return new Dictionary<string, dynamic>();
-        }
     }
     [Serializable]
     public abstract class TriggerConfig
@@ -26,7 +22,6 @@ namespace AetherSenseRedux.Trigger
         public abstract string Type { get; }
         public abstract string Name { get; set; }
         public List<string> EnabledDevices { get; set; } = new List<string>();
-        public string Pattern { get; set; } = "";
         public dynamic PatternSettings { get; set; } = null!;
     }
 }

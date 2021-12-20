@@ -191,7 +191,6 @@ namespace AetherSenseRedux
                             List<dynamic> triggers = WorkingCopy.Triggers;
                             triggers.Add(new ChatTriggerConfig()
                             {
-                                Pattern = "Constant",
                                 PatternSettings = new ConstantPatternConfig()
                             });
                         }
