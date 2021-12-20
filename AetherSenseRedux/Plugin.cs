@@ -325,8 +325,11 @@ namespace AetherSenseRedux
         /// </summary>
         public void Restart()
         {
-            DestroyTriggers();
-            InitTriggers();
+            if (Running)
+            {
+                DestroyTriggers();
+                InitTriggers();
+            }
         }
 
         /// <summary>
