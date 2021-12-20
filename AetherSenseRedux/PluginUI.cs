@@ -380,7 +380,7 @@ namespace AetherSenseRedux
                 
                 if (ImGui.BeginTabItem("Pattern"))
                 {
-                    string[] patterns = { "Constant", "Ramp", "Random", "Square"};
+                    string[] patterns = { "Constant", "Ramp", "Random", "Square", "Saw"};
 
                     //begin pattern selection
                     if (ImGui.BeginCombo("##combo",t.PatternSettings.Type))
@@ -428,6 +428,9 @@ namespace AetherSenseRedux
                             break;
                         case "Ramp":
                             DrawRampPatternSettings(t.PatternSettings);
+                            break;
+                        case "Saw":
+                            DrawSawPatternSettings(t.PatternSettings);
                             break;
                         case "Random":
                             DrawRandomPatternSettings(t.PatternSettings);
