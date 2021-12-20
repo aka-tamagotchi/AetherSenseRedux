@@ -16,13 +16,7 @@ namespace AetherSenseRedux
         private Configuration configuration;
         private Plugin plugin;
 
-        // this extra bool exists for ImGui, since you can't ref a property
-        private bool visible = false;
-        public bool Visible
-        {
-            get { return visible; }
-            set { visible = value; }
-        }
+        // this extra bool exists for ImGui, since you can't ref a property but you can ref a field
 
         private bool settingsVisible = false;
         public bool SettingsVisible
@@ -31,8 +25,10 @@ namespace AetherSenseRedux
             set { settingsVisible = value; }
         }
 
+        // C# doesn't have static variables so we fake it by making values that need to be static into fields
         private int SelectedTrigger = 0;
 
+        // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
         private Configuration? WorkingCopy;
 
         public PluginUI(Configuration configuration, Plugin plugin)
@@ -42,7 +38,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Would dispose of any unmanaged resources if we used any here. Since we don't, we probably don't need this.
         /// </summary>
         public void Dispose()
         {
@@ -50,7 +46,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draw handler for plugin UI
         /// </summary>
         public void Draw()
         {
@@ -65,19 +61,232 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the settings window and does a little housekeeping with the working copy of the config since imgui encourages mixing UI and logic. 
         /// </summary>
-        /// <param name="i"></param>
-        public void DrawChatTriggerConfig(int i)
+        private void DrawSettingsWindow()
         {
-            if (WorkingCopy!.Triggers.Count == 0)
+            if (!SettingsVisible)
             {
-                ImGui.Text("Use the Add New button to add a trigger.");
+
+                // if we aren't drawing the window we don't need a working copy of the configuration
+                if (WorkingCopy != null)
+                {
+                    PluginLog.Debug("Making WorkingCopy null.");
+                    WorkingCopy = null;
+                }
+
                 return;
             }
-            dynamic t = WorkingCopy.Triggers[i];
+
+            // we can only get here if we know we're going to draw the settings window, so let's get our working copy back
+
+            if (WorkingCopy == null)
+            {
+                PluginLog.Debug("WorkingCopy was null, importing current config.");
+                WorkingCopy = new Configuration();
+                WorkingCopy.Import(configuration);
+            }
+
+            ////
+            ////    SETTINGS WINDOW
+            ////
+            ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
+            if (ImGui.Begin("AetherSense Redux", ref settingsVisible, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar))
+            {
+
+                ////
+                ////    MENU BAR
+                ////
+                if (ImGui.BeginMenuBar())
+                {
+                    if (ImGui.BeginMenu("File"))
+                    {
+                        ImGui.Selectable("Import...", false, ImGuiSelectableFlags.Disabled);
+                        ImGui.Selectable("Export...", false, ImGuiSelectableFlags.Disabled);
+                        ImGui.EndMenu();
+                    }
+                    ImGui.EndMenuBar();
+                }
+
+                ////
+                ////    BODY
+                ////
+                ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
+                
+                ImGui.Indent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+
+                if (ImGui.BeginTabBar("MyTabBar", ImGuiTabBarFlags.None))
+                {
+                    if (ImGui.BeginTabItem("Intiface"))
+                    {
+                        var address = WorkingCopy.Address;
+                        if (ImGui.InputText("Intiface Address", ref address, 64))
+                        {
+                            WorkingCopy.Address = address;
+                        }
+                        ImGui.SameLine();
+                        if (plugin.Running)
+                        {
+                            if (ImGui.Button("Disconnect"))
+                            {
+                                plugin.Stop();
+                            }
+                        }
+                        else
+                        {
+                            if (ImGui.Button("Connect"))
+                            {
+                                configuration.Address = WorkingCopy.Address;
+                                plugin.Start();
+                            }
+                        }
+                        ImGui.Spacing();
+                        ImGui.BeginChild("status", new Vector2(0, 0), true);
+
+                        ImGui.EndChild();
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Triggers"))
+                    {
+                        var listToRemove = new List<dynamic>();
+                        if (SelectedTrigger >= WorkingCopy.Triggers.Count)
+                        {
+                            SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
+                        }
+                        ImGui.BeginChild("left", new Vector2(150, -ImGui.GetFrameHeightWithSpacing()), true);
+                            
+                        foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
+                        {
+                            ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
+                            if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
+                            {
+                                SelectedTrigger = i;
+                            }
+                            ImGui.PopID();
+                        }
+
+                        ImGui.EndChild();
+                            
+                        ImGui.SameLine();
+                            
+                        ImGui.BeginChild("right", new Vector2(0, -(ImGui.GetFrameHeightWithSpacing() * 2)), false);
+
+                        if (WorkingCopy!.Triggers.Count == 0)
+                        {
+                            ImGui.Text("Use the Add New button to add a trigger.");
+
+                        } 
+                        else
+                        {
+                            DrawChatTriggerConfig(WorkingCopy.Triggers[SelectedTrigger]);
+                        }
+                            
+                        ImGui.EndChild();
+                            
+
+
+
+                        if (ImGui.Button("Add New"))
+                        {
+                            List<dynamic> triggers = WorkingCopy.Triggers;
+                            triggers.Add(new ChatTriggerConfig()
+                            {
+                                Pattern = "Constant",
+                                PatternSettings = new ConstantPatternConfig()
+                            });
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.Button("Remove"))
+                        {
+                            WorkingCopy.Triggers.RemoveAt(SelectedTrigger);
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Advanced"))
+                    {
+                        var configValue = WorkingCopy.LogChat;
+                        if (ImGui.Checkbox("Log Chat to Debug", ref configValue))
+                        {
+                            WorkingCopy.LogChat = configValue;
+
+                        }
+                        if (ImGui.Button("Restore Default Triggers"))
+                        {
+                            WorkingCopy.LoadDefaults();
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    ImGui.EndTabBar();
+                }
+
+                ImGui.Unindent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+
+                ImGui.EndChild();
+                
+                ////
+                ////    FOOTER
+                ////
+                // save button
+                if (ImGui.Button("Save"))
+                {
+                    configuration.Import(WorkingCopy);
+                    configuration.Save();
+                    plugin.Restart();
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Save configuration changes to disk.");
+                }
+                // end save button
+                ImGui.SameLine();
+                // apply button
+                if (ImGui.Button("Apply"))
+                {
+                    configuration.Import(WorkingCopy);
+                    plugin.Restart();
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Apply configuration changes without saving.");
+                }
+                // end apply button
+                ImGui.SameLine();
+                // revert button
+                if (ImGui.Button("Revert"))
+                {
+                    try
+                    {
+                        var cloneconfig = configuration.CloneConfigurationFromDisk();
+                        configuration.Import(cloneconfig);
+                        WorkingCopy.Import(configuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        PluginLog.Error(ex, "Could not restore configuration.");
+                    }
+
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
+                }
+                // end revert button
+            }
+
+            ImGui.End();
+        }
+
+
+        /// <summary>
+        /// Draws the configuration interface for chat triggers
+        /// </summary>
+        /// <param name="t">A ChatTriggerConfig object containing the current configuration for the trigger.</param>
+        private void DrawChatTriggerConfig(dynamic t)
+        {
             if (ImGui.BeginTabBar("TriggerConfig", ImGuiTabBarFlags.None))
             {
+                
+                
                 if (ImGui.BeginTabItem("Basic"))
                 {
 
@@ -107,10 +316,13 @@ namespace AetherSenseRedux
 
                     ImGui.EndTabItem();
                 }
+
+                
                 if (ImGui.BeginTabItem("Devices"))
                 {
+                    
                     //Begin enabled devices selection
-                    WorkingCopy.SeenDevices = new List<string>(configuration.SeenDevices);
+                    WorkingCopy!.SeenDevices = new List<string>(configuration.SeenDevices);
                     if (WorkingCopy.SeenDevices.Count > 0)
                     {
                         bool[] selected = new bool[WorkingCopy.SeenDevices.Count];
@@ -155,12 +367,22 @@ namespace AetherSenseRedux
                         ImGui.Text("Connect to Intiface and connect devices to populate the list.");
                     }
                     //end enabled devices selection
+                    
                     ImGui.EndTabItem();
                 }
+                
+                
+                if (ImGui.BeginTabItem("Filters"))
+                {
+                    ImGui.EndTabItem();
+                }
+                
+                
                 if (ImGui.BeginTabItem("Pattern"))
                 {
                     string[] patterns = { "Constant", "Ramp", "Random", "Square"};
 
+                    //begin pattern selection
                     if (ImGui.BeginCombo("##combo",t.PatternSettings.Type))
                     {
                         foreach (string pattern in patterns)
@@ -181,7 +403,11 @@ namespace AetherSenseRedux
                         }
                         ImGui.EndCombo();
                     }
+                    //end pattern selection
+
                     ImGui.SameLine();
+                    
+                    //begin test button
                     if (ImGui.ArrowButton("test", ImGuiDir.Right))
                     {
                         plugin.DoPatternTest(t.PatternSettings);
@@ -190,7 +416,11 @@ namespace AetherSenseRedux
                     {
                         ImGui.SetTooltip("Preview pattern on all devices.");
                     }
+                    //end test button
+
                     ImGui.Indent();
+                    
+                    //begin pattern settings
                     switch ((string)t.PatternSettings.Type)
                     {
                         case "Constant":
@@ -206,13 +436,17 @@ namespace AetherSenseRedux
                             DrawSquarePatternSettings(t.PatternSettings);
                             break;
                         default:
+                            //we should never get here but just in case
                             ImGui.Text("Select a valid pattern.");
                             break;
                     }
+                    //end pattern settings
+                    
                     ImGui.Unindent();
 
                     ImGui.EndTabItem();
                 }
+                
                 
                 ImGui.EndTabBar();
             }
@@ -221,8 +455,8 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="pattern"></param>
-        public void DrawConstantPatternSettings(dynamic pattern)
+        /// <param name="pattern">A ConstantPatternConfig object containing the current configuration for the pattern.</param>
+        private void DrawConstantPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -237,10 +471,10 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for constant patterns
         /// </summary>
-        /// <param name="pattern"></param>
-        public void DrawRampPatternSettings(dynamic pattern)
+        /// <param name="pattern">A RampPatternConfig object containing the current configuration for the pattern.</param>
+        private void DrawRampPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -260,10 +494,10 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for random patterns
         /// </summary>
-        /// <param name="pattern"></param>
-        public void DrawRandomPatternSettings(dynamic pattern)
+        /// <param name="pattern">A RandomPatternConfig object containing the current configuration for the pattern.</param>
+        private void DrawRandomPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -283,10 +517,10 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for square patterns
         /// </summary>
-        /// <param name="pattern"></param>
-        public void DrawSquarePatternSettings(dynamic pattern)
+        /// <param name="pattern">A SquarePatternConfig object containing the current configuration for the pattern.</param>
+        private void DrawSquarePatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -318,173 +552,6 @@ namespace AetherSenseRedux
             {
                 pattern.Offset = (long)offset;
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void DrawSettingsWindow()
-        {
-            if (!SettingsVisible)
-            {
-
-                if (WorkingCopy != null)
-                {
-                    PluginLog.Debug("Making WorkingCopy null.");
-                    WorkingCopy = null;
-                }
-                return;
-            }
-
-            ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
-            if (ImGui.Begin("AetherSense Redux", ref settingsVisible, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar))
-            {
-                if (WorkingCopy == null)
-                {
-                    PluginLog.Debug("WorkingCopy was null, importing current config.");
-                    WorkingCopy = new Configuration();
-                    WorkingCopy.Import(configuration);
-                }
-                if (ImGui.BeginMenuBar())
-                {
-                    if (ImGui.BeginMenu("Buttplug"))
-                    {
-                        if (plugin.Running)
-                        {
-                            if (ImGui.MenuItem("Disconnect")){
-                                plugin.Stop();
-                            }
-                        } else
-                        {
-                            if (ImGui.MenuItem("Connect")){
-                                plugin.Start();
-                            }
-                        }
-                        ImGui.EndMenu();
-                    }
-                    ImGui.EndMenuBar();
-                }
-                if (ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false))
-                {
-                    ImGui.Indent(1);
-                    if (ImGui.BeginTabBar("MyTabBar", ImGuiTabBarFlags.None))
-                    {
-                        if (ImGui.BeginTabItem("Basic"))
-                        {
-                            var address = WorkingCopy.Address;
-                            if (ImGui.InputText("Intiface Address", ref address, 64))
-                            {
-                                WorkingCopy.Address = address;
-                            }
-
-
-                            ImGui.EndTabItem();
-                        }
-                        if (ImGui.BeginTabItem("Triggers"))
-                        {
-                            var listToRemove = new List<dynamic>();
-                            if (SelectedTrigger >= WorkingCopy.Triggers.Count)
-                            {
-                                SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
-                            }
-                            if (ImGui.BeginChild("left", new Vector2(150, -ImGui.GetFrameHeightWithSpacing()), true))
-                            {
-                                foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
-                                {
-                                    ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
-                                    if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
-                                    {
-                                        SelectedTrigger = i;
-                                    }
-                                    ImGui.PopID();
-                                }
-                                ImGui.EndChild();
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.BeginChild("right", new Vector2(0, -(ImGui.GetFrameHeightWithSpacing()*2)), false))
-                            {
-                                DrawChatTriggerConfig(SelectedTrigger);
-                                ImGui.EndChild();
-                            }
-
-
-
-                            if (ImGui.Button("Add New"))
-                            {
-                                List<dynamic> triggers = WorkingCopy.Triggers;
-                                triggers.Add(new ChatTriggerConfig()
-                                {
-                                    Pattern = "Constant",
-                                    PatternSettings = new ConstantPatternConfig()
-                                });
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("Remove"))
-                            {
-                                WorkingCopy.Triggers.RemoveAt(SelectedTrigger);
-                            }
-                            ImGui.EndTabItem();
-                        }
-                        if (ImGui.BeginTabItem("Advanced"))
-                        {
-                            var configValue = WorkingCopy.LogChat;
-                            if (ImGui.Checkbox("Log Chat to Debug", ref configValue))
-                            {
-                                WorkingCopy.LogChat = configValue;
-
-                            }
-                            if (ImGui.Button("Restore Default Triggers"))
-                            {
-                                WorkingCopy.LoadDefaults();
-                            }
-                            ImGui.EndTabItem();
-                        }
-                        ImGui.EndTabBar();
-                    }
-                    ImGui.Unindent(1);
-                    ImGui.EndChild();
-                }
-                if (ImGui.Button("Save"))
-                {
-                    configuration.Import(WorkingCopy);
-                    configuration.Save();
-                    plugin.Restart();
-                }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.SetTooltip("Save configuration changes to disk.");
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Apply"))
-                {
-                    configuration.Import(WorkingCopy);
-                    plugin.Restart();
-                }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.SetTooltip("Apply configuration changes without saving.");
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Revert"))
-                {
-                    try
-                    {
-                        var cloneconfig = configuration.CloneConfigurationFromDisk();
-                        configuration.Import(cloneconfig);
-                        WorkingCopy.Import(configuration);
-                    } catch (Exception ex)
-                    {
-                        PluginLog.Error(ex, "Could not restore configuration.");
-                    }
-
-                }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
-                }
-            }
-
-            ImGui.End();
         }
     }
 }
