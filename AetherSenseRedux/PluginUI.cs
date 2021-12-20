@@ -17,12 +17,6 @@ namespace AetherSenseRedux
         private Plugin plugin;
 
         // this extra bool exists for ImGui, since you can't ref a property
-        private bool visible = false;
-        public bool Visible
-        {
-            get { return visible; }
-            set { visible = value; }
-        }
 
         private bool settingsVisible = false;
         public bool SettingsVisible
@@ -31,8 +25,10 @@ namespace AetherSenseRedux
             set { settingsVisible = value; }
         }
 
+        // C# doesn't have static variables so we fake it by making values that need to be static into properties.
         private int SelectedTrigger = 0;
 
+        // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
         private Configuration? WorkingCopy;
 
         public PluginUI(Configuration configuration, Plugin plugin)
@@ -67,7 +63,7 @@ namespace AetherSenseRedux
         /// <summary>
         /// Draws the settings window and does a little housekeeping with the working copy of the config since imgui encourages mixing UI and logic. 
         /// </summary>
-        public void DrawSettingsWindow()
+        private void DrawSettingsWindow()
         {
             if (!SettingsVisible)
             {
@@ -285,7 +281,7 @@ namespace AetherSenseRedux
         /// Draws the configuration interface for chat triggers
         /// </summary>
         /// <param name="t">A ChatTriggerConfig object containing the current configuration for the trigger.</param>
-        public void DrawChatTriggerConfig(dynamic t)
+        private void DrawChatTriggerConfig(dynamic t)
         {
             if (ImGui.BeginTabBar("TriggerConfig", ImGuiTabBarFlags.None))
             {
@@ -460,7 +456,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <param name="pattern">A ConstantPatternConfig object containing the current configuration for the pattern.</param>
-        public void DrawConstantPatternSettings(dynamic pattern)
+        private void DrawConstantPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -478,7 +474,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <param name="pattern">A RampPatternConfig object containing the current configuration for the pattern.</param>
-        public void DrawRampPatternSettings(dynamic pattern)
+        private void DrawRampPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -501,7 +497,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <param name="pattern">A RandomPatternConfig object containing the current configuration for the pattern.</param>
-        public void DrawRandomPatternSettings(dynamic pattern)
+        private void DrawRandomPatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
@@ -524,7 +520,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <param name="pattern">A SquarePatternConfig object containing the current configuration for the pattern.</param>
-        public void DrawSquarePatternSettings(dynamic pattern)
+        private void DrawSquarePatternSettings(dynamic pattern)
         {
             int duration = (int)pattern.Duration;
             if (ImGui.InputInt("Duration (ms)", ref duration))
