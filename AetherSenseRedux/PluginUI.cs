@@ -391,7 +391,6 @@ namespace AetherSenseRedux
                             {
                                 if (t.PatternSettings.Type != pattern)
                                 {
-                                    t.Pattern = pattern;
                                     t.PatternSettings = PatternFactory.GetDefaultsFromString(pattern);
                                 }
                             }
