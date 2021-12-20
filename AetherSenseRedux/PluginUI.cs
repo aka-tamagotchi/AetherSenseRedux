@@ -65,30 +65,42 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// 
+        /// Draws the settings window and does a little housekeeping with the working copy of the config since imgui encourages mixing UI and logic. 
         /// </summary>
         public void DrawSettingsWindow()
         {
             if (!SettingsVisible)
             {
 
+                // if we aren't drawing the window we don't need a working copy of the configuration
                 if (WorkingCopy != null)
                 {
                     PluginLog.Debug("Making WorkingCopy null.");
                     WorkingCopy = null;
                 }
+
                 return;
             }
 
+            // we can only get here if we know we're going to draw the settings window, so let's get our working copy back
+
+            if (WorkingCopy == null)
+            {
+                PluginLog.Debug("WorkingCopy was null, importing current config.");
+                WorkingCopy = new Configuration();
+                WorkingCopy.Import(configuration);
+            }
+
+            ////
+            ////    SETTINGS WINDOW
+            ////
             ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
             if (ImGui.Begin("AetherSense Redux", ref settingsVisible, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar))
             {
-                if (WorkingCopy == null)
-                {
-                    PluginLog.Debug("WorkingCopy was null, importing current config.");
-                    WorkingCopy = new Configuration();
-                    WorkingCopy.Import(configuration);
-                }
+
+                ////
+                ////    MENU BAR
+                ////
                 if (ImGui.BeginMenuBar())
                 {
                     if (ImGui.BeginMenu("File"))
@@ -99,115 +111,126 @@ namespace AetherSenseRedux
                     }
                     ImGui.EndMenuBar();
                 }
-                if (ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false))
+
+                ////
+                ////    BODY
+                ////
+                ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
+                
+                ImGui.Indent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+
+                if (ImGui.BeginTabBar("MyTabBar", ImGuiTabBarFlags.None))
                 {
-                    ImGui.Indent(1);
-                    if (ImGui.BeginTabBar("MyTabBar", ImGuiTabBarFlags.None))
+                    if (ImGui.BeginTabItem("Intiface"))
                     {
-                        if (ImGui.BeginTabItem("Basic"))
+                        var address = WorkingCopy.Address;
+                        if (ImGui.InputText("Intiface Address", ref address, 64))
                         {
-                            var address = WorkingCopy.Address;
-                            if (ImGui.InputText("Intiface Address", ref address, 64))
-                            {
-                                WorkingCopy.Address = address;
-                            }
-                            ImGui.SameLine();
-                            if (plugin.Running)
-                            {
-                                if (ImGui.Button("Disconnect"))
-                                {
-                                    plugin.Stop();
-                                }
-                            }
-                            else
-                            {
-                                if (ImGui.Button("Connect"))
-                                {
-                                    configuration.Address = WorkingCopy.Address;
-                                    plugin.Start();
-                                }
-                            }
-                            ImGui.Spacing();
-                            ImGui.BeginChild("status", new Vector2(0, 0), true);
-
-                            ImGui.EndChild();
-                            ImGui.EndTabItem();
+                            WorkingCopy.Address = address;
                         }
-                        if (ImGui.BeginTabItem("Triggers"))
+                        ImGui.SameLine();
+                        if (plugin.Running)
                         {
-                            var listToRemove = new List<dynamic>();
-                            if (SelectedTrigger >= WorkingCopy.Triggers.Count)
+                            if (ImGui.Button("Disconnect"))
                             {
-                                SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
+                                plugin.Stop();
                             }
-                            ImGui.BeginChild("left", new Vector2(150, -ImGui.GetFrameHeightWithSpacing()), true);
-                            
-                            foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
-                            {
-                                ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
-                                if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
-                                {
-                                    SelectedTrigger = i;
-                                }
-                                ImGui.PopID();
-                            }
-
-                            ImGui.EndChild();
-                            
-                            ImGui.SameLine();
-                            
-                            ImGui.BeginChild("right", new Vector2(0, -(ImGui.GetFrameHeightWithSpacing() * 2)), false);
-
-                            if (WorkingCopy!.Triggers.Count == 0)
-                            {
-                                ImGui.Text("Use the Add New button to add a trigger.");
-
-                            } 
-                            else
-                            {
-                                DrawChatTriggerConfig(WorkingCopy.Triggers[SelectedTrigger]);
-                            }
-                            
-                            ImGui.EndChild();
-                            
-
-
-
-                            if (ImGui.Button("Add New"))
-                            {
-                                List<dynamic> triggers = WorkingCopy.Triggers;
-                                triggers.Add(new ChatTriggerConfig()
-                                {
-                                    Pattern = "Constant",
-                                    PatternSettings = new ConstantPatternConfig()
-                                });
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("Remove"))
-                            {
-                                WorkingCopy.Triggers.RemoveAt(SelectedTrigger);
-                            }
-                            ImGui.EndTabItem();
                         }
-                        if (ImGui.BeginTabItem("Advanced"))
+                        else
                         {
-                            var configValue = WorkingCopy.LogChat;
-                            if (ImGui.Checkbox("Log Chat to Debug", ref configValue))
+                            if (ImGui.Button("Connect"))
                             {
-                                WorkingCopy.LogChat = configValue;
-
+                                configuration.Address = WorkingCopy.Address;
+                                plugin.Start();
                             }
-                            if (ImGui.Button("Restore Default Triggers"))
-                            {
-                                WorkingCopy.LoadDefaults();
-                            }
-                            ImGui.EndTabItem();
                         }
-                        ImGui.EndTabBar();
+                        ImGui.Spacing();
+                        ImGui.BeginChild("status", new Vector2(0, 0), true);
+
+                        ImGui.EndChild();
+                        ImGui.EndTabItem();
                     }
-                    ImGui.Unindent(1);
-                    ImGui.EndChild();
+                    if (ImGui.BeginTabItem("Triggers"))
+                    {
+                        var listToRemove = new List<dynamic>();
+                        if (SelectedTrigger >= WorkingCopy.Triggers.Count)
+                        {
+                            SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
+                        }
+                        ImGui.BeginChild("left", new Vector2(150, -ImGui.GetFrameHeightWithSpacing()), true);
+                            
+                        foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
+                        {
+                            ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
+                            if (ImGui.Selectable(String.Format("{0} ({1})", t.Name, t.Type), SelectedTrigger == i))
+                            {
+                                SelectedTrigger = i;
+                            }
+                            ImGui.PopID();
+                        }
+
+                        ImGui.EndChild();
+                            
+                        ImGui.SameLine();
+                            
+                        ImGui.BeginChild("right", new Vector2(0, -(ImGui.GetFrameHeightWithSpacing() * 2)), false);
+
+                        if (WorkingCopy!.Triggers.Count == 0)
+                        {
+                            ImGui.Text("Use the Add New button to add a trigger.");
+
+                        } 
+                        else
+                        {
+                            DrawChatTriggerConfig(WorkingCopy.Triggers[SelectedTrigger]);
+                        }
+                            
+                        ImGui.EndChild();
+                            
+
+
+
+                        if (ImGui.Button("Add New"))
+                        {
+                            List<dynamic> triggers = WorkingCopy.Triggers;
+                            triggers.Add(new ChatTriggerConfig()
+                            {
+                                Pattern = "Constant",
+                                PatternSettings = new ConstantPatternConfig()
+                            });
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.Button("Remove"))
+                        {
+                            WorkingCopy.Triggers.RemoveAt(SelectedTrigger);
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    if (ImGui.BeginTabItem("Advanced"))
+                    {
+                        var configValue = WorkingCopy.LogChat;
+                        if (ImGui.Checkbox("Log Chat to Debug", ref configValue))
+                        {
+                            WorkingCopy.LogChat = configValue;
+
+                        }
+                        if (ImGui.Button("Restore Default Triggers"))
+                        {
+                            WorkingCopy.LoadDefaults();
+                        }
+                        ImGui.EndTabItem();
+                    }
+                    ImGui.EndTabBar();
                 }
+
+                ImGui.Unindent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+
+                ImGui.EndChild();
+                
+                ////
+                ////    FOOTER
+                ////
+                // save button
                 if (ImGui.Button("Save"))
                 {
                     configuration.Import(WorkingCopy);
@@ -218,7 +241,9 @@ namespace AetherSenseRedux
                 {
                     ImGui.SetTooltip("Save configuration changes to disk.");
                 }
+                // end save button
                 ImGui.SameLine();
+                // apply button
                 if (ImGui.Button("Apply"))
                 {
                     configuration.Import(WorkingCopy);
@@ -228,7 +253,9 @@ namespace AetherSenseRedux
                 {
                     ImGui.SetTooltip("Apply configuration changes without saving.");
                 }
+                // end apply button
                 ImGui.SameLine();
+                // revert button
                 if (ImGui.Button("Revert"))
                 {
                     try
@@ -247,6 +274,7 @@ namespace AetherSenseRedux
                 {
                     ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
                 }
+                // end revert button
             }
 
             ImGui.End();
@@ -254,13 +282,15 @@ namespace AetherSenseRedux
 
 
         /// <summary>
-        /// 
+        /// Draws the configuration interface for chat triggers
         /// </summary>
-        /// <param name="i"></param>
+        /// <param name="t">A ChatTriggerConfig object containing the current configuration for the trigger.</param>
         public void DrawChatTriggerConfig(dynamic t)
         {
             if (ImGui.BeginTabBar("TriggerConfig", ImGuiTabBarFlags.None))
             {
+                
+                
                 if (ImGui.BeginTabItem("Basic"))
                 {
 
@@ -290,8 +320,11 @@ namespace AetherSenseRedux
 
                     ImGui.EndTabItem();
                 }
+
+                
                 if (ImGui.BeginTabItem("Devices"))
                 {
+                    
                     //Begin enabled devices selection
                     WorkingCopy!.SeenDevices = new List<string>(configuration.SeenDevices);
                     if (WorkingCopy.SeenDevices.Count > 0)
@@ -338,16 +371,22 @@ namespace AetherSenseRedux
                         ImGui.Text("Connect to Intiface and connect devices to populate the list.");
                     }
                     //end enabled devices selection
+                    
                     ImGui.EndTabItem();
                 }
+                
+                
                 if (ImGui.BeginTabItem("Filters"))
                 {
                     ImGui.EndTabItem();
                 }
+                
+                
                 if (ImGui.BeginTabItem("Pattern"))
                 {
                     string[] patterns = { "Constant", "Ramp", "Random", "Square"};
 
+                    //begin pattern selection
                     if (ImGui.BeginCombo("##combo",t.PatternSettings.Type))
                     {
                         foreach (string pattern in patterns)
@@ -368,7 +407,11 @@ namespace AetherSenseRedux
                         }
                         ImGui.EndCombo();
                     }
+                    //end pattern selection
+
                     ImGui.SameLine();
+                    
+                    //begin test button
                     if (ImGui.ArrowButton("test", ImGuiDir.Right))
                     {
                         plugin.DoPatternTest(t.PatternSettings);
@@ -377,7 +420,11 @@ namespace AetherSenseRedux
                     {
                         ImGui.SetTooltip("Preview pattern on all devices.");
                     }
+                    //end test button
+
                     ImGui.Indent();
+                    
+                    //begin pattern settings
                     switch ((string)t.PatternSettings.Type)
                     {
                         case "Constant":
@@ -393,13 +440,17 @@ namespace AetherSenseRedux
                             DrawSquarePatternSettings(t.PatternSettings);
                             break;
                         default:
+                            //we should never get here but just in case
                             ImGui.Text("Select a valid pattern.");
                             break;
                     }
+                    //end pattern settings
+                    
                     ImGui.Unindent();
 
                     ImGui.EndTabItem();
                 }
+                
                 
                 ImGui.EndTabBar();
             }
