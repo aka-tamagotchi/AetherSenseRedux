@@ -24,11 +24,18 @@ namespace AetherSenseRedux
             _active = true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Start()
         {
             Task.Run(MainLoop).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task MainLoop()
         {
             while (_active)
@@ -38,6 +45,9 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Stop()
         {
             _active = false;
@@ -47,6 +57,9 @@ namespace AetherSenseRedux
             t.Wait();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void OnTick()
         {
             List<double> intensities = new();
@@ -80,6 +93,10 @@ namespace AetherSenseRedux
             Write(intensity);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="intensity"></param>
         private void Write(double intensity)
         {
             // clamp intensity before comparing to reduce unnecessary writes to device
@@ -105,6 +122,13 @@ namespace AetherSenseRedux
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
         private static double Clamp(double value, double min, double max)
         {
             return (value < min) ? min : (value > max) ? max : value;

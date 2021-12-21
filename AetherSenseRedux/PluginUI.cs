@@ -316,7 +316,9 @@ namespace AetherSenseRedux
                     ImGui.EndTabItem();
                 }
 
-                
+                ////
+                ////    DEVICES TAB
+                ////
                 if (ImGui.BeginTabItem("Devices"))
                 {
                     
@@ -370,13 +372,17 @@ namespace AetherSenseRedux
                     ImGui.EndTabItem();
                 }
                 
-                
+                ////
+                ////    FILTERS TAB
+                ////
                 if (ImGui.BeginTabItem("Filters"))
                 {
                     ImGui.EndTabItem();
                 }
                 
-                
+                ////
+                ////    PATTERN TAB
+                ////
                 if (ImGui.BeginTabItem("Pattern"))
                 {
                     string[] patterns = { "Constant", "Ramp", "Random", "Square", "Saw"};

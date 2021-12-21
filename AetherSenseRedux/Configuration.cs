@@ -23,11 +23,18 @@ namespace AetherSenseRedux
         [NonSerialized]
         private DalamudPluginInterface? pluginInterface;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pluginInterface"></param>
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.pluginInterface = pluginInterface;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void FixDeserialization()
         {
             List<TriggerConfig> triggers = new();
@@ -43,6 +50,9 @@ namespace AetherSenseRedux
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void LoadDefaults()
         {
             Version = 1;
@@ -77,11 +87,18 @@ namespace AetherSenseRedux
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Save()
         {
             pluginInterface!.SavePluginConfig(this);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o"></param>
         public void Import(dynamic o)
         {
             try
@@ -103,6 +120,12 @@ namespace AetherSenseRedux
                 PluginLog.Error(ex, "Attempted to import a bad configuration.");
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
         public Configuration CloneConfigurationFromDisk()
         {
             if (pluginInterface == null)
