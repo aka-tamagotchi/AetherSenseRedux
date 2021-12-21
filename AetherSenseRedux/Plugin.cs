@@ -21,7 +21,25 @@ namespace AetherSenseRedux
     {
         public string Name => "AetherSense Redux";
 
-        public bool Running = false;
+        public bool Connected { 
+            get {
+                if (Buttplug != null)
+                {
+                    return Buttplug.Connected;
+                }
+                return false;
+                } 
+        }
+
+        public bool Initialized
+        {
+            get
+            {
+                return Buttplug != null ? true : false;
+            }
+        }
+
+        public Exception? LastException { get; set; }
 
         private const string commandName = "/asr";
 
@@ -172,14 +190,11 @@ namespace AetherSenseRedux
         /// <param name="patternConfig">A pattern configuration.</param>
         public void DoPatternTest(dynamic patternConfig)
         {
-            if (Buttplug == null)
+            if (!Connected)
             {
                 return;
             }
-            if (!Buttplug.Connected)
-            {
-                return;
-            }
+
             lock (DevicePool) {
                 foreach (var device in this.DevicePool)
                 {
@@ -213,9 +228,9 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void InitButtplug()
+        private async Task InitButtplug()
         {
-            if (Buttplug == null)
+            if (!Initialized)
             {
                 Buttplug = new ButtplugClient("AetherSense Redux");
                 Buttplug.DeviceAdded += OnDeviceAdded;
@@ -223,25 +238,24 @@ namespace AetherSenseRedux
                 Buttplug.ScanningFinished += OnScanComplete;
             }
 
-            if (!Buttplug.Connected)
+            if (!Connected)
             {
                 try
                 {
                     ButtplugWebsocketConnectorOptions wsOptions = new(new Uri(Configuration.Address));
-                    var t = Buttplug.ConnectAsync(wsOptions);
-                    t.Wait();
+                    await Buttplug!.ConnectAsync(wsOptions);
+                    var t = DoScan();
                 }
                 catch (Exception ex)
                 {
-                    PluginLog.Error(ex, "Buttplug failed to connect");
+                    PluginLog.Error(ex, "Buttplug failed to connect.");
                     Stop();
                 }
             }
 
-            if (Buttplug != null)
+            if (Connected)
             {
-                Task.Run(DoScan).ConfigureAwait(false);
-                PluginLog.Debug("Buttplug created.");
+                PluginLog.Debug("Buttplug initialized and connected.");
             }
 
         }
@@ -330,9 +344,8 @@ namespace AetherSenseRedux
         /// </summary>
         public void Start()
         {
-            Running = true;            
             InitTriggers();
-            InitButtplug();
+            Task.Run(InitButtplug);
         }
 
         /// <summary>
@@ -340,7 +353,7 @@ namespace AetherSenseRedux
         /// </summary>
         public void Restart()
         {
-            if (Running)
+            if (Connected)
             {
                 DestroyTriggers();
                 InitTriggers();
@@ -354,8 +367,6 @@ namespace AetherSenseRedux
         {
             DestroyTriggers();
             DestroyButtplug();
-            Running = false;
-
 
         }
         // END START AND STOP FUNCTIONS

@@ -125,7 +125,7 @@ namespace AetherSenseRedux
                             WorkingCopy.Address = address;
                         }
                         ImGui.SameLine();
-                        if (plugin.Running)
+                        if (plugin.Connected)
                         {
                             if (ImGui.Button("Disconnect"))
                             {
@@ -142,6 +142,11 @@ namespace AetherSenseRedux
                         }
                         ImGui.Spacing();
                         ImGui.BeginChild("status", new Vector2(0, 0), true);
+
+                        ImGui.Text("Connection Status:");
+                        ImGui.Indent();
+                        ImGui.Text(plugin.Connected ? "Connected" : "Disconnected");
+                        ImGui.Unindent();
 
                         ImGui.EndChild();
                         ImGui.EndTabItem();
