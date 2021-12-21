@@ -12,7 +12,7 @@ namespace AetherSenseRedux
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 1;
-        public bool Initialized = false;
+        public bool FirstRun = true;
         public bool LogChat { get; set; } = false;
         public string Address { get; set; } = "ws://127.0.0.1:12345";
         public List<string> SeenDevices { get; set; } = new();
@@ -56,7 +56,7 @@ namespace AetherSenseRedux
         public void LoadDefaults()
         {
             Version = 1;
-            Initialized = true;
+            FirstRun = false;
             Triggers = new List<dynamic>() {
                 new ChatTriggerConfig()
                 {
@@ -107,8 +107,7 @@ namespace AetherSenseRedux
                 {
                     return;
                 }
-                Version = o.Version;
-                Initialized = o.Initialized;
+                FirstRun = o.FirstRun;
                 LogChat = o.LogChat;
                 Address = o.Address;
                 SeenDevices = new List<string>(o.SeenDevices);

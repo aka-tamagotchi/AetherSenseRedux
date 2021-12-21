@@ -250,7 +250,7 @@ namespace AetherSenseRedux
                 {
                     configuration.Import(WorkingCopy);
                     configuration.Save();
-                    plugin.Restart();
+                    plugin.Reload();
                 }
                 if (ImGui.IsItemHovered())
                 {
@@ -262,7 +262,7 @@ namespace AetherSenseRedux
                 if (ImGui.Button("Apply"))
                 {
                     configuration.Import(WorkingCopy);
-                    plugin.Restart();
+                    plugin.Reload();
                 }
                 if (ImGui.IsItemHovered())
                 {

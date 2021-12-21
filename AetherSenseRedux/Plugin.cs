@@ -21,6 +21,8 @@ namespace AetherSenseRedux
     {
         public string Name => "AetherSense Redux";
 
+        private const string commandName = "/asr";
+
         public bool Connected { 
             get {
                 if (Buttplug != null)
@@ -50,8 +52,6 @@ namespace AetherSenseRedux
         }
 
         public Exception? LastException { get; set; }
-
-        private const string commandName = "/asr";
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
@@ -85,7 +85,7 @@ namespace AetherSenseRedux
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
             Configuration.FixDeserialization();
-            if (!Configuration.Initialized)
+            if (Configuration.FirstRun)
             {
                 Configuration.LoadDefaults();
             }
@@ -99,7 +99,6 @@ namespace AetherSenseRedux
                 HelpMessage = "Opens the Aether Sense Redux configuration window"
             });
 
-            PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
         }
 
@@ -191,6 +190,17 @@ namespace AetherSenseRedux
                 PluginLog.Debug(chatMessage.ToString());
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="args"></param>
+        private void OnShowUI(string command, string args)
+        {
+            // in response to the slash command, just display our main ui
+            PluginUi.SettingsVisible = true;
+        }
         // END EVENT HANDLERS
 
         // SOME FUNCTIONS THAT DO THINGS
@@ -220,7 +230,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <returns>The task associated with this method.</returns>
-        private async Task DoScan()
+        public async Task DoScan()
         {
             await Task.Delay(1000);
             try
@@ -369,7 +379,7 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        public void Restart()
+        public void Reload()
         {
             if (Connected)
             {
@@ -390,25 +400,6 @@ namespace AetherSenseRedux
         // END START AND STOP FUNCTIONS
 
         // UI FUNCTIONS
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="args"></param>
-        private void OnShowUI(string command, string args)
-        {
-            // in response to the slash command, just display our main ui
-            PluginUi.SettingsVisible = true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void DrawUI()
-        {
-            PluginUi.Draw();
-        }
-
         /// <summary>
         /// 
         /// </summary>
