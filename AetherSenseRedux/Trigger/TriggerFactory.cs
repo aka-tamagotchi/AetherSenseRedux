@@ -37,7 +37,6 @@ namespace AetherSenseRedux.Trigger
                         Regex = (string)o.Regex,
                         RetriggerDelay = (long)o.RetriggerDelay,
                         EnabledDevices = devices,
-                        Pattern = (string)o.Pattern,
                         PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings)
                     };
                 default:

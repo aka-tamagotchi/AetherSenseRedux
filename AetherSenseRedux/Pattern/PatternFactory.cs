@@ -16,6 +16,8 @@ namespace AetherSenseRedux.Pattern
                     return new ConstantPattern((ConstantPatternConfig)settings);
                 case "Ramp":
                     return new RampPattern((RampPatternConfig)settings);
+                case "Saw":
+                    return new SawPattern((SawPatternConfig)settings);
                 case "Random":
                     return new RandomPattern((RandomPatternConfig)settings);
                 case "Square":
@@ -33,6 +35,8 @@ namespace AetherSenseRedux.Pattern
                     return ConstantPattern.GetDefaultConfiguration();
                 case "Ramp":
                     return RampPattern.GetDefaultConfiguration();
+                case "Saw":
+                    return SawPattern.GetDefaultConfiguration();
                 case "Random":
                     return RandomPattern.GetDefaultConfiguration();
                 case "Square":
@@ -58,6 +62,14 @@ namespace AetherSenseRedux.Pattern
                         Duration = (long)o.Duration,
                         Start = (double)o.Start,
                         End = (double)o.End
+                    };
+                case "Saw":
+                    return new SawPatternConfig()
+                    {
+                        Duration = (long)o.Duration,
+                        Start = (double)o.Start,
+                        End = (double)o.End,
+                        Duration1 = (long)o.Duration1
                     };
                 case "Random":
                     return new RandomPatternConfig()

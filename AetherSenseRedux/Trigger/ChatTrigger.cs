@@ -20,7 +20,6 @@ namespace AetherSenseRedux.Trigger
         public string Name { get; init; }
         public List<Device> Devices { get; init; }
         public List<string> EnabledDevices { get; init; }
-        public string Pattern { get; init; }
         public PatternConfig PatternSettings { get; init; }
 
         // ChatTrigger properties
@@ -28,7 +27,6 @@ namespace AetherSenseRedux.Trigger
         public Regex Regex { get; init; }
         public long RetriggerDelay { get; init; }
         private DateTime RetriggerTime { get; set; }
-        private object queueLock = new object();
         private Guid Guid { get; set; }
         
         /// <summary>
@@ -44,7 +42,6 @@ namespace AetherSenseRedux.Trigger
             Name = configuration.Name;
             Devices = devices;
             EnabledDevices = configuration.EnabledDevices;
-            Pattern = configuration.Pattern;
             PatternSettings = PatternFactory.GetPatternConfigFromObject(configuration.PatternSettings);
             Regex = new Regex(configuration.Regex);
             RetriggerDelay = configuration.RetriggerDelay;
@@ -170,22 +167,124 @@ namespace AetherSenseRedux.Trigger
         /// <param name="isHandled"></param>
         public ChatMessage(XivChatType chatType, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
-            ChatType = chatType;
-            SenderId = senderId;
-            Sender = sender;
-            Message = message;
+            ChatType = (uint)chatType & 0x7F;
+            Source = (uint)chatType >> 11;
+            Destination = ((uint)chatType >> 7) & 0xF;
+            FilterString = String.Format("{0:X1}{1:X1}{2:X2}",Source,Destination,ChatType);
+            //SenderId = senderId;
+            Sender = sender.TextValue;
+            Message = message.TextValue;
             IsHandled = isHandled;
         }
 
-        public XivChatType ChatType;
-        public uint SenderId;
-        public SeString Sender;
-        public SeString Message;
+        public uint ChatType;
+        public uint Source;
+        public uint Destination;
+        public string FilterString;
+        //public uint SenderId;
+        public string Sender;
+        public string Message;
         public bool IsHandled;
 
         public override string ToString()
         {
-            return string.Format("{2}: <{0}> {1}", Sender.TextValue, Message.TextValue, ChatType.ToString());
+            return string.Format("{2} <{0}> {1}", Sender, Message, FilterString);
         }
+    }
+
+    enum MessageType : ushort
+    {
+        None = 0,
+        Debug = 1,
+        Urgent = 2,
+        Notice = 3,
+        
+        Say = 10,
+        Shout = 11,
+        TellOutGoing = 12,
+        TellIncoming = 13,
+        Party = 14,
+        Alliance = 15,
+        Ls1 = 16,
+        Ls2 = 17,
+        Ls3 = 18,
+        Ls4 = 19,
+        Ls5 = 20,
+        Ls6 = 21,
+        Ls7 = 22,
+        Ls8 = 23,
+        FreeCompany = 24,
+
+        NoviceNetwork = 27,
+        CustomEmote = 28,
+        StandardEmote = 29,
+        Yell = 30,
+        
+        CrossWorldParty = 32, // not verified
+
+        PvPTeam = 36,
+        Cwls1 = 37,
+
+        AttackHit = 41,
+        AttackMiss = 42,
+        Action = 43,
+        Item = 44,
+        Healing = 45,
+        Buff = 46,
+        Debuff = 47,
+        BuffEnd = 48,
+        DebuffEnd = 49,
+
+        Alarm = 55,
+        Echo = 56,
+        SystemMessage = 57,
+        BattleSystemMessage = 58,
+        GatheringSystemMessage = 59,
+        Error = 60,
+        NPCDialogue = 61,
+        LootNotice = 62,
+
+        ProgressionMessage = 64,
+        LootMessage = 65,
+        SynthesisMessage = 66,
+        GatheringMessage = 67,
+        NPCAnnouncement = 68,
+        FreeCompanyAnnouncement = 69,
+        FreeCompanyLogin = 70,
+        SaleNotification = 71,
+        PartyFinderNotice = 72,
+        SignMessage = 73,
+        RandomNumberMessage = 74,
+        NoviceNetworkNotification = 75,
+        OrchestrionNotification = 76,
+        PvPTeamAnnouncement = 77,
+        PvPLogin = 78,
+        MessageBookAlert = 79,
+        
+        Cwls2 = 101,
+        Cwls3 = 102,
+        Cwls4 = 103,
+        Cwls5 = 104,
+        Cwls6 = 105,
+        Cwls7 = 106,
+        Cwls8 = 107
+        
+
+    }
+
+    enum MessageTarget   : ushort
+    {
+        System = 0x0,
+        You = 0x1,
+        Party = 0x2,
+        Alliance = 0x3,
+        Other = 0x4,
+        EngagedHostile = 0x5,
+        UnengagedHostile = 0x6,
+        FriendlyNPC = 0x7,
+        Pet = 0x8,
+        PartyPet = 0x9,
+        AlliancePet = 0xA,
+        OtherPet = 0xB
     }
 }
