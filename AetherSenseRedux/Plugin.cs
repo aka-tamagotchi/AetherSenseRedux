@@ -85,13 +85,20 @@ namespace AetherSenseRedux
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
             Configuration.FixDeserialization();
+
+            // Update the configuration if it's an older version
+            if (Configuration.Version == 1)
+            {
+                Configuration.Version = 2;
+                Configuration.FirstRun = false;
+                Configuration.Save();
+            }
+            
             if (Configuration.FirstRun)
             {
                 Configuration.LoadDefaults();
             }
 
-            // you might normally want to embed resources and load them from the manifest stream
-            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
             PluginUi = new PluginUI(Configuration, this);
 
             CommandManager.AddHandler(commandName, new CommandInfo(OnShowUI)
