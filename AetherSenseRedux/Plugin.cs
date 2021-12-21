@@ -28,14 +28,12 @@ namespace AetherSenseRedux
                     return Buttplug.Connected;
                 }
                 return false;
-                } 
+            } 
         }
 
-        public bool Initialized
-        {
-            get
-            {
-                return Buttplug != null ? true : false;
+        public bool Initialized {
+            get {
+                return Buttplug != null;
             }
         }
 
