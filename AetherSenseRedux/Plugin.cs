@@ -237,8 +237,13 @@ namespace AetherSenseRedux
                     Stop();
                 }
             }
-            Task.Run(DoScan).ConfigureAwait(false);
-            PluginLog.Debug("Buttplug created.");
+
+            if (Buttplug != null)
+            {
+                Task.Run(DoScan).ConfigureAwait(false);
+                PluginLog.Debug("Buttplug created.");
+            }
+
         }
 
         /// <summary>
