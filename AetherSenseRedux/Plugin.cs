@@ -39,6 +39,18 @@ namespace AetherSenseRedux
             }
         }
 
+        public string[] ConnectedDevices { 
+            get
+            {
+                List<string> result = new();
+                foreach (Device device in DevicePool)
+                {
+                    result.Add(device.Name);
+                }
+                return result.ToArray();
+            } 
+        }
+
         public Exception? LastException { get; set; }
 
         private const string commandName = "/asr";
@@ -249,6 +261,7 @@ namespace AetherSenseRedux
                 catch (Exception ex)
                 {
                     PluginLog.Error(ex, "Buttplug failed to connect.");
+                    LastException = ex;
                     Stop();
                 }
             }
@@ -256,6 +269,7 @@ namespace AetherSenseRedux
             if (Connected)
             {
                 PluginLog.Debug("Buttplug initialized and connected.");
+                LastException = null;
             }
 
         }
@@ -275,21 +289,26 @@ namespace AetherSenseRedux
                 DevicePool.Clear();
             }
 
-            if (Buttplug == null)
+            if (!Initialized)
             {
                 return;
             }
 
-            try {
-                var t = Buttplug.DisconnectAsync();
-                t.Wait(); 
-            }
-            catch (Exception ex)
+            if (Connected)
             {
-                PluginLog.Error(ex, "Buttplug failed to disconnect.");
+                try 
+                {
+                    var t = Buttplug!.DisconnectAsync();
+                    t.Wait(); 
+                }
+                catch (Exception ex)
+                {
+                    PluginLog.Error(ex, "Buttplug failed to disconnect.");
+                }
+
             }
 
-            Buttplug.Dispose();
+            Buttplug!.Dispose();
             Buttplug = null;
             PluginLog.Debug("Buttplug destroyed.");
         }
@@ -308,7 +327,8 @@ namespace AetherSenseRedux
                 if (Trigger.Type == "ChatTrigger")
                 {
                     ChatTriggerPool.Add((ChatTrigger)Trigger);
-                } else
+                } 
+                else
                 {
                     PluginLog.Error("Invalid trigger type {0} created.", Trigger.Type);
                 }

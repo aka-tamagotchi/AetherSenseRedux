@@ -16,8 +16,6 @@ namespace AetherSenseRedux
         private Configuration configuration;
         private Plugin plugin;
 
-        // this extra bool exists for ImGui, since you can't ref a property but you can ref a field
-
         private bool settingsVisible = false;
         public bool SettingsVisible
         {
@@ -25,7 +23,6 @@ namespace AetherSenseRedux
             set { settingsVisible = value; }
         }
 
-        // C# doesn't have static variables so we fake it by making values that need to be static into fields
         private int SelectedTrigger = 0;
 
         // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
@@ -102,7 +99,15 @@ namespace AetherSenseRedux
                     if (ImGui.BeginMenu("File"))
                     {
                         ImGui.Selectable("Import...", false, ImGuiSelectableFlags.Disabled);
+                        if (ImGui.IsItemHovered())
+                        {
+                            ImGui.SetTooltip("NOT IMPLEMENTED");
+                        }
                         ImGui.Selectable("Export...", false, ImGuiSelectableFlags.Disabled);
+                        if (ImGui.IsItemHovered())
+                        {
+                            ImGui.SetTooltip("NOT IMPLEMENTED");
+                        }
                         ImGui.EndMenu();
                     }
                     ImGui.EndMenuBar();
@@ -145,8 +150,18 @@ namespace AetherSenseRedux
 
                         ImGui.Text("Connection Status:");
                         ImGui.Indent();
-                        ImGui.Text(plugin.Connected ? "Connected" : "Disconnected");
+                        ImGui.Text(plugin.Initialized ? plugin.Connected ? "Connected" : "Error" : "Disconnected");
+                        if (plugin.LastException != null)
+                        {
+                            ImGui.Text(plugin.LastException.Message);
+                        }
                         ImGui.Unindent();
+                        ImGui.Text("Devices Connected:");
+                        ImGui.Indent();
+                        foreach (string device in plugin.ConnectedDevices) 
+                        {
+                            ImGui.BulletText(device);
+                        }
 
                         ImGui.EndChild();
                         ImGui.EndTabItem();
