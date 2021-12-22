@@ -64,7 +64,7 @@ namespace AetherSenseRedux
         {
             if (!SettingsVisible)
             {
-
+                
                 // if we aren't drawing the window we don't need a working copy of the configuration
                 if (WorkingCopy != null)
                 {
@@ -98,12 +98,12 @@ namespace AetherSenseRedux
                 {
                     if (ImGui.BeginMenu("File"))
                     {
-                        ImGui.Selectable("Import...", false, ImGuiSelectableFlags.Disabled);
+                        ImGui.MenuItem("Import...", "", false, false);
                         if (ImGui.IsItemHovered())
                         {
                             ImGui.SetTooltip("NOT IMPLEMENTED");
                         }
-                        ImGui.Selectable("Export...", false, ImGuiSelectableFlags.Disabled);
+                        ImGui.MenuItem("Export...", "", false, false);
                         if (ImGui.IsItemHovered())
                         {
                             ImGui.SetTooltip("NOT IMPLEMENTED");
@@ -130,7 +130,7 @@ namespace AetherSenseRedux
                             WorkingCopy.Address = address;
                         }
                         ImGui.SameLine();
-                        if (plugin.Connected)
+                        if (plugin.Status == Plugin.StatusTypes.Connected)
                         {
                             if (ImGui.Button("Disconnect"))
                             {
@@ -150,17 +150,21 @@ namespace AetherSenseRedux
 
                         ImGui.Text("Connection Status:");
                         ImGui.Indent();
-                        ImGui.Text(plugin.Initialized ? plugin.Connected ? "Connected" : "Error" : "Disconnected");
+                        ImGui.Text(plugin.Status == Plugin.StatusTypes.Connected ? "Connected" : plugin.Status == Plugin.StatusTypes.Connecting ? "Connecting..." : plugin.Status == Plugin.StatusTypes.Error ? "Error" : "Disconnected");
                         if (plugin.LastException != null)
                         {
                             ImGui.Text(plugin.LastException.Message);
                         }
                         ImGui.Unindent();
-                        ImGui.Text("Devices Connected:");
-                        ImGui.Indent();
-                        foreach (string device in plugin.ConnectedDevices) 
+                        if (plugin.Status == Plugin.StatusTypes.Connected)
                         {
-                            ImGui.BulletText(device);
+                            ImGui.Text("Devices Connected:");
+                            ImGui.Indent();
+                            foreach (string device in plugin.ConnectedDevices)
+                            {
+                                ImGui.Text(device);
+                            }
+                            ImGui.Unindent();
                         }
 
                         ImGui.EndChild();
