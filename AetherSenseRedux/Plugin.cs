@@ -21,25 +21,67 @@ namespace AetherSenseRedux
     {
         public string Name => "AetherSense Redux";
 
-        public bool Connected { 
+        private const string commandName = "/asr";
+
+        public enum StatusTypes
+        {
+            Uninitialized,
+            Connected,
+            Connecting,
+            Disconnected,
+            Error
+        }
+
+        private StatusTypes _status;
+
+        public StatusTypes Status { get
+            {
+                if (Buttplug != null)
+                {
+                    if (Buttplug.Connected && _status == StatusTypes.Connected)
+                    {
+                        return StatusTypes.Connected;
+                    }
+                    else if (_status == StatusTypes.Connecting)
+                    {
+                        return StatusTypes.Connecting;
+                    }
+                    else if (!Buttplug.Connected && _status == StatusTypes.Connected)
+                    {
+                        return StatusTypes.Error;
+                    }
+                    else if (LastException != null)
+                    {
+                        return StatusTypes.Error;
+                    }
+                    else
+                    {
+                        return StatusTypes.Disconnected;
+                    }
+                } else
+                {
+                    return StatusTypes.Uninitialized;
+                }
+            }
+        }
+
+        private bool Connected { 
             get {
                 if (Buttplug != null)
                 {
                     return Buttplug.Connected;
                 }
                 return false;
-                } 
+            } 
         }
 
-        public bool Initialized
-        {
-            get
-            {
-                return Buttplug != null ? true : false;
+        private bool Initialized {
+            get {
+                return Buttplug != null;
             }
         }
 
-        public string[] ConnectedDevices { 
+        public List<string> ConnectedDevices { 
             get
             {
                 List<string> result = new();
@@ -47,14 +89,11 @@ namespace AetherSenseRedux
                 {
                     result.Add(device.Name);
                 }
-                return result.ToArray();
+                return result;
             } 
         }
 
         public Exception? LastException { get; set; }
-
-        private const string commandName = "/asr";
-
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         private Configuration Configuration { get; set; }
@@ -87,13 +126,22 @@ namespace AetherSenseRedux
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
             Configuration.FixDeserialization();
-            if (!Configuration.Initialized)
+
+            _status = StatusTypes.Disconnected;
+
+            // Update the configuration if it's an older version
+            if (Configuration.Version == 1)
+            {
+                Configuration.Version = 2;
+                Configuration.FirstRun = false;
+                Configuration.Save();
+            }
+            
+            if (Configuration.FirstRun)
             {
                 Configuration.LoadDefaults();
             }
 
-            // you might normally want to embed resources and load them from the manifest stream
-            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
             PluginUi = new PluginUI(Configuration, this);
 
             CommandManager.AddHandler(commandName, new CommandInfo(OnShowUI)
@@ -101,7 +149,7 @@ namespace AetherSenseRedux
                 HelpMessage = "Opens the Aether Sense Redux configuration window"
             });
 
-            PluginInterface.UiBuilder.Draw += DrawUI;
+            this.PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
         }
 
@@ -181,6 +229,25 @@ namespace AetherSenseRedux
             Task.Run(DoScan).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnServerDisconnect(object? sender, EventArgs e)
+        {
+            PluginLog.Debug("Server Disconnected");
+            DevicePool.Clear();
+            _status = StatusTypes.Disconnected;
+            Buttplug!.Dispose();
+            Buttplug = null;
+
+            if (ChatTriggerPool.Count > 0)
+            {
+                DestroyTriggers();
+            }
+        }
+
         private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
             ChatMessage chatMessage = new(type, senderId, ref sender, ref message, ref isHandled);
@@ -193,6 +260,17 @@ namespace AetherSenseRedux
                 PluginLog.Debug(chatMessage.ToString());
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="args"></param>
+        private void OnShowUI(string command, string args)
+        {
+            // in response to the slash command, just display our main ui
+            PluginUi.SettingsVisible = true;
+        }
         // END EVENT HANDLERS
 
         // SOME FUNCTIONS THAT DO THINGS
@@ -202,7 +280,7 @@ namespace AetherSenseRedux
         /// <param name="patternConfig">A pattern configuration.</param>
         public void DoPatternTest(dynamic patternConfig)
         {
-            if (!Connected)
+            if (Status != StatusTypes.Connected)
             {
                 return;
             }
@@ -222,7 +300,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <returns>The task associated with this method.</returns>
-        private async Task DoScan()
+        public async Task DoScan()
         {
             await Task.Delay(1000);
             try
@@ -242,12 +320,15 @@ namespace AetherSenseRedux
         /// </summary>
         private async Task InitButtplug()
         {
+            LastException = null;
+            _status = StatusTypes.Connecting;
             if (!Initialized)
             {
                 Buttplug = new ButtplugClient("AetherSense Redux");
                 Buttplug.DeviceAdded += OnDeviceAdded;
                 Buttplug.DeviceRemoved += OnDeviceRemoved;
                 Buttplug.ScanningFinished += OnScanComplete;
+                Buttplug.ServerDisconnect += OnServerDisconnect;
             }
 
             if (!Connected)
@@ -269,7 +350,7 @@ namespace AetherSenseRedux
             if (Connected)
             {
                 PluginLog.Debug("Buttplug initialized and connected.");
-                LastException = null;
+                _status = StatusTypes.Connected;
             }
 
         }
@@ -291,10 +372,11 @@ namespace AetherSenseRedux
 
             if (!Initialized)
             {
+                _status = StatusTypes.Disconnected;
                 return;
             }
 
-            if (Connected)
+            if (Status == StatusTypes.Connected)
             {
                 try 
                 {
@@ -307,9 +389,6 @@ namespace AetherSenseRedux
                 }
 
             }
-
-            Buttplug!.Dispose();
-            Buttplug = null;
             PluginLog.Debug("Buttplug destroyed.");
         }
 
@@ -371,7 +450,7 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        public void Restart()
+        public void Reload()
         {
             if (Connected)
             {
@@ -395,25 +474,10 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="command"></param>
-        /// <param name="args"></param>
-        private void OnShowUI(string command, string args)
-        {
-            // in response to the slash command, just display our main ui
-            PluginUi.SettingsVisible = true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         private void DrawUI()
         {
-            PluginUi.Draw();
+            this.PluginUi.Draw();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
         private void DrawConfigUI()
         {
             PluginUi.SettingsVisible = true;

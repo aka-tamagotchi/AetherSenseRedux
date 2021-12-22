@@ -11,29 +11,27 @@ namespace AetherSenseRedux
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
-        public int Version { get; set; } = 1;
-        public bool Initialized = false;
+        public int Version { get; set; } = 2;
+        public bool FirstRun = true;
         public bool LogChat { get; set; } = false;
         public string Address { get; set; } = "ws://127.0.0.1:12345";
         public List<string> SeenDevices { get; set; } = new();
         public List<dynamic> Triggers { get; set; } = new List<dynamic>();
 
-        // the below exist just to make saving less cumbersome
-
         [NonSerialized]
         private DalamudPluginInterface? pluginInterface;
 
         /// <summary>
-        /// 
+        /// Stores a reference to the plugin interface to allow us to save this configuration and reload it from disk.
         /// </summary>
-        /// <param name="pluginInterface"></param>
+        /// <param name="pluginInterface">The DalamudPluginInterface instance in this plugin</param>
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.pluginInterface = pluginInterface;
         }
 
         /// <summary>
-        /// 
+        /// Deep copies the trigger list while ensuring that everything has the correct type.
         /// </summary>
         public void FixDeserialization()
         {
@@ -55,8 +53,8 @@ namespace AetherSenseRedux
         /// </summary>
         public void LoadDefaults()
         {
-            Version = 1;
-            Initialized = true;
+            Version = 2;
+            FirstRun = false;
             Triggers = new List<dynamic>() {
                 new ChatTriggerConfig()
                 {
@@ -103,12 +101,11 @@ namespace AetherSenseRedux
         {
             try
             {
-                if (o.Version != 1)
+                if (o.Version != 2)
                 {
                     return;
                 }
-                Version = o.Version;
-                Initialized = o.Initialized;
+                FirstRun = o.FirstRun;
                 LogChat = o.LogChat;
                 Address = o.Address;
                 SeenDevices = new List<string>(o.SeenDevices);
