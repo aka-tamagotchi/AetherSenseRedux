@@ -401,6 +401,7 @@ namespace AetherSenseRedux
                 ////
                 if (ImGui.BeginTabItem("Filters"))
                 {
+                    ImGui.Text("Not implemented yet!");
                     ImGui.EndTabItem();
                 }
                 
