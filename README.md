@@ -9,3 +9,6 @@ A complete rewrite of AetherSense for Endwalker targeting feature parity with th
 Unzip into %appdata%\XIVLauncher\devPlugins\ and restart the game.
 
 Requires XIVLauncher and Dalamud to operate.
+
+
+[![buy me a coffee](https://img.buymeacoffee.com/api/?url=aHR0cHM6Ly9jZG4uYnV5bWVhY29mZmVlLmNvbS91cGxvYWRzL3Byb2ZpbGVfcGljdHVyZXMvMjAyMS8wNi8yMzJiYzkyZjJlNmYzYjJmZjk2MTQ2NDFmZjJkY2I3ZC5qcGdAMzAwd18wZS53ZWJw&creator=tamagotchi+%28digital+pet%29&is_creating=modern%20retro%20tech&design_code=1&design_color=%23BD5FFF&slug=tamagotchi)](https://www.buymeacoffee.com/tamagotchi)
