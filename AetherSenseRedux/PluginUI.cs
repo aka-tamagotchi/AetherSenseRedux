@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace AetherSenseRedux
 {
@@ -145,6 +146,14 @@ namespace AetherSenseRedux
                                 plugin.Start();
                             }
                         }
+
+                        //if (ImGui.Button(plugin.Scanning ? "Scanning..." : "Scan Now")){
+                        //    if (!plugin.Scanning)
+                        //    {
+                        //        Task.Run(plugin.DoScan);
+                        //    }
+                        //}
+
                         ImGui.Spacing();
                         ImGui.BeginChild("status", new Vector2(0, 0), true);
 

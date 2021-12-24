@@ -36,9 +36,13 @@ namespace AetherSenseRedux
 
         public StatusTypes Status { get
             {
-                if (Buttplug != null)
+                try
                 {
-                    if (Buttplug.Connected && _status == StatusTypes.Connected)
+                    if (Buttplug == null)
+                    {
+                        return StatusTypes.Uninitialized;
+                    }
+                    else if (Buttplug.Connected && _status == StatusTypes.Connected)
                     {
                         return StatusTypes.Connected;
                     }
@@ -58,10 +62,24 @@ namespace AetherSenseRedux
                     {
                         return StatusTypes.Disconnected;
                     }
-                } else
-                {
-                    return StatusTypes.Uninitialized;
                 }
+                catch (Exception ex)
+                {
+                    PluginLog.Error(ex, "error when getting status");
+                    return StatusTypes.Error;
+                }
+
+                
+            }
+        }
+
+        public bool Scanning { get
+            {
+                if (Buttplug == null)
+                {
+                    return false;
+                }
+                return Buttplug.IsScanning;
             }
         }
 
@@ -73,12 +91,6 @@ namespace AetherSenseRedux
                 }
                 return false;
             } 
-        }
-
-        private bool Initialized {
-            get {
-                return Buttplug != null;
-            }
         }
 
         public List<string> ConnectedDevices { 
@@ -226,7 +238,7 @@ namespace AetherSenseRedux
         /// <param name="e"></param>
         private void OnScanComplete(object? sender, EventArgs e)
         {
-            Task.Run(DoScan).ConfigureAwait(false);
+            //Task.Run(DoScan).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -302,7 +314,7 @@ namespace AetherSenseRedux
         /// <returns>The task associated with this method.</returns>
         public async Task DoScan()
         {
-            await Task.Delay(1000);
+            //await Task.Delay(1000);
             try
             {
                 await Buttplug!.StartScanningAsync();
@@ -322,7 +334,7 @@ namespace AetherSenseRedux
         {
             LastException = null;
             _status = StatusTypes.Connecting;
-            if (!Initialized)
+            if (Buttplug == null)
             {
                 Buttplug = new ButtplugClient("AetherSense Redux");
                 Buttplug.DeviceAdded += OnDeviceAdded;
@@ -336,7 +348,7 @@ namespace AetherSenseRedux
                 try
                 {
                     ButtplugWebsocketConnectorOptions wsOptions = new(new Uri(Configuration.Address));
-                    await Buttplug!.ConnectAsync(wsOptions);
+                    await Buttplug.ConnectAsync(wsOptions);
                     var t = DoScan();
                 }
                 catch (Exception ex)
@@ -370,7 +382,7 @@ namespace AetherSenseRedux
                 DevicePool.Clear();
             }
 
-            if (!Initialized)
+            if (Buttplug == null)
             {
                 _status = StatusTypes.Disconnected;
                 return;
@@ -380,7 +392,7 @@ namespace AetherSenseRedux
             {
                 try 
                 {
-                    var t = Buttplug!.DisconnectAsync();
+                    var t = Buttplug.DisconnectAsync();
                     t.Wait(); 
                 }
                 catch (Exception ex)
