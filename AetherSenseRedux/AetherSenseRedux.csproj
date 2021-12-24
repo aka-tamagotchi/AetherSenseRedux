@@ -1,73 +1,66 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Authors></Authors>
-    <Company></Company>
-    <Version>0.0.0.1</Version>
-    <Description>Buttplugs on the moon</Description>
-    <Copyright></Copyright>
-    <PackageProjectUrl>https://github.com/digital-pet/AetherSenseRedux</PackageProjectUrl>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <Platforms>x64</Platforms>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>$(AppData)\XIVLauncher\devPlugins\AetherSenseRedux\</OutputPath>
+	<Authors>Tama Gotchi (digital-pet)</Authors>
+	<Company></Company>
+	  <Version>0.6.22.0</Version>
+	<Description>Buttplugs on the moon</Description>
+	<Copyright>All Rights Reserved</Copyright>
+	<PackageProjectUrl>https://github.com/digital-pet/AetherSenseRedux</PackageProjectUrl>
+	<TargetFramework>net5.0-windows</TargetFramework>
+	<Platforms>x64</Platforms>
+	<Nullable>enable</Nullable>
+	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<OutputPath>$(AppData)\XIVLauncher\devPlugins\$(AssemblyName)\</OutputPath>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	<Deterministic>false</Deterministic>
+	<DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+	<DebugType>none</DebugType>
+	  
+  
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
+	
+	
   <ItemGroup>
-    <Content Include="..\Data\AetherSenseRedux.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <PackageReference Include="Buttplug" Version="2.0.6" GeneratePathProperty="true" />
+    <PackageReference Include="DalamudPackager" Version="2.1.5" GeneratePathProperty="true" />
+	  <Reference Include="FFXIVClientStructs">
+		  <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="Newtonsoft.Json">
+		  <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="Dalamud">
+		  <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="ImGui.NET">
+		  <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="ImGuiScene">
+		  <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="Lumina">
+		  <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
+	  <Reference Include="Lumina.Excel">
+		  <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
   </ItemGroup>
-
-	<Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-		<Copy SourceFiles="$(userprofile)\.nuget\packages\buttplug\2.0.5\lib\netstandard2.0\Buttplug.dll" DestinationFolder="$(OutDir)" />
-		<Copy SourceFiles="$(userprofile)\.nuget\packages\buttplugrustffi\2.0.4\runtimes\win-x64\native\buttplug_rs_ffi.dll" DestinationFolder="$(OutDir)" />
-		<Copy SourceFiles="$(userprofile)\.nuget\packages\buttplugrustffi\2.0.4\runtimes\win-x64\native\buttplug_rs_ffi.dll.lib" DestinationFolder="$(OutDir)" />
-		<Copy SourceFiles="$(userprofile)\.nuget\packages\google.protobuf\3.17.3\lib\net5.0\Google.Protobuf.dll" DestinationFolder="$(OutDir)" />
-	</Target>
-
-  <PropertyGroup>
-    <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
-  </PropertyGroup>
-
+	
+	
   <ItemGroup>
-    <PackageReference Include="Buttplug" Version="2.0.5" />
-    <PackageReference Include="DalamudPackager" Version="2.1.5" />
-    <Reference Include="FFXIVClientStructs">
-      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Dalamud">
-      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="ImGui.NET">
-      <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="ImGuiScene">
-      <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Lumina">
-      <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Lumina.Excel">
-      <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+    <None Update="AetherSenseRedux.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-
+	
 </Project>
