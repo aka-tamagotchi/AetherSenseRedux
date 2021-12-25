@@ -131,7 +131,7 @@ namespace AetherSenseRedux
                             WorkingCopy.Address = address;
                         }
                         ImGui.SameLine();
-                        if (plugin.Status == Plugin.StatusTypes.Connected)
+                        if (plugin.Status == ButtplugStatus.Connected)
                         {
                             if (ImGui.Button("Disconnect"))
                             {
@@ -159,13 +159,13 @@ namespace AetherSenseRedux
 
                         ImGui.Text("Connection Status:");
                         ImGui.Indent();
-                        ImGui.Text(plugin.Status == Plugin.StatusTypes.Connected ? "Connected" : plugin.Status == Plugin.StatusTypes.Connecting ? "Connecting..." : plugin.Status == Plugin.StatusTypes.Error ? "Error" : "Disconnected");
+                        ImGui.Text(plugin.Status == ButtplugStatus.Connected ? "Connected" : plugin.Status == ButtplugStatus.Connecting ? "Connecting..." : plugin.Status == ButtplugStatus.Error ? "Error" : "Disconnected");
                         if (plugin.LastException != null)
                         {
                             ImGui.Text(plugin.LastException.Message);
                         }
                         ImGui.Unindent();
-                        if (plugin.Status == Plugin.StatusTypes.Connected)
+                        if (plugin.Status == ButtplugStatus.Connected)
                         {
                             ImGui.Text("Devices Connected:");
                             ImGui.Indent();

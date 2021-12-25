@@ -25,50 +25,41 @@ namespace AetherSenseRedux
 
         private const string commandName = "/asr";
 
-        public enum StatusTypes
-        {
-            Uninitialized,
-            Connected,
-            Connecting,
-            Disconnected,
-            Error
-        }
+        private ButtplugStatus _status;
 
-        private StatusTypes _status;
-
-        public StatusTypes Status { get
+        public ButtplugStatus Status { get
             {
                 try
                 {
                     if (Buttplug == null)
                     {
-                        return StatusTypes.Uninitialized;
+                        return ButtplugStatus.Uninitialized;
                     }
-                    else if (Buttplug.Connected && _status == StatusTypes.Connected)
+                    else if (Buttplug.Connected && _status == ButtplugStatus.Connected)
                     {
-                        return StatusTypes.Connected;
+                        return ButtplugStatus.Connected;
                     }
-                    else if (_status == StatusTypes.Connecting)
+                    else if (_status == ButtplugStatus.Connecting)
                     {
-                        return StatusTypes.Connecting;
+                        return ButtplugStatus.Connecting;
                     }
-                    else if (!Buttplug.Connected && _status == StatusTypes.Connected)
+                    else if (!Buttplug.Connected && _status == ButtplugStatus.Connected)
                     {
-                        return StatusTypes.Error;
+                        return ButtplugStatus.Error;
                     }
                     else if (LastException != null)
                     {
-                        return StatusTypes.Error;
+                        return ButtplugStatus.Error;
                     }
                     else
                     {
-                        return StatusTypes.Disconnected;
+                        return ButtplugStatus.Disconnected;
                     }
                 }
                 catch (Exception ex)
                 {
                     PluginLog.Error(ex, "error when getting status");
-                    return StatusTypes.Error;
+                    return ButtplugStatus.Error;
                 }
 
                 
@@ -108,6 +99,8 @@ namespace AetherSenseRedux
         }
 
         public Exception? LastException { get; set; }
+
+        public WaitType WaitType { get; set; }
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         private Configuration Configuration { get; set; }
@@ -129,6 +122,8 @@ namespace AetherSenseRedux
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager commandManager)
         {
+            var t = DoBenchmark();
+
             PluginInterface = pluginInterface;
             CommandManager = commandManager;
 
@@ -141,7 +136,7 @@ namespace AetherSenseRedux
             Configuration.Initialize(PluginInterface);
             Configuration.FixDeserialization();
 
-            _status = StatusTypes.Disconnected;
+            _status = ButtplugStatus.Disconnected;
 
             // Update the configuration if it's an older version
             if (Configuration.Version == 1)
@@ -156,8 +151,6 @@ namespace AetherSenseRedux
                 Configuration.LoadDefaults();
             }
 
-            var t = DoBenchmark();
-
             PluginUi = new PluginUI(Configuration, this);
 
             CommandManager.AddHandler(commandName, new CommandInfo(OnShowUI)
@@ -167,6 +160,9 @@ namespace AetherSenseRedux
 
             this.PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+
+            t.Wait();
+            WaitType = t.Result;
         }
 
         /// <summary>
@@ -189,7 +185,7 @@ namespace AetherSenseRedux
         {
 
             PluginLog.Information("Device {0} added", e.Device.Name);
-            Device newDevice = new(e.Device);
+            Device newDevice = new(e.Device, WaitType.Use_Sleep);
             this.DevicePool.Add(newDevice);
             if (!Configuration.SeenDevices.Contains(newDevice.Name)){
                 Configuration.SeenDevices.Add(newDevice.Name);
@@ -255,7 +251,7 @@ namespace AetherSenseRedux
         {
             PluginLog.Debug("Server Disconnected");
             DevicePool.Clear();
-            _status = StatusTypes.Disconnected;
+            _status = ButtplugStatus.Disconnected;
             Buttplug!.Dispose();
             Buttplug = null;
 
@@ -297,7 +293,7 @@ namespace AetherSenseRedux
         /// <param name="patternConfig">A pattern configuration.</param>
         public void DoPatternTest(dynamic patternConfig)
         {
-            if (Status != StatusTypes.Connected)
+            if (Status != ButtplugStatus.Connected)
             {
                 return;
             }
@@ -337,7 +333,7 @@ namespace AetherSenseRedux
         private async Task InitButtplug()
         {
             LastException = null;
-            _status = StatusTypes.Connecting;
+            _status = ButtplugStatus.Connecting;
             if (Buttplug == null)
             {
                 Buttplug = new ButtplugClient("AetherSense Redux");
@@ -366,7 +362,7 @@ namespace AetherSenseRedux
             if (Connected)
             {
                 PluginLog.Debug("Buttplug initialized and connected.");
-                _status = StatusTypes.Connected;
+                _status = ButtplugStatus.Connected;
             }
 
         }
@@ -388,11 +384,11 @@ namespace AetherSenseRedux
 
             if (Buttplug == null)
             {
-                _status = StatusTypes.Disconnected;
+                _status = ButtplugStatus.Disconnected;
                 return;
             }
 
-            if (Status == StatusTypes.Connected)
+            if (Status == ButtplugStatus.Connected)
             {
                 try 
                 {
@@ -500,24 +496,35 @@ namespace AetherSenseRedux
         }
         // END UI FUNCTIONS
 
-        public static async Task DoBenchmark()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<WaitType> DoBenchmark()
         {
-            Stopwatch timer = new();
-            PluginLog.Debug("Testing Task.Delay");
+            var result = WaitType.Slow_Timer;
             long[] times = new long[10];
+            long sum = 0;
+            double[] averages = new double[2];
+            Stopwatch timer = new();
+            PluginLog.Information("Starting benchmark");
+
+
+            PluginLog.Debug("Testing Task.Delay");
+            
             for (int i = 0; i < times.Length; i++)
             {
                 timer.Restart();
                 await Task.Delay(1);
                 times[i] = timer.Elapsed.Ticks;
             }
-            long sum = 0;
             foreach (long t in times)
             {
                 PluginLog.Debug("{0}", t);
                 sum += t;
             }
-            PluginLog.Debug("Average: {0}", (double)sum / times.Length / 10000);
+            averages[0] = (double)sum / times.Length / 10000;
+            PluginLog.Debug("Average: {0}", averages[0]);
 
             PluginLog.Debug("Testing Thread.Sleep");
             times = new long[10];
@@ -533,8 +540,37 @@ namespace AetherSenseRedux
                 PluginLog.Debug("{0}", t);
                 sum += t;
             }
-            PluginLog.Debug("Average: {0}", (double)sum / times.Length / 10000);
+            averages[1] = (double)sum / times.Length / 10000;
+            PluginLog.Debug("Average: {0}", averages[1]);
+            
+            if (averages[0] < 3)
+            {
+                result = WaitType.Use_Delay;
+
+            }
+            else if (averages[1] < 3)
+            {
+                result = WaitType.Use_Sleep;
+                
+            }
+
+            switch (result)
+            {
+                case WaitType.Use_Delay:
+                    PluginLog.Information("High resolution Task.Delay found, using delay in timing loops.");
+                    break;
+                case WaitType.Use_Sleep:
+                    PluginLog.Information("High resolution Time.Sleep found, using sleep in timing loops.");
+                    break;
+                default:
+                    PluginLog.Information("No high resolution, CPU-friendly waits available, timing loops will be inaccurate.");
+                    break;
+            }
+
+            return result;
 
         }
     }
+
+    
 }
