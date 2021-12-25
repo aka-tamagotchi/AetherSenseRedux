@@ -19,12 +19,12 @@ namespace AetherSenseRedux
         {
             get
             {
-                // The actual updates per second is derived from this internal average frame time value
+                // The actual UPS counter is derived from this internal average time per tick value
                 return 1000 / _ups;
             }
         }
 
-        private double _ups;
+        private double _ups = 32;       // we initialize this to the target time per tick value just to avoid confusing users
         private double _lastIntensity;
         private bool _active;
         private int frameTime = 32;     // The target time per frame, in this case 32ms = ~30 ups, and also a pipe dream.
@@ -66,13 +66,16 @@ namespace AetherSenseRedux
                 var t = timer.ElapsedMilliseconds;
                 if (t < frameTime)
                 {
-                    // We use this instead of Task.Delay to avoid the 15.6ms resolution of system timers,
-                    // worst case it performs just as poorly as Task.Delay, but best case we get accuracy
-                    // to every other millisecond. Which is more than good enough for butts.
+                    // We use this instead of Task.Delay because Task.Delay seems to emulate the old 15.6ms
+                    // system timers and often delays for up to three cycles longer than requested whereas
+                    // modern Windows 10 systems have a system timer resolution of more like 1.56ms, which
+                    // is much preferable since buttplug requires real-time messaging.
+                    // Worst case it performs just as poorly as Task.Delay, but best case we get accuracy
+                    // to every other millisecond. Which is less cpu intensive than a SpinWait but also more
+                    // than good enough for butts.
                     while (timer.ElapsedMilliseconds < frameTime)
                     {
-                        Thread.Sleep(2);
-                        await Task.Yield();
+                        Thread.Sleep(1);
                     }
                 } 
                 else
@@ -150,7 +153,6 @@ namespace AetherSenseRedux
 
             try
             {
-
                 await ClientDevice.SendVibrateCmd(clampedIntensity);
 
             } catch (Exception)

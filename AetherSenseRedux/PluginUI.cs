@@ -303,6 +303,11 @@ namespace AetherSenseRedux
                     ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
                 }
                 // end revert button
+                ImGui.SameLine();
+                if (ImGui.Button("Run Benchmark"))
+                {
+                    var t = Plugin.DoBenchmark();
+                }
             }
 
             ImGui.End();

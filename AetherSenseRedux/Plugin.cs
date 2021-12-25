@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Buttplug;
 using AetherSenseRedux.Trigger;
 using AetherSenseRedux.Pattern;
+using System.Diagnostics;
+using System.Threading;
 
 namespace AetherSenseRedux
 {
@@ -153,6 +155,8 @@ namespace AetherSenseRedux
             {
                 Configuration.LoadDefaults();
             }
+
+            var t = DoBenchmark();
 
             PluginUi = new PluginUI(Configuration, this);
 
@@ -495,5 +499,42 @@ namespace AetherSenseRedux
             PluginUi.SettingsVisible = true;
         }
         // END UI FUNCTIONS
+
+        public static async Task DoBenchmark()
+        {
+            Stopwatch timer = new();
+            PluginLog.Debug("Testing Task.Delay");
+            long[] times = new long[10];
+            for (int i = 0; i < times.Length; i++)
+            {
+                timer.Start();
+                await Task.Delay(1);
+                times[i] = timer.Elapsed.Ticks;
+            }
+            long sum = 0;
+            foreach (long t in times)
+            {
+                PluginLog.Debug("{0}", t);
+                sum += t;
+            }
+            PluginLog.Debug("Average: {0}", ((double)sum / times.Length) / 10000);
+
+            PluginLog.Debug("Testing Thread.Sleep");
+            times = new long[10];
+            for (int i = 0; i < times.Length; i++)
+            {
+                timer.Restart();
+                Thread.Sleep(1);
+                times[i] = timer.Elapsed.Ticks;
+            }
+            sum = 0;
+            foreach (long t in times)
+            {
+                PluginLog.Debug("{0}", t);
+                sum += t;
+            }
+            PluginLog.Debug("Average: {0}", ((double)sum / times.Length)/10000);
+
+        }
     }
 }
