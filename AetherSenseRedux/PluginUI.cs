@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
 
 namespace AetherSenseRedux
 {
@@ -303,11 +303,12 @@ namespace AetherSenseRedux
                     ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
                 }
                 // end revert button
-                ImGui.SameLine();
-                if (ImGui.Button("Run Benchmark"))
-                {
-                    var t = Plugin.DoBenchmark();
-                }
+                
+                //ImGui.SameLine();
+                //if (ImGui.Button("Run Benchmark"))
+                //{
+                //    var t = Plugin.DoBenchmark();
+                //}
             }
 
             ImGui.End();

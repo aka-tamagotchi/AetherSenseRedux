@@ -507,7 +507,7 @@ namespace AetherSenseRedux
             long[] times = new long[10];
             for (int i = 0; i < times.Length; i++)
             {
-                timer.Start();
+                timer.Restart();
                 await Task.Delay(1);
                 times[i] = timer.Elapsed.Ticks;
             }
@@ -517,7 +517,7 @@ namespace AetherSenseRedux
                 PluginLog.Debug("{0}", t);
                 sum += t;
             }
-            PluginLog.Debug("Average: {0}", ((double)sum / times.Length) / 10000);
+            PluginLog.Debug("Average: {0}", (double)sum / times.Length / 10000);
 
             PluginLog.Debug("Testing Thread.Sleep");
             times = new long[10];
@@ -533,7 +533,7 @@ namespace AetherSenseRedux
                 PluginLog.Debug("{0}", t);
                 sum += t;
             }
-            PluginLog.Debug("Average: {0}", ((double)sum / times.Length)/10000);
+            PluginLog.Debug("Average: {0}", (double)sum / times.Length / 10000);
 
         }
     }
