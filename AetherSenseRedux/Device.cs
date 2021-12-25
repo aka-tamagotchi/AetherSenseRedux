@@ -19,15 +19,15 @@ namespace AetherSenseRedux
         {
             get
             {
-                // The actual UPS counter is derived from this internal average time per tick value
+                // The actual UPS counter is derived from this internal average time per update value
                 return 1000 / _ups;
             }
         }
 
-        private double _ups = 16;       // we initialize this to the target time per tick value just to avoid confusing users
+        private double _ups = 16;       // we initialize this to the target time per update value just to avoid confusing users
         private double _lastIntensity;
         private bool _active;
-        private int frameTime = 16;     // The target time per frame, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
+        private int frameTime = 16;     // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
 
         public Device(ButtplugClientDevice clientDevice)
         {
