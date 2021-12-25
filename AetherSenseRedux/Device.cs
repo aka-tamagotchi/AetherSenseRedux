@@ -24,10 +24,10 @@ namespace AetherSenseRedux
             }
         }
 
-        private double _ups = 32;       // we initialize this to the target time per tick value just to avoid confusing users
+        private double _ups = 16;       // we initialize this to the target time per tick value just to avoid confusing users
         private double _lastIntensity;
         private bool _active;
-        private int frameTime = 32;     // The target time per frame, in this case 32ms = ~30 ups, and also a pipe dream.
+        private int frameTime = 16;     // The target time per frame, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
 
         public Device(ButtplugClientDevice clientDevice)
         {
@@ -80,7 +80,7 @@ namespace AetherSenseRedux
                 } 
                 else
                 {
-                    PluginLog.Debug("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
+                    PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
                 }
                 _ups = _ups * 0.9 + timer.ElapsedMilliseconds * 0.1;
             }
