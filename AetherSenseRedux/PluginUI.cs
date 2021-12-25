@@ -156,7 +156,10 @@ namespace AetherSenseRedux
 
                         ImGui.Spacing();
                         ImGui.BeginChild("status", new Vector2(0, 0), true);
-
+                        if (plugin.WaitType == WaitType.Slow_Timer)
+                        {
+                            ImGui.TextColored(new Vector4(1,0,0,1), "High resolution timers not available, patterns will be inaccurate.");
+                        }
                         ImGui.Text("Connection Status:");
                         ImGui.Indent();
                         ImGui.Text(plugin.Status == ButtplugStatus.Connected ? "Connected" : plugin.Status == ButtplugStatus.Connecting ? "Connecting..." : plugin.Status == ButtplugStatus.Error ? "Error" : "Disconnected");
@@ -303,7 +306,7 @@ namespace AetherSenseRedux
                     ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
                 }
                 // end revert button
-                
+
                 //ImGui.SameLine();
                 //if (ImGui.Button("Run Benchmark"))
                 //{
