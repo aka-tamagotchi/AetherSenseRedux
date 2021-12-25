@@ -93,13 +93,13 @@ namespace AetherSenseRedux
             } 
         }
 
-        public List<string> ConnectedDevices { 
+        public Dictionary<string,double> ConnectedDevices { 
             get
             {
-                List<string> result = new();
+                Dictionary<string,double> result = new();
                 foreach (Device device in DevicePool)
                 {
-                    result.Add(device.Name);
+                    result[device.Name] = device.UPS;
                 }
                 return result;
             } 
@@ -218,6 +218,7 @@ namespace AetherSenseRedux
                             PluginLog.Error(ex, "Could not stop device {0}, device disconnected?", device.Name);
                         }
                         toRemove.Add(device);
+                        device.Dispose();
                     }
                 }
             }
@@ -238,7 +239,7 @@ namespace AetherSenseRedux
         /// <param name="e"></param>
         private void OnScanComplete(object? sender, EventArgs e)
         {
-            //Task.Run(DoScan).ConfigureAwait(false);
+            // Do nothing, since Buttplug still keeps scanning for BTLE devices even after scanning is "complete"
         }
 
         /// <summary>
@@ -314,7 +315,6 @@ namespace AetherSenseRedux
         /// <returns>The task associated with this method.</returns>
         public async Task DoScan()
         {
-            //await Task.Delay(1000);
             try
             {
                 await Buttplug!.StartScanningAsync();

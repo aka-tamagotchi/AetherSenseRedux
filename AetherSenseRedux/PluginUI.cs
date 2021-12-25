@@ -169,9 +169,9 @@ namespace AetherSenseRedux
                         {
                             ImGui.Text("Devices Connected:");
                             ImGui.Indent();
-                            foreach (string device in plugin.ConnectedDevices)
+                            foreach (var device in plugin.ConnectedDevices)
                             {
-                                ImGui.Text(device);
+                                ImGui.Text(String.Format("{0} [{1}]",device.Key,(int)device.Value));
                             }
                             ImGui.Unindent();
                         }

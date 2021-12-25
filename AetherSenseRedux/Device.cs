@@ -1,20 +1,33 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AetherSenseRedux.Pattern;
 using Buttplug;
 using Dalamud.Logging;
+using System.Threading;
 
 namespace AetherSenseRedux
 {
-    internal class Device
+    internal class Device : IDisposable
     {
         public readonly ButtplugClientDevice ClientDevice;
         public List<IPattern> Patterns;
         public string Name { get => ClientDevice.Name; }
+        public double UPS
+        {
+            get
+            {
+                // The actual updates per second is derived from this internal average frame time value
+                return 1000 / _ups;
+            }
+        }
+
+        private double _ups;
         private double _lastIntensity;
         private bool _active;
+        private int frameTime = 32;     // The target time per frame, in this case 32ms = ~30 ups, and also a pipe dream.
 
         public Device(ButtplugClientDevice clientDevice)
         {
@@ -22,6 +35,13 @@ namespace AetherSenseRedux
             Patterns = new List<IPattern>();
             _lastIntensity = 0;
             _active = true;
+        }
+
+        public void Dispose()
+        {
+            _active = false;
+            Patterns.Clear();
+            ClientDevice.Dispose();
         }
 
         /// <summary>
@@ -38,10 +58,28 @@ namespace AetherSenseRedux
         /// <returns></returns>
         public async Task MainLoop()
         {
+            Stopwatch timer = new();
             while (_active)
             {
-                OnTick();
-                await Task.Yield();
+                timer.Restart();
+                await OnTick();
+                var t = timer.ElapsedMilliseconds;
+                if (t < frameTime)
+                {
+                    // We use this instead of Task.Delay to avoid the 15.6ms resolution of system timers,
+                    // worst case it performs just as poorly as Task.Delay, but best case we get accuracy
+                    // to every other millisecond. Which is more than good enough for butts.
+                    while (timer.ElapsedMilliseconds < frameTime)
+                    {
+                        Thread.Sleep(2);
+                        await Task.Yield();
+                    }
+                } 
+                else
+                {
+                    PluginLog.Debug("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
+                }
+                _ups = _ups * 0.9 + timer.ElapsedMilliseconds * 0.1;
             }
         }
 
@@ -60,8 +98,9 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void OnTick()
+        private async Task OnTick()
         {
+
             List<double> intensities = new();
             DateTime t = DateTime.UtcNow;
             var patternsToRemove = new List<IPattern>();
@@ -90,14 +129,14 @@ namespace AetherSenseRedux
             //TODO: Allow different merge modes besides average
             double intensity = (intensities.Any()) ? intensities.Average() : 0;
 
-            Write(intensity);
+            await Write(intensity);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="intensity"></param>
-        private void Write(double intensity)
+        private async Task Write(double intensity)
         {
             // clamp intensity before comparing to reduce unnecessary writes to device
             double clampedIntensity = Clamp(intensity, 0, 1);
@@ -108,12 +147,12 @@ namespace AetherSenseRedux
             }
 
             _lastIntensity = clampedIntensity;
-            
-            // If we don't wait on this, bad things happen on Linux and disappointing things happen on Windows, especially with slow BLE adapters.
+
             try
             {
-                var t = ClientDevice.SendVibrateCmd(clampedIntensity);
-                t.Wait();
+
+                await ClientDevice.SendVibrateCmd(clampedIntensity);
+
             } catch (Exception)
             {
                 // Connecting to an intiface server on Linux will spam the log with bluez errors
