@@ -30,5 +30,5 @@ This project is a labor of love, and I don't earn any money for developing it. B
 
 ### Credits
 
-Uses [XIVChatTools](https://github.com/digital-pet/XIVChatTools) for extended filtering capabilities.
-Inspired by the original [AetherSense](https://github.com/Ms-Tress/AetherSense) plugin by Ms Tress.
+- Uses [XIVChatTools](https://github.com/digital-pet/XIVChatTools) for extended filtering capabilities.
+- Inspired by the original [AetherSense](https://github.com/Ms-Tress/AetherSense) plugin by Ms Tress.
