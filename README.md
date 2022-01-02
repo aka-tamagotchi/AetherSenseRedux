@@ -8,6 +8,12 @@ Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [
 
 ### Installation
 
+#### Preferred Method
+ 
+Install the plugin through Dalamud with the testing channel enabled.
+
+#### Manual Method
+
 Unzip into %appdata%\XIVLauncher\devPlugins\ and restart the game.
 
 Requires Intiface Desktop, XIVLauncher, and Dalamud to operate.
