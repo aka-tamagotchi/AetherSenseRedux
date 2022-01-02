@@ -6,7 +6,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("All Rights Reserved")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Buttplugs on the moon")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.7")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.7.*")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.7 BETA")]
 [assembly: System.Reflection.AssemblyProductAttribute("AetherSenseRedux")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AetherSenseRedux")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.7.*")]
