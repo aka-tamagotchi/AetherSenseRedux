@@ -46,6 +46,9 @@ namespace AetherSenseRedux
                     else if (!Buttplug.Connected && _status == ButtplugStatus.Connected)
                     {
                         return ButtplugStatus.Error;
+                    } else if (_status == ButtplugStatus.Disconnecting)
+                    {
+                        return ButtplugStatus.Disconnecting;
                     }
                     else if (LastException != null)
                     {
@@ -239,7 +242,7 @@ namespace AetherSenseRedux
         /// <param name="e"></param>
         private void OnScanComplete(object? sender, EventArgs e)
         {
-            // Do nothing, since Buttplug still keeps scanning for BTLE devices even after scanning is "complete"
+            // Do nothing, since Buttplug still keeps scanning for BLE devices even after scanning is "complete"
         }
 
         /// <summary>
@@ -250,15 +253,14 @@ namespace AetherSenseRedux
         private void OnServerDisconnect(object? sender, EventArgs e)
         {
             PluginLog.Debug("Server Disconnected");
-            DevicePool.Clear();
-            _status = ButtplugStatus.Disconnected;
-            Buttplug!.Dispose();
-            Buttplug = null;
-
-            if (ChatTriggerPool.Count > 0)
+            if (Status == ButtplugStatus.Disconnecting)
             {
-                DestroyTriggers();
+                return;
             }
+
+            CleanTriggers();
+            CleanDevices();
+            CleanButtplug();
         }
 
         private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
@@ -334,6 +336,7 @@ namespace AetherSenseRedux
         {
             LastException = null;
             _status = ButtplugStatus.Connecting;
+
             if (Buttplug == null)
             {
                 Buttplug = new ButtplugClient("AetherSense Redux");
@@ -370,7 +373,27 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void DestroyButtplug()
+        private void DisconnectButtplug()
+        {
+            if (Status == ButtplugStatus.Connected)
+            {
+                _status = ButtplugStatus.Disconnecting;
+                try 
+                {
+                    var t = Buttplug!.DisconnectAsync();
+                    t.Wait(); 
+                }
+                catch (Exception ex)
+                {
+                    PluginLog.Error(ex, "Buttplug failed to disconnect.");
+                }
+            } 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CleanDevices()
         {
             lock (DevicePool)
             {
@@ -378,30 +401,41 @@ namespace AetherSenseRedux
                 {
                     PluginLog.Debug("Stopping device {0}", device.Name);
                     device.Stop();
+                    device.Dispose();
                 }
                 DevicePool.Clear();
             }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CleanButtplug()
+        {
             if (Buttplug == null)
             {
                 _status = ButtplugStatus.Disconnected;
                 return;
             }
 
-            if (Status == ButtplugStatus.Connected)
-            {
-                try 
-                {
-                    var t = Buttplug.DisconnectAsync();
-                    t.Wait(); 
-                }
-                catch (Exception ex)
-                {
-                    PluginLog.Error(ex, "Buttplug failed to disconnect.");
-                }
+            _status = ButtplugStatus.Disconnected;
+            Buttplug.Dispose();
+            Buttplug = null;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private void CleanTriggers()
+        {
+            foreach (ChatTrigger t in ChatTriggerPool)
+            {
+                PluginLog.Debug("Stopping chat trigger {0}", t.Name);
+                t.Stop();
             }
-            PluginLog.Debug("Buttplug destroyed.");
+            ChatGui.ChatMessage -= OnChatReceived;
+            ChatTriggerPool.Clear();
+            PluginLog.Debug("Triggers destroyed.");
         }
 
         /// <summary>
@@ -438,21 +472,6 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void DestroyTriggers()
-        {
-            foreach (ChatTrigger t in ChatTriggerPool)
-            {
-                PluginLog.Debug("Stopping chat trigger {0}",t.Name);
-                t.Stop();
-            }
-            ChatGui.ChatMessage -= OnChatReceived;
-            ChatTriggerPool.Clear();
-            PluginLog.Debug("Triggers destroyed.");
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         public void Start()
         {
             InitTriggers();
@@ -466,7 +485,7 @@ namespace AetherSenseRedux
         {
             if (Connected)
             {
-                DestroyTriggers();
+                CleanTriggers();
                 InitTriggers();
             }
         }
@@ -476,9 +495,10 @@ namespace AetherSenseRedux
         /// </summary>
         public void Stop()
         {
-            DestroyTriggers();
-            DestroyButtplug();
-
+            CleanTriggers();
+            CleanDevices();
+            DisconnectButtplug();
+            CleanButtplug();
         }
         // END START AND STOP FUNCTIONS
 
@@ -492,7 +512,7 @@ namespace AetherSenseRedux
         }
         private void DrawConfigUI()
         {
-            PluginUi.SettingsVisible = true;
+            PluginUi.SettingsVisible = !PluginUi.SettingsVisible;
         }
         // END UI FUNCTIONS
 
@@ -560,7 +580,7 @@ namespace AetherSenseRedux
                     PluginLog.Information("High resolution Task.Delay found, using delay in timing loops.");
                     break;
                 case WaitType.Use_Sleep:
-                    PluginLog.Information("High resolution Time.Sleep found, using sleep in timing loops.");
+                    PluginLog.Information("High resolution Thread.Sleep found, using sleep in timing loops.");
                     break;
                 default:
                     PluginLog.Information("No high resolution, CPU-friendly waits available, timing loops will be inaccurate.");

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using XIVChatTypes;
 //using System.Threading.Tasks;
 
 namespace AetherSenseRedux
@@ -25,6 +26,7 @@ namespace AetherSenseRedux
         }
 
         private int SelectedTrigger = 0;
+        private int SelectedFilterCategory = 0;
 
         // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
         private Configuration? WorkingCopy;
@@ -185,11 +187,9 @@ namespace AetherSenseRedux
                     if (ImGui.BeginTabItem("Triggers"))
                     {
                         var listToRemove = new List<dynamic>();
-                        if (SelectedTrigger >= WorkingCopy.Triggers.Count)
-                        {
-                            SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
-                        }
-                        ImGui.BeginChild("left", new Vector2(150, -ImGui.GetFrameHeightWithSpacing()), true);
+                        ImGui.BeginChild("leftouter", new Vector2(155,0));
+                        ImGui.Indent(1);
+                        ImGui.BeginChild("left", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true);
                             
                         foreach (var (t, i) in WorkingCopy.Triggers.Select((value, i) => (value, i)))
                         {
@@ -202,26 +202,6 @@ namespace AetherSenseRedux
                         }
 
                         ImGui.EndChild();
-                            
-                        ImGui.SameLine();
-                            
-                        ImGui.BeginChild("right", new Vector2(0, -(ImGui.GetFrameHeightWithSpacing() * 2)), false);
-
-                        if (WorkingCopy!.Triggers.Count == 0)
-                        {
-                            ImGui.Text("Use the Add New button to add a trigger.");
-
-                        } 
-                        else
-                        {
-                            DrawChatTriggerConfig(WorkingCopy.Triggers[SelectedTrigger]);
-                        }
-                            
-                        ImGui.EndChild();
-                            
-
-
-
                         if (ImGui.Button("Add New"))
                         {
                             List<dynamic> triggers = WorkingCopy.Triggers;
@@ -234,7 +214,29 @@ namespace AetherSenseRedux
                         if (ImGui.Button("Remove"))
                         {
                             WorkingCopy.Triggers.RemoveAt(SelectedTrigger);
+                            if (SelectedTrigger >= WorkingCopy.Triggers.Count)
+                            {
+                                SelectedTrigger = (SelectedTrigger > 0) ? WorkingCopy.Triggers.Count - 1 : 0;
+                            }
                         }
+
+                        ImGui.EndChild();
+                        ImGui.SameLine();
+                            
+                        ImGui.BeginChild("right", new Vector2(0, 0), false);
+                        ImGui.Indent(1);
+                        if (WorkingCopy!.Triggers.Count == 0)
+                        {
+                            ImGui.Text("Use the Add New button to add a trigger.");
+
+                        } 
+                        else
+                        {
+                            DrawChatTriggerConfig(WorkingCopy.Triggers[SelectedTrigger]);
+                        }
+                        ImGui.Unindent();
+                        ImGui.EndChild();
+
                         ImGui.EndTabItem();
                     }
                     if (ImGui.BeginTabItem("Advanced"))
@@ -354,6 +356,11 @@ namespace AetherSenseRedux
                         t.RetriggerDelay = (long)retriggerdelay;
                     }
                     //end retrigger delay field
+                    var usefilter = (bool)t.UseFilter;
+                    if (ImGui.Checkbox("Use Filters", ref usefilter))
+                    {
+                        t.UseFilter = usefilter;
+                    }
 
                     ImGui.EndTabItem();
                 }
@@ -419,7 +426,54 @@ namespace AetherSenseRedux
                 ////
                 if (ImGui.BeginTabItem("Filters"))
                 {
-                    ImGui.Text("Not implemented yet!");
+                    if (ImGui.BeginCombo("##filtercategory", XIVChatFilter.FilterCategoryNames[SelectedFilterCategory]))
+                    {
+                        var k = 0;
+                        foreach (string name in XIVChatFilter.FilterCategoryNames)
+                        {
+                            if(name == "GM Messages")
+                            {
+                                // don't show the GM chat options for this filter configuration.
+                                k++;
+                                continue;
+                            }
+
+                            bool is_selected = k == SelectedFilterCategory;
+                            if (ImGui.Selectable(name, is_selected))
+                            {
+                                SelectedFilterCategory = k;
+                            }
+                            k++;
+                        }
+                        ImGui.EndCombo();
+                    }
+                    if (ImGui.BeginChild("filtercatlist", new Vector2(0,0)))
+                    {
+                        var i = 0;
+                        bool modified = false;
+                        foreach (string name in XIVChatFilter.FilterNames[SelectedFilterCategory])
+                        {
+                            if (name == "Novice Network" || name == "Novice Network Notifications")
+                            {
+                                // don't show novice network as selectable filters either.
+                                i++;
+                                continue;
+                            }
+
+                            bool filtersetting = t.FilterTable[SelectedFilterCategory][i];
+
+                            if (ImGui.Checkbox(name, ref filtersetting))
+                            {
+                                modified = true;
+                            }
+                            if (modified)
+                            {
+                                t.FilterTable[SelectedFilterCategory][i] = filtersetting;
+                            }
+                            i++;
+                        }
+                        ImGui.EndChild();
+                    }
                     ImGui.EndTabItem();
                 }
                 

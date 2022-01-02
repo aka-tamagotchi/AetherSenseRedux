@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using AetherSenseRedux.Pattern;
 
@@ -27,13 +28,43 @@ namespace AetherSenseRedux.Trigger
             switch ((string)o.Type)
             {
                 case "Chat":
+                    var size1 = 0;
+                    var size2 = 0;
+                    try
+                    {
+                        size1 = o.FilterTable.Count;
+                    }
+                    catch (Exception)
+                    {
+                        size1 = o.FilterTable.Length;
+                    }
+
+                    bool[][] filters = new bool[size1][];
+                    for (int i = 0; i < filters.Length; i++)
+                    {
+                        try
+                        {
+                            size2 = o.FilterTable[i].Count;
+                        }
+                        catch (Exception)
+                        {
+                            size2 = o.FilterTable[i].Length;
+                        }
+                        filters[i] = new bool[size2];
+                        for (int j = 0; j < filters[i].Length; j++)
+                        {
+                            filters[i][j] = (bool)o.FilterTable[i][j];
+                        }
+                    }
                     return new ChatTriggerConfig()
                     {
                         Name = (string)o.Name,
                         Regex = (string)o.Regex,
                         RetriggerDelay = (long)o.RetriggerDelay,
                         EnabledDevices = devices,
-                        PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings)
+                        PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings),
+                        FilterTable = filters,
+                        UseFilter = o.UseFilter
                     };
                 default:
                     throw new ArgumentException(String.Format("Invalid trigger {0} specified", o.Type));

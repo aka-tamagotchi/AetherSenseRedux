@@ -12,7 +12,8 @@ namespace AetherSenseRedux
         Uninitialized,
         Connected,
         Connecting,
-        Disconnected
+        Disconnected,
+        Disconnecting
     }
 
     public enum WaitType

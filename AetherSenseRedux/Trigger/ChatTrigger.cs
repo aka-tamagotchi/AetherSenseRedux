@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Dalamud.Logging;
 using System.Collections.Concurrent;
+using XIVChatTypes;
 
 namespace AetherSenseRedux.Trigger
 {
@@ -21,6 +22,8 @@ namespace AetherSenseRedux.Trigger
         public List<Device> Devices { get; init; }
         public List<string> EnabledDevices { get; init; }
         public PatternConfig PatternSettings { get; init; }
+        private XIVChatFilter Filter { get; init; }
+        public bool UseFilter { get; init; }
 
         // ChatTrigger properties
         private ConcurrentQueue<ChatMessage> _messages;
@@ -43,10 +46,12 @@ namespace AetherSenseRedux.Trigger
             Devices = devices;
             EnabledDevices = configuration.EnabledDevices;
             PatternSettings = PatternFactory.GetPatternConfigFromObject(configuration.PatternSettings);
+
             Regex = new Regex(configuration.Regex);
             RetriggerDelay = configuration.RetriggerDelay;
+            UseFilter = configuration.UseFilter;
+            Filter = new XIVChatFilter(configuration.FilterTable);
 
-            // ChatTrigger properties
             _messages = new ConcurrentQueue<ChatMessage>();
             RetriggerTime = DateTime.MinValue;
             Guid = Guid.NewGuid();
@@ -61,8 +66,9 @@ namespace AetherSenseRedux.Trigger
         {
             if (Enabled)
             {
-                 PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
-                 _messages.Enqueue(message);
+                PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
+
+                _messages.Enqueue(message);
             }
         }
 
@@ -127,12 +133,17 @@ namespace AetherSenseRedux.Trigger
                 if (_messages.TryDequeue(out message))
                 {
                     PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
-                    if (Regex.IsMatch(message.ToString()))
+                    if (UseFilter && !Filter.Match(message.ChatType))
                     {
-                        OnTrigger();
-                        PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
+                        continue;
                     }
-                    await Task.Yield();
+                    if (!Regex.IsMatch(message.ToString()))
+                    {
+                        continue;
+                    }
+                    
+                    OnTrigger();
+                    PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
                 } else
                 {
                     await Task.Delay(50);
@@ -152,6 +163,24 @@ namespace AetherSenseRedux.Trigger
         public override string Name { get; set; } = "New Chat Trigger";
         public string Regex { get; set; } = "Your Regex Here";
         public long RetriggerDelay { get; set; } = 0;
+        public bool UseFilter { get; set; } = false;
+        public bool[][] FilterTable { get; set; } = new bool[14][]
+                {
+                    new bool[27],   //General
+                    new bool[16],   // Battle: You
+                    new bool[16],   // Battle: Party
+                    new bool[16],   // Battle: Alliance
+                    new bool[16],   // Battle: Other PC
+                    new bool[16],   // Battle: Engaged
+                    new bool[16],   // Battle: Unengaged
+                    new bool[16],   // Battle: Friendly
+                    new bool[16],   // Battle: Pet
+                    new bool[16],   // Battle: Party Pet
+                    new bool[16],   // Battle: Alliance Pet
+                    new bool[16],   // Battle: Other's Pet
+                    new bool[33],   // Misc
+                    new bool[15]   // GM Messages
+                };
 
     }
 
@@ -167,10 +196,7 @@ namespace AetherSenseRedux.Trigger
         /// <param name="isHandled"></param>
         public ChatMessage(XivChatType chatType, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
-            ChatType = (uint)chatType & 0x7F;
-            Source = (uint)chatType >> 11;
-            Destination = ((uint)chatType >> 7) & 0xF;
-            FilterString = String.Format("{0:X1}{1:X1}{2:X2}",Source,Destination,ChatType);
+            ChatType = (uint)chatType;
             //SenderId = senderId;
             Sender = sender.TextValue;
             Message = message.TextValue;
@@ -178,9 +204,6 @@ namespace AetherSenseRedux.Trigger
         }
 
         public uint ChatType;
-        public uint Source;
-        public uint Destination;
-        public string FilterString;
         //public uint SenderId;
         public string Sender;
         public string Message;
@@ -188,103 +211,7 @@ namespace AetherSenseRedux.Trigger
 
         public override string ToString()
         {
-            return string.Format("{2} <{0}> {1}", Sender, Message, FilterString);
+            return string.Format("<{0}> {1}", Sender, Message);
         }
-    }
-
-    enum MessageType : ushort
-    {
-        None = 0,
-        Debug = 1,
-        Urgent = 2,
-        Notice = 3,
-        
-        Say = 10,
-        Shout = 11,
-        TellOutGoing = 12,
-        TellIncoming = 13,
-        Party = 14,
-        Alliance = 15,
-        Ls1 = 16,
-        Ls2 = 17,
-        Ls3 = 18,
-        Ls4 = 19,
-        Ls5 = 20,
-        Ls6 = 21,
-        Ls7 = 22,
-        Ls8 = 23,
-        FreeCompany = 24,
-
-        NoviceNetwork = 27,
-        CustomEmote = 28,
-        StandardEmote = 29,
-        Yell = 30,
-        
-        CrossWorldParty = 32, // not verified
-
-        PvPTeam = 36,
-        Cwls1 = 37,
-
-        AttackHit = 41,
-        AttackMiss = 42,
-        Action = 43,
-        Item = 44,
-        Healing = 45,
-        Buff = 46,
-        Debuff = 47,
-        BuffEnd = 48,
-        DebuffEnd = 49,
-
-        Alarm = 55,
-        Echo = 56,
-        SystemMessage = 57,
-        BattleSystemMessage = 58,
-        GatheringSystemMessage = 59,
-        Error = 60,
-        NPCDialogue = 61,
-        LootNotice = 62,
-
-        ProgressionMessage = 64,
-        LootMessage = 65,
-        SynthesisMessage = 66,
-        GatheringMessage = 67,
-        NPCAnnouncement = 68,
-        FreeCompanyAnnouncement = 69,
-        FreeCompanyLogin = 70,
-        SaleNotification = 71,
-        PartyFinderNotice = 72,
-        SignMessage = 73,
-        RandomNumberMessage = 74,
-        NoviceNetworkNotification = 75,
-        OrchestrionNotification = 76,
-        PvPTeamAnnouncement = 77,
-        PvPLogin = 78,
-        MessageBookAlert = 79,
-        
-        Cwls2 = 101,
-        Cwls3 = 102,
-        Cwls4 = 103,
-        Cwls5 = 104,
-        Cwls6 = 105,
-        Cwls7 = 106,
-        Cwls8 = 107
-        
-
-    }
-
-    enum MessageTarget   : ushort
-    {
-        System = 0x0,
-        You = 0x1,
-        Party = 0x2,
-        Alliance = 0x3,
-        Other = 0x4,
-        EngagedHostile = 0x5,
-        UnengagedHostile = 0x6,
-        FriendlyNPC = 0x7,
-        Pet = 0x8,
-        PartyPet = 0x9,
-        AlliancePet = 0xA,
-        OtherPet = 0xB
     }
 }
