@@ -4,7 +4,7 @@
 
 Turn your Warrior of Light into the Warrior of Butt with regex-powered realtime log parsing. Configure custom vibration patterns for game controllers, bluetooth-enabled sex toys, and more!
 
-Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [Buttplug](https://buttplug.io/), configured by you.
+Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [Buttplug](https://buttplug.io/), controlled by you.
 
 ### Installation
 
@@ -27,3 +27,8 @@ TODO: Write usage instructions
 This project is a labor of love, and I don't earn any money for developing it. But if you've gotten something out of it and want to give back, please, buy me a coffee!
 
 [<img src="https://img.buymeacoffee.com/api/?url=aHR0cHM6Ly9jZG4uYnV5bWVhY29mZmVlLmNvbS91cGxvYWRzL3Byb2ZpbGVfcGljdHVyZXMvMjAyMS8wNi8yMzJiYzkyZjJlNmYzYjJmZjk2MTQ2NDFmZjJkY2I3ZC5qcGdAMzAwd18wZS53ZWJw&creator=tamagotchi+%28digital+pet%29&is_creating=modern%20retro%20tech&design_code=1&design_color=%23BD5FFF&slug=tamagotchi" width="400">](https://www.buymeacoffee.com/tamagotchi)
+
+### Credits
+
+Uses [XIVChatTools](https://github.com/digital-pet/XIVChatTools) for extended filtering capabilities.
+Inspired by the original [AetherSense](https://github.com/Ms-Tress/AetherSense) plugin by Ms Tress.
