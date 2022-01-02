@@ -173,7 +173,7 @@ namespace AetherSenseRedux
         /// </summary>
         public void Dispose()
         {
-            Stop();
+            Stop(true);
             PluginUi.Dispose();
             CommandManager.RemoveHandler(commandName);
         }
@@ -188,7 +188,7 @@ namespace AetherSenseRedux
         {
 
             PluginLog.Information("Device {0} added", e.Device.Name);
-            Device newDevice = new(e.Device, WaitType.Use_Sleep);
+            Device newDevice = new(e.Device, WaitType);
             this.DevicePool.Add(newDevice);
             if (!Configuration.SeenDevices.Contains(newDevice.Name)){
                 Configuration.SeenDevices.Add(newDevice.Name);
@@ -204,6 +204,10 @@ namespace AetherSenseRedux
         /// <param name="e"></param>
         private void OnDeviceRemoved(object? sender, DeviceRemovedEventArgs e)
         {
+            if(Status != ButtplugStatus.Connected)
+            {
+                return;
+            }
             PluginLog.Information("Device {0} removed", e.Device.Name);
             var toRemove = new List<Device>();
             lock (this.DevicePool)
@@ -252,15 +256,13 @@ namespace AetherSenseRedux
         /// <param name="e"></param>
         private void OnServerDisconnect(object? sender, EventArgs e)
         {
-            PluginLog.Debug("Server Disconnected");
             if (Status == ButtplugStatus.Disconnecting)
             {
                 return;
             }
 
-            CleanTriggers();
-            CleanDevices();
-            CleanButtplug();
+            Stop(false);
+            PluginLog.Error("Unexpected disconnect.");
         }
 
         private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
@@ -358,13 +360,13 @@ namespace AetherSenseRedux
                 {
                     PluginLog.Error(ex, "Buttplug failed to connect.");
                     LastException = ex;
-                    Stop();
+                    Stop(false);
                 }
             }
 
             if (Connected)
             {
-                PluginLog.Debug("Buttplug initialized and connected.");
+                PluginLog.Information("Buttplug connected.");
                 _status = ButtplugStatus.Connected;
             }
 
@@ -381,7 +383,8 @@ namespace AetherSenseRedux
                 try 
                 {
                     var t = Buttplug!.DisconnectAsync();
-                    t.Wait(); 
+                    t.Wait();
+                    PluginLog.Information("Buttplug disconnected.");
                 }
                 catch (Exception ex)
                 {
@@ -405,6 +408,7 @@ namespace AetherSenseRedux
                 }
                 DevicePool.Clear();
             }
+            PluginLog.Debug("Devices destroyed.");
         }
 
         /// <summary>
@@ -421,6 +425,7 @@ namespace AetherSenseRedux
             _status = ButtplugStatus.Disconnected;
             Buttplug.Dispose();
             Buttplug = null;
+            PluginLog.Debug("Buttplug destroyed.");
         }
 
         /// <summary>
@@ -493,11 +498,14 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        public void Stop()
+        public void Stop(bool expected)
         {
             CleanTriggers();
             CleanDevices();
-            DisconnectButtplug();
+            if (expected)
+            {
+                DisconnectButtplug();
+            }
             CleanButtplug();
         }
         // END START AND STOP FUNCTIONS

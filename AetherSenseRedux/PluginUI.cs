@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using XIVChatTypes;
-//using System.Threading.Tasks;
 
 namespace AetherSenseRedux
 {
@@ -61,7 +60,7 @@ namespace AetherSenseRedux
         }
 
         /// <summary>
-        /// Draws the settings window and does a little housekeeping with the working copy of the config since imgui encourages mixing UI and logic. 
+        /// Draws the settings window and does a little housekeeping with the working copy of the config. 
         /// </summary>
         private void DrawSettingsWindow()
         {
@@ -137,10 +136,17 @@ namespace AetherSenseRedux
                         {
                             if (ImGui.Button("Disconnect"))
                             {
-                                plugin.Stop();
+                                plugin.Stop(true);
                             }
                         }
-                        else
+                        else if (plugin.Status == ButtplugStatus.Connecting || plugin.Status == ButtplugStatus.Disconnecting)
+                        {
+                            if (ImGui.Button("Wait..."))
+                            {
+
+                            }
+                        }
+                        else 
                         {
                             if (ImGui.Button("Connect"))
                             {
@@ -186,7 +192,6 @@ namespace AetherSenseRedux
                     }
                     if (ImGui.BeginTabItem("Triggers"))
                     {
-                        var listToRemove = new List<dynamic>();
                         ImGui.BeginChild("leftouter", new Vector2(155,0));
                         ImGui.Indent(1);
                         ImGui.BeginChild("left", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true);
@@ -225,7 +230,7 @@ namespace AetherSenseRedux
                             
                         ImGui.BeginChild("right", new Vector2(0, 0), false);
                         ImGui.Indent(1);
-                        if (WorkingCopy!.Triggers.Count == 0)
+                        if (WorkingCopy.Triggers.Count == 0)
                         {
                             ImGui.Text("Use the Add New button to add a trigger.");
 
@@ -319,7 +324,6 @@ namespace AetherSenseRedux
             ImGui.End();
         }
 
-
         /// <summary>
         /// Draws the configuration interface for chat triggers
         /// </summary>
@@ -330,229 +334,266 @@ namespace AetherSenseRedux
             {
                 
                 
-                if (ImGui.BeginTabItem("Basic"))
+                DrawChatTriggerBasicTab(t);
+
+                DrawTriggerDevicesTab(t);
+
+                if (t.UseFilter)
                 {
-
-                    //begin name field
-                    var name = (string)t.Name;
-                    if (ImGui.InputText("Name", ref name, 64))
-                    {
-                        t.Name = name;
-                    }
-                    //end name field
-
-                    //begin regex field
-                    var regex = (string)t.Regex;
-                    if (ImGui.InputText("Regex", ref regex, 255))
-                    {
-                        t.Regex = regex;
-                    }
-                    //end regex field
-
-                    //begin retrigger delay field
-                    var retriggerdelay = (int)t.RetriggerDelay;
-                    if (ImGui.InputInt("Retrigger Delay (ms)", ref retriggerdelay))
-                    {
-                        t.RetriggerDelay = (long)retriggerdelay;
-                    }
-                    //end retrigger delay field
-                    var usefilter = (bool)t.UseFilter;
-                    if (ImGui.Checkbox("Use Filters", ref usefilter))
-                    {
-                        t.UseFilter = usefilter;
-                    }
-
-                    ImGui.EndTabItem();
+                    DrawChatTriggerFilterTab(t);
                 }
 
-                ////
-                ////    DEVICES TAB
-                ////
-                if (ImGui.BeginTabItem("Devices"))
-                {
-                    
-                    //Begin enabled devices selection
-                    WorkingCopy!.SeenDevices = new List<string>(configuration.SeenDevices);
-                    if (WorkingCopy.SeenDevices.Count > 0)
-                    {
-                        bool[] selected = new bool[WorkingCopy.SeenDevices.Count];
-                        bool modified = false;
-                        foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
-                        {
-                            if (t.EnabledDevices.Contains(device))
-                            {
-                                selected[j] = true;
-                            }
-                            else
-                            {
-                                selected[j] = false;
-                            }
-                        }
-                        if (ImGui.BeginListBox("Enabled Devices"))
-                        {
-                            foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
-                            {
-                                if (ImGui.Selectable(device, selected[j]))
-                                {
-                                    selected[j] = !selected[j];
-                                    modified = true;
-                                }
-                            }
-                            ImGui.EndListBox();
-                        }
-                        if (modified)
-                        {
-                            var toEnable = new List<string>();
-                            foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
-                            {
-                                if (selected[j])
-                                {
-                                    toEnable.Add(device);
-                                }
-                            }
-                            t.EnabledDevices = toEnable;
-                        }
-                    } else
-                    {
-                        ImGui.Text("Connect to Intiface and connect devices to populate the list.");
-                    }
-                    //end enabled devices selection
-                    
-                    ImGui.EndTabItem();
-                }
-                
-                ////
-                ////    FILTERS TAB
-                ////
-                if (ImGui.BeginTabItem("Filters"))
-                {
-                    if (ImGui.BeginCombo("##filtercategory", XIVChatFilter.FilterCategoryNames[SelectedFilterCategory]))
-                    {
-                        var k = 0;
-                        foreach (string name in XIVChatFilter.FilterCategoryNames)
-                        {
-                            if(name == "GM Messages")
-                            {
-                                // don't show the GM chat options for this filter configuration.
-                                k++;
-                                continue;
-                            }
-
-                            bool is_selected = k == SelectedFilterCategory;
-                            if (ImGui.Selectable(name, is_selected))
-                            {
-                                SelectedFilterCategory = k;
-                            }
-                            k++;
-                        }
-                        ImGui.EndCombo();
-                    }
-                    if (ImGui.BeginChild("filtercatlist", new Vector2(0,0)))
-                    {
-                        var i = 0;
-                        bool modified = false;
-                        foreach (string name in XIVChatFilter.FilterNames[SelectedFilterCategory])
-                        {
-                            if (name == "Novice Network" || name == "Novice Network Notifications")
-                            {
-                                // don't show novice network as selectable filters either.
-                                i++;
-                                continue;
-                            }
-
-                            bool filtersetting = t.FilterTable[SelectedFilterCategory][i];
-
-                            if (ImGui.Checkbox(name, ref filtersetting))
-                            {
-                                modified = true;
-                            }
-                            if (modified)
-                            {
-                                t.FilterTable[SelectedFilterCategory][i] = filtersetting;
-                            }
-                            i++;
-                        }
-                        ImGui.EndChild();
-                    }
-                    ImGui.EndTabItem();
-                }
-                
-                ////
-                ////    PATTERN TAB
-                ////
-                if (ImGui.BeginTabItem("Pattern"))
-                {
-                    string[] patterns = { "Constant", "Ramp", "Random", "Square", "Saw"};
-
-                    //begin pattern selection
-                    if (ImGui.BeginCombo("##combo",t.PatternSettings.Type))
-                    {
-                        foreach (string pattern in patterns)
-                        {
-                            bool is_selected = t.PatternSettings.Type == pattern;
-                            if(ImGui.Selectable(pattern, is_selected))
-                            {
-                                if (t.PatternSettings.Type != pattern)
-                                {
-                                    t.PatternSettings = PatternFactory.GetDefaultsFromString(pattern);
-                                }
-                            }
-                            if (is_selected)
-                            {
-                                ImGui.SetItemDefaultFocus();
-                            }
-                        }
-                        ImGui.EndCombo();
-                    }
-                    //end pattern selection
-
-                    ImGui.SameLine();
-                    
-                    //begin test button
-                    if (ImGui.ArrowButton("test", ImGuiDir.Right))
-                    {
-                        plugin.DoPatternTest(t.PatternSettings);
-                    }
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.SetTooltip("Preview pattern on all devices.");
-                    }
-                    //end test button
-
-                    ImGui.Indent();
-                    
-                    //begin pattern settings
-                    switch ((string)t.PatternSettings.Type)
-                    {
-                        case "Constant":
-                            DrawConstantPatternSettings(t.PatternSettings);
-                            break;
-                        case "Ramp":
-                            DrawRampPatternSettings(t.PatternSettings);
-                            break;
-                        case "Saw":
-                            DrawSawPatternSettings(t.PatternSettings);
-                            break;
-                        case "Random":
-                            DrawRandomPatternSettings(t.PatternSettings);
-                            break;
-                        case "Square":
-                            DrawSquarePatternSettings(t.PatternSettings);
-                            break;
-                        default:
-                            //we should never get here but just in case
-                            ImGui.Text("Select a valid pattern.");
-                            break;
-                    }
-                    //end pattern settings
-                    
-                    ImGui.Unindent();
-
-                    ImGui.EndTabItem();
-                }
+                DrawTriggerPatternTab(t);
                 
                 
                 ImGui.EndTabBar();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        private void DrawChatTriggerBasicTab(ChatTriggerConfig t)
+        {
+            if (ImGui.BeginTabItem("Basic"))
+            {
+
+                //begin name field
+                var name = (string)t.Name;
+                if (ImGui.InputText("Name", ref name, 64))
+                {
+                    t.Name = name;
+                }
+                //end name field
+
+                //begin regex field
+                var regex = (string)t.Regex;
+                if (ImGui.InputText("Regex", ref regex, 255))
+                {
+                    t.Regex = regex;
+                }
+                //end regex field
+
+                //begin retrigger delay field
+                var retriggerdelay = (int)t.RetriggerDelay;
+                if (ImGui.InputInt("Retrigger Delay (ms)", ref retriggerdelay))
+                {
+                    t.RetriggerDelay = (long)retriggerdelay;
+                }
+                //end retrigger delay field
+                var usefilter = (bool)t.UseFilter;
+                if (ImGui.Checkbox("Use Filters", ref usefilter))
+                {
+                    t.UseFilter = usefilter;
+                }
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        private void DrawTriggerDevicesTab(TriggerConfig t)
+        {
+            ////
+            ////    DEVICES TAB
+            ////
+            if (ImGui.BeginTabItem("Devices"))
+            {
+
+                //Begin enabled devices selection
+                WorkingCopy!.SeenDevices = new List<string>(configuration.SeenDevices);
+                if (WorkingCopy.SeenDevices.Count > 0)
+                {
+                    bool[] selected = new bool[WorkingCopy.SeenDevices.Count];
+                    bool modified = false;
+                    foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
+                    {
+                        if (t.EnabledDevices.Contains(device))
+                        {
+                            selected[j] = true;
+                        }
+                        else
+                        {
+                            selected[j] = false;
+                        }
+                    }
+                    if (ImGui.BeginListBox("Enabled Devices"))
+                    {
+                        foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
+                        {
+                            if (ImGui.Selectable(device, selected[j]))
+                            {
+                                selected[j] = !selected[j];
+                                modified = true;
+                            }
+                        }
+                        ImGui.EndListBox();
+                    }
+                    if (modified)
+                    {
+                        var toEnable = new List<string>();
+                        foreach (var (device, j) in WorkingCopy.SeenDevices.Select((value, i) => (value, i)))
+                        {
+                            if (selected[j])
+                            {
+                                toEnable.Add(device);
+                            }
+                        }
+                        t.EnabledDevices = toEnable;
+                    }
+                }
+                else
+                {
+                    ImGui.Text("Connect to Intiface and connect devices to populate the list.");
+                }
+                //end enabled devices selection
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        private void DrawChatTriggerFilterTab(ChatTriggerConfig t)
+        {
+            if (ImGui.BeginTabItem("Filters"))
+            {
+                if (ImGui.BeginCombo("##filtercategory", XIVChatFilter.FilterCategoryNames[SelectedFilterCategory]))
+                {
+                    var k = 0;
+                    foreach (string name in XIVChatFilter.FilterCategoryNames)
+                    {
+                        if (name == "GM Messages")
+                        {
+                            // don't show the GM chat options for this filter configuration.
+                            k++;
+                            continue;
+                        }
+
+                        bool is_selected = k == SelectedFilterCategory;
+                        if (ImGui.Selectable(name, is_selected))
+                        {
+                            SelectedFilterCategory = k;
+                        }
+                        k++;
+                    }
+                    ImGui.EndCombo();
+                }
+                if (ImGui.BeginChild("filtercatlist", new Vector2(0, 0)))
+                {
+                    var i = 0;
+                    bool modified = false;
+                    foreach (string name in XIVChatFilter.FilterNames[SelectedFilterCategory])
+                    {
+                        if (name == "Novice Network" || name == "Novice Network Notifications")
+                        {
+                            // don't show novice network as selectable filters either.
+                            i++;
+                            continue;
+                        }
+
+                        bool filtersetting = t.FilterTable[SelectedFilterCategory][i];
+
+                        if (ImGui.Checkbox(name, ref filtersetting))
+                        {
+                            modified = true;
+                        }
+                        if (modified)
+                        {
+                            t.FilterTable[SelectedFilterCategory][i] = filtersetting;
+                        }
+                        i++;
+                    }
+                    ImGui.EndChild();
+                }
+                ImGui.EndTabItem();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        private void DrawTriggerPatternTab(TriggerConfig t)
+        {
+            ////
+            ////    PATTERN TAB
+            ////
+            if (ImGui.BeginTabItem("Pattern"))
+            {
+                string[] patterns = { "Constant", "Ramp", "Random", "Square", "Saw" };
+
+                //begin pattern selection
+                if (ImGui.BeginCombo("##combo", t.PatternSettings!.Type))
+                {
+                    foreach (string pattern in patterns)
+                    {
+                        bool is_selected = t.PatternSettings.Type == pattern;
+                        if (ImGui.Selectable(pattern, is_selected))
+                        {
+                            if (t.PatternSettings.Type != pattern)
+                            {
+                                t.PatternSettings = PatternFactory.GetDefaultsFromString(pattern);
+                            }
+                        }
+                        if (is_selected)
+                        {
+                            ImGui.SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui.EndCombo();
+                }
+                //end pattern selection
+
+                ImGui.SameLine();
+
+                //begin test button
+                if (ImGui.ArrowButton("test", ImGuiDir.Right))
+                {
+                    plugin.DoPatternTest(t.PatternSettings);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Preview pattern on all devices.");
+                }
+                //end test button
+
+                ImGui.Indent();
+
+                //begin pattern settings
+                switch ((string)t.PatternSettings.Type)
+                {
+                    case "Constant":
+                        DrawConstantPatternSettings(t.PatternSettings);
+                        break;
+                    case "Ramp":
+                        DrawRampPatternSettings(t.PatternSettings);
+                        break;
+                    case "Saw":
+                        DrawSawPatternSettings(t.PatternSettings);
+                        break;
+                    case "Random":
+                        DrawRandomPatternSettings(t.PatternSettings);
+                        break;
+                    case "Square":
+                        DrawSquarePatternSettings(t.PatternSettings);
+                        break;
+                    default:
+                        //we should never get here but just in case
+                        ImGui.Text("Select a valid pattern.");
+                        break;
+                }
+                //end pattern settings
+
+                ImGui.Unindent();
+
+                ImGui.EndTabItem();
             }
         }
 
