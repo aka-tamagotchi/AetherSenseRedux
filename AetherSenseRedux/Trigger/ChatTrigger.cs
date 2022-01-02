@@ -179,7 +179,7 @@ namespace AetherSenseRedux.Trigger
                     new bool[16],   // Battle: Alliance Pet
                     new bool[16],   // Battle: Other's Pet
                     new bool[33],   // Misc
-                    new bool[15]   // GM Messages
+                    new bool[15]    // GM Messages
                 };
 
     }
