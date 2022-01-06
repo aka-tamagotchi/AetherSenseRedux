@@ -10,7 +10,7 @@ Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [
 
 #### Preferred Method
  
-Install the plugin through Dalamud with the testing channel enabled.
+Install the plugin through Dalamud with the testing channel enabled. (Note: coming soon.)
 
 #### Bleeding Method
 
