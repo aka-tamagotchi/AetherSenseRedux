@@ -10,11 +10,11 @@ Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [
 
 #### Preferred Method
  
-Install the plugin through Dalamud with the testing channel enabled. (Note: coming soon.)
+Install the plugin through Dalamud with the testing channel enabled. (Note: coming soon. Mayhaps?)
 
 #### Bleeding Method
 
-If you want bleeding edge not-quite dailies, add `https://raw.githubusercontent.com/digital-pet/EgirlPlugins/main/repo.json` to your custom repo list.
+If you want bleeding edge not-quite dailies, add `https://raw.githubusercontent.com/aka-tamagotchi/EgirlPlugins/main/repo.json` to your custom repo list.
 
 #### Manual Method
 
