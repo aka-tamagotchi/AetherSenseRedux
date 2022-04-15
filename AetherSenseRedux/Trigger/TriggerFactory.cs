@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using AetherSenseRedux.Pattern;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace AetherSenseRedux.Trigger
 {
@@ -30,42 +31,56 @@ namespace AetherSenseRedux.Trigger
                 case "Chat":
                     var size1 = 0;
                     var size2 = 0;
-                    try
-                    {
-                        size1 = o.FilterTable.Count;
-                    }
-                    catch (Exception)
-                    {
-                        size1 = o.FilterTable.Length;
-                    }
 
-                    bool[][] filters = new bool[size1][];
-                    for (int i = 0; i < filters.Length; i++)
+                    try
                     {
                         try
                         {
-                            size2 = o.FilterTable[i].Count;
+                            size1 = o.FilterTable.Count;
                         }
                         catch (Exception)
                         {
-                            size2 = o.FilterTable[i].Length;
+                            size1 = o.FilterTable.Length;
                         }
-                        filters[i] = new bool[size2];
-                        for (int j = 0; j < filters[i].Length; j++)
+
+                        bool[][] filters = new bool[size1][];
+                        for (int i = 0; i < filters.Length; i++)
                         {
-                            filters[i][j] = (bool)o.FilterTable[i][j];
+                            try
+                            {
+                                size2 = o.FilterTable[i].Count;
+                            }
+                            catch (Exception)
+                            {
+                                size2 = o.FilterTable[i].Length;
+                            }
+                            filters[i] = new bool[size2];
+                            for (int j = 0; j < filters[i].Length; j++)
+                            {
+                                filters[i][j] = (bool)o.FilterTable[i][j];
+                            }
                         }
-                    }
-                    return new ChatTriggerConfig()
+                        return new ChatTriggerConfig()
+                        {
+                            Name = (string)o.Name,
+                            Regex = (string)o.Regex,
+                            RetriggerDelay = (long)o.RetriggerDelay,
+                            EnabledDevices = devices,
+                            PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings),
+                            FilterTable = filters,
+                            UseFilter = o.UseFilter
+                        };
+                    } catch (RuntimeBinderException)
                     {
-                        Name = (string)o.Name,
-                        Regex = (string)o.Regex,
-                        RetriggerDelay = (long)o.RetriggerDelay,
-                        EnabledDevices = devices,
-                        PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings),
-                        FilterTable = filters,
-                        UseFilter = o.UseFilter
-                    };
+                        return new ChatTriggerConfig()
+                        {
+                            Name = (string)o.Name,
+                            Regex = (string)o.Regex,
+                            RetriggerDelay = (long)o.RetriggerDelay,
+                            EnabledDevices = devices,
+                            PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings)
+                        };
+                    }
                 default:
                     throw new ArgumentException(String.Format("Invalid trigger {0} specified", o.Type));
             }

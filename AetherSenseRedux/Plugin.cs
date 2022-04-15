@@ -137,6 +137,7 @@ namespace AetherSenseRedux
 
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
+
             Configuration.FixDeserialization();
 
             _status = ButtplugStatus.Disconnected;
