@@ -3,11 +3,11 @@
   <PropertyGroup>
 	<Authors>Tama Gotchi (digital-pet)</Authors>
 	<Company></Company>
-	  <Version>0.6.22.0</Version>
+	  <Version>0.7.0.0</Version>
 	<Description>Buttplugs on the moon</Description>
 	<Copyright>All Rights Reserved</Copyright>
 	<PackageProjectUrl>https://github.com/digital-pet/AetherSenseRedux</PackageProjectUrl>
-	<TargetFramework>net5.0-windows</TargetFramework>
+	<TargetFramework>net6.0-windows</TargetFramework>
 	<Platforms>x64</Platforms>
 	<Nullable>enable</Nullable>
 	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -25,7 +25,7 @@
 	
   <ItemGroup>
     <PackageReference Include="Buttplug" Version="2.0.6" GeneratePathProperty="true" />
-    <PackageReference Include="DalamudPackager" Version="2.1.6" GeneratePathProperty="true" />
+    <PackageReference Include="DalamudPackager" Version="2.1.8" GeneratePathProperty="true" />
 	  <Reference Include="FFXIVClientStructs">
 		  <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
 		  <Private>false</Private>
