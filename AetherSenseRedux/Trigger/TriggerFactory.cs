@@ -72,6 +72,7 @@ namespace AetherSenseRedux.Trigger
                         };
                     } catch (RuntimeBinderException)
                     {
+                        // Handle version 1 configurations without filter tables that would otherwise crash the plugin
                         return new ChatTriggerConfig()
                         {
                             Name = (string)o.Name,
