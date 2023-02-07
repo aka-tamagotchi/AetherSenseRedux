@@ -11,7 +11,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 
-using Buttplug;
+using Buttplug.Client;
+using Buttplug.Client.Connectors.WebsocketConnector;
 using AetherSenseRedux.Trigger;
 using AetherSenseRedux.Pattern;
 using System.Diagnostics;
@@ -75,7 +76,9 @@ namespace AetherSenseRedux
                 {
                     return false;
                 }
-                return Buttplug.IsScanning;
+                // Buttplug.IsScanning no longer exists?
+                // return Buttplug.IsScanning;
+                return false;
             }
         }
 
@@ -353,7 +356,7 @@ namespace AetherSenseRedux
             {
                 try
                 {
-                    ButtplugWebsocketConnectorOptions wsOptions = new(new Uri(Configuration.Address));
+                    ButtplugWebsocketConnector wsOptions = new(new Uri(Configuration.Address));
                     await Buttplug.ConnectAsync(wsOptions);
                     var t = DoScan();
                 }
