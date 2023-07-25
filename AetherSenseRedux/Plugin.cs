@@ -108,7 +108,7 @@ namespace AetherSenseRedux
         private CommandManager CommandManager { get; init; }
         private Configuration Configuration { get; set; }
         [PluginService] private ChatGui ChatGui { get; init; } = null!;
-        private PluginUI PluginUi { get; init; }
+        private PluginUi PluginUi { get; init; }
 
         private ButtplugClient? Buttplug;
 
@@ -155,7 +155,7 @@ namespace AetherSenseRedux
                 Configuration.LoadDefaults();
             }
 
-            PluginUi = new PluginUI(Configuration, this);
+            PluginUi = new PluginUi(Configuration, this);
 
             CommandManager.AddHandler(commandName, new CommandInfo(OnShowUI)
             {
