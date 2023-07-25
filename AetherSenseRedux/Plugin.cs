@@ -8,14 +8,14 @@ using Dalamud.Game.Text.SeStringHandling;
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
-using Buttplug;
 using AetherSenseRedux.Trigger;
 using AetherSenseRedux.Pattern;
 using System.Diagnostics;
 using System.Threading;
+using Buttplug.Client;
+using Buttplug.Client.Connectors.WebsocketConnector;
 
 namespace AetherSenseRedux
 {
@@ -66,16 +66,6 @@ namespace AetherSenseRedux
                 }
 
                 
-            }
-        }
-
-        public bool Scanning { get
-            {
-                if (Buttplug == null)
-                {
-                    return false;
-                }
-                return Buttplug.IsScanning;
             }
         }
 
@@ -353,7 +343,7 @@ namespace AetherSenseRedux
             {
                 try
                 {
-                    ButtplugWebsocketConnectorOptions wsOptions = new(new Uri(Configuration.Address));
+                    ButtplugWebsocketConnector wsOptions = new(new Uri(Configuration.Address));
                     await Buttplug.ConnectAsync(wsOptions);
                     var t = DoScan();
                 }
