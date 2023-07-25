@@ -90,28 +90,8 @@ internal class PluginUi : IDisposable
         ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
         if (ImGui.Begin("AetherSense Redux", ref _settingsVisible, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar))
         {
-            ////
-            ////    MENU BAR
-            ////
-                
-            if (ImGui.BeginMenuBar())
-            {
-                if (ImGui.BeginMenu("File"))
-                {
-                    ImGui.MenuItem("Import...", "", false, false);
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.SetTooltip("NOT IMPLEMENTED");
-                    }
-                    ImGui.MenuItem("Export...", "", false, false);
-                    if (ImGui.IsItemHovered())
-                    {
-                        ImGui.SetTooltip("NOT IMPLEMENTED");
-                    }
-                    ImGui.EndMenu();
-                }
-                ImGui.EndMenuBar();
-            }
+               
+            DrawMenuBar();
 
             ////
             ////    BODY
@@ -120,206 +100,246 @@ internal class PluginUi : IDisposable
                 
             ImGui.Indent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
 
-            if (ImGui.BeginTabBar("MyTabBar", ImGuiTabBarFlags.None))
-            {
-                if (ImGui.BeginTabItem("Intiface"))
-                {
-                    var address = _workingCopy.Address;
-                    if (ImGui.InputText("Intiface Address", ref address, 64))
-                    {
-                        _workingCopy.Address = address;
-                    }
-                    ImGui.SameLine();
-                    if (_plugin.Status == ButtplugStatus.Connected)
-                    {
-                        if (ImGui.Button("Disconnect"))
-                        {
-                            _plugin.Stop(true);
-                        }
-                    }
-                    else if (_plugin.Status == ButtplugStatus.Connecting || _plugin.Status == ButtplugStatus.Disconnecting)
-                    {
-                        if (ImGui.Button("Wait..."))
-                        {
-
-                        }
-                    }
-                    else 
-                    {
-                        if (ImGui.Button("Connect"))
-                        {
-                            _configuration.Address = _workingCopy.Address;
-                            _plugin.Start();
-                        }
-                    }
-
-                    //if (ImGui.Button(plugin.Scanning ? "Scanning..." : "Scan Now")){
-                    //    if (!plugin.Scanning)
-                    //    {
-                    //        Task.Run(plugin.DoScan);
-                    //    }
-                    //}
-
-                    ImGui.Spacing();
-                    ImGui.BeginChild("status", new Vector2(0, 0), true);
-                    if (_plugin.WaitType == WaitType.Slow_Timer)
-                    {
-                        ImGui.TextColored(new Vector4(1,0,0,1), "High resolution timers not available, patterns will be inaccurate.");
-                    }
-                    ImGui.Text("Connection Status:");
-                    ImGui.Indent();
-                    ImGui.Text(_plugin.Status == ButtplugStatus.Connected ? "Connected" : _plugin.Status == ButtplugStatus.Connecting ? "Connecting..." : _plugin.Status == ButtplugStatus.Error ? "Error" : "Disconnected");
-                    if (_plugin.LastException != null)
-                    {
-                        ImGui.Text(_plugin.LastException.Message);
-                    }
-                    ImGui.Unindent();
-                    if (_plugin.Status == ButtplugStatus.Connected)
-                    {
-                        ImGui.Text("Devices Connected:");
-                        ImGui.Indent();
-                        foreach (var device in _plugin.ConnectedDevices)
-                        {
-                            ImGui.Text($"{device.Key} [{(int)device.Value}]");
-                        }
-                        ImGui.Unindent();
-                    }
-
-                    ImGui.EndChild();
-                    ImGui.EndTabItem();
-                }
-                if (ImGui.BeginTabItem("Triggers"))
-                {
-                    ImGui.BeginChild("leftouter", new Vector2(155, 0));
-                    ImGui.Indent(1);
-                    ImGui.BeginChild("left", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true);
-                            
-                    foreach (var (t, i) in _workingCopy.Triggers.Select((value, i) => (value, i)))
-                    {
-                        ImGui.PushID(i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
-                        if (ImGui.Selectable(string.Format("{0} ({1})", t.Name, t.Type), _selectedTrigger == i))
-                        {
-                            _selectedTrigger = i;
-                        }
-                        ImGui.PopID();
-                    }
-
-                    ImGui.EndChild();
-                    if (ImGui.Button("Add New"))
-                    {
-                        var triggers = _workingCopy.Triggers;
-                        triggers.Add(new ChatTriggerConfig()
-                                     {
-                                         PatternSettings = new ConstantPatternConfig()
-                                     });
-                    }
-                    ImGui.SameLine();
-                    if (ImGui.Button("Remove"))
-                    {
-                        _workingCopy.Triggers.RemoveAt(_selectedTrigger);
-                        if (_selectedTrigger >= _workingCopy.Triggers.Count)
-                        {
-                            _selectedTrigger = (_selectedTrigger > 0) ? _workingCopy.Triggers.Count - 1 : 0;
-                        }
-                    }
-
-                    ImGui.EndChild();
-                    ImGui.SameLine();
-                            
-                    ImGui.BeginChild("right", new Vector2(0, 0), false);
-                    ImGui.Indent(1);
-                    if (_workingCopy.Triggers.Count == 0)
-                    {
-                        ImGui.Text("Use the Add New button to add a trigger.");
-
-                    } 
-                    else
-                    {
-                        DrawChatTriggerConfig(_workingCopy.Triggers[_selectedTrigger]);
-                    }
-                    ImGui.Unindent();
-                    ImGui.EndChild();
-
-                    ImGui.EndTabItem();
-                }
-                if (ImGui.BeginTabItem("Advanced"))
-                {
-                    var configValue = _workingCopy.LogChat;
-                    if (ImGui.Checkbox("Log Chat to Debug", ref configValue))
-                    {
-                        _workingCopy.LogChat = configValue;
-
-                    }
-                    if (ImGui.Button("Restore Default Triggers"))
-                    {
-                        _workingCopy.LoadDefaults();
-                    }
-                    ImGui.EndTabItem();
-                }
-                ImGui.EndTabBar();
-            }
+            DrawSettingsTabBar();
 
             ImGui.Unindent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
 
             ImGui.EndChild();
                 
-            ////
-            ////    FOOTER
-            ////
-            // save button
-            if (ImGui.Button("Save"))
-            {
-                _configuration.Import(_workingCopy);
-                _configuration.Save();
-                _plugin.Reload();
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.SetTooltip("Save configuration changes to disk.");
-            }
-            // end save button
-            ImGui.SameLine();
-            // apply button
-            if (ImGui.Button("Apply"))
-            {
-                _configuration.Import(_workingCopy);
-                _plugin.Reload();
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.SetTooltip("Apply configuration changes without saving.");
-            }
-            // end apply button
-            ImGui.SameLine();
-            // revert button
-            if (ImGui.Button("Revert"))
-            {
-                try
-                {
-                    var cloneConfig = _configuration.CloneConfigurationFromDisk();
-                    _configuration.Import(cloneConfig);
-                    _workingCopy.Import(_configuration);
-                }
-                catch (Exception ex)
-                {
-                    PluginLog.Error(ex, "Could not restore configuration.");
-                }
-
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
-            }
-            // end revert button
-
-            //ImGui.SameLine();
-            //if (ImGui.Button("Run Benchmark"))
-            //{
-            //    var t = Plugin.DoBenchmark();
-            //}
+            DrawFooter();
         }
 
         ImGui.End();
+    }
+
+    private void DrawFooter()
+    { 
+        // save button
+        if (ImGui.Button("Save")) {
+            _configuration.Import(_workingCopy);
+            _configuration.Save();
+            _plugin.Reload();
+        }
+
+        if (ImGui.IsItemHovered()) {
+            ImGui.SetTooltip("Save configuration changes to disk.");
+        }
+
+        // end save button
+        ImGui.SameLine();
+        // apply button
+        if (ImGui.Button("Apply")) {
+            _configuration.Import(_workingCopy);
+            _plugin.Reload();
+        }
+
+        if (ImGui.IsItemHovered()) {
+            ImGui.SetTooltip("Apply configuration changes without saving.");
+        }
+
+        // end apply button
+        ImGui.SameLine();
+        // revert button
+        if (ImGui.Button("Revert")) {
+            try {
+                var cloneConfig = _configuration.CloneConfigurationFromDisk();
+                _configuration.Import(cloneConfig);
+                _workingCopy.Import(_configuration);
+            } catch (Exception ex) {
+                PluginLog.Error(ex, "Could not restore configuration.");
+            }
+        }
+
+        if (ImGui.IsItemHovered()) {
+            ImGui.SetTooltip("Discard all changes and reload the configuration from disk.");
+        }
+        // end revert button
+
+        //ImGui.SameLine();
+        //if (ImGui.Button("Run Benchmark"))
+        //{
+        //    var t = Plugin.DoBenchmark();
+        //}
+    }
+
+    private void DrawSettingsTabBar()
+    {
+        using var settingsTabBar = ImRaii.TabBar("SettingsTabBar", ImGuiTabBarFlags.None);
+        if (!settingsTabBar)
+            return;
+        
+        DrawIntifaceTab();
+        DrawTriggersTab();
+        DrawAdvancedTab();
+    }
+
+    private void DrawAdvancedTab()
+    {
+        using var advancedTab = ImRaii.TabItem("Advanced");
+        if (!advancedTab)
+            return;
+        
+        var configValue = _workingCopy.LogChat;
+        if (ImGui.Checkbox("Log Chat to Debug", ref configValue)) {
+            _workingCopy.LogChat = configValue;
+        }
+
+        if (ImGui.Button("Restore Default Triggers")) {
+            _workingCopy.LoadDefaults();
+        }
+    }
+
+    private void DrawTriggersTab()
+    {
+        using var triggersTab = ImRaii.TabItem("triggers");
+        if (!triggersTab)
+            return;
+
+        using (var leftOuterChild = ImRaii.Child("leftouter", new Vector2(155, 0))) {
+            ImGui.Indent(1);
+            using (var leftChild = ImRaii.Child("left", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), true)) {
+                foreach (var (t, i) in _workingCopy.Triggers.Select((value, i) => (value, i))) {
+                    ImGui.PushID(
+                        i); // We push the iterator to the ID stack so multiple triggers of the same type and name are still distinct
+                    if (ImGui.Selectable(string.Format("{0} ({1})", t.Name, t.Type), _selectedTrigger == i)) {
+                        _selectedTrigger = i;
+                    }
+
+                    ImGui.PopID();
+                }
+            }
+
+            if (ImGui.Button("Add New")) {
+                var triggers = _workingCopy.Triggers;
+                triggers.Add(new ChatTriggerConfig()
+                             {
+                                 PatternSettings = new ConstantPatternConfig()
+                             });
+            }
+
+            ImGui.SameLine();
+            if (ImGui.Button("Remove")) {
+                _workingCopy.Triggers.RemoveAt(_selectedTrigger);
+                if (_selectedTrigger >= _workingCopy.Triggers.Count) {
+                    _selectedTrigger = (_selectedTrigger > 0) ? _workingCopy.Triggers.Count - 1 : 0;
+                }
+            }
+        }
+
+        ImGui.SameLine();
+
+        using (var rightChild = ImRaii.Child("right", new Vector2(0, 0), false)) {
+            ImGui.Indent(1);
+
+            if (_workingCopy.Triggers.Count == 0) {
+                ImGui.Text("Use the Add New button to add a trigger.");
+            } else {
+                DrawChatTriggerConfig(_workingCopy.Triggers[_selectedTrigger]);
+            }
+
+            ImGui.Unindent();
+        }
+    }
+
+    private void DrawIntifaceTab()
+    {
+        using var intifaceTab = ImRaii.TabItem("Intiface");
+        if (!intifaceTab) 
+            return;
+        
+        var address = _workingCopy.Address;
+        if (ImGui.InputText("Intiface Address", ref address, 64)) {
+            _workingCopy.Address = address;
+        }
+
+        ImGui.SameLine();
+        switch (_plugin.Status) {
+            case ButtplugStatus.Connected:
+            {
+                if (ImGui.Button("Disconnect")) {
+                    _plugin.Stop(true);
+                }
+
+                break;
+            }
+            case ButtplugStatus.Connecting:
+            case ButtplugStatus.Disconnecting:
+            {
+                if (ImGui.Button("Wait...")) { }
+
+                break;
+            }
+            case ButtplugStatus.Error:
+            case ButtplugStatus.Uninitialized:
+            case ButtplugStatus.Disconnected:
+            default:
+            {
+                if (ImGui.Button("Connect")) {
+                    _configuration.Address = _workingCopy.Address;
+                    _plugin.Start();
+                }
+
+                break;
+            }
+        }
+
+        //if (ImGui.Button(plugin.Scanning ? "Scanning..." : "Scan Now")){
+        //    if (!plugin.Scanning)
+        //    {
+        //        Task.Run(plugin.DoScan);
+        //    }
+        //}
+
+        ImGui.Spacing();
+        using var statusChild = ImRaii.Child("status", new Vector2(0, 0), true);
+        if (statusChild) {
+            if (_plugin.WaitType == WaitType.Slow_Timer) {
+                ImGui.TextColored(new Vector4(1, 0, 0, 1),
+                                  "High resolution timers not available, patterns will be inaccurate.");
+            }
+
+            ImGui.Text("Connection Status:");
+            ImGui.Indent();
+            ImGui.Text(_plugin.Status == ButtplugStatus.Connected  ? "Connected" :
+                       _plugin.Status == ButtplugStatus.Connecting ? "Connecting..." :
+                       _plugin.Status == ButtplugStatus.Error      ? "Error" : "Disconnected");
+            if (_plugin.LastException != null) {
+                ImGui.Text(_plugin.LastException.Message);
+            }
+
+            ImGui.Unindent();
+            if (_plugin.Status == ButtplugStatus.Connected) {
+                ImGui.Text("Devices Connected:");
+                ImGui.Indent();
+                foreach (var device in _plugin.ConnectedDevices) {
+                    ImGui.Text($"{device.Key} [{(int)device.Value}]");
+                }
+
+                ImGui.Unindent();
+            }
+        }
+    }
+
+    private static void DrawMenuBar()
+    {
+        if (!ImGui.BeginMenuBar()) 
+            return;
+        
+        if (ImGui.BeginMenu("File")) {
+            ImGui.MenuItem("Import...", "", false, false);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("NOT IMPLEMENTED");
+            }
+
+            ImGui.MenuItem("Export...", "", false, false);
+            if (ImGui.IsItemHovered()) {
+                ImGui.SetTooltip("NOT IMPLEMENTED");
+            }
+
+            ImGui.EndMenu();
+        }
+
+        ImGui.EndMenuBar();
     }
 
     /// <summary>
@@ -329,17 +349,16 @@ internal class PluginUi : IDisposable
     private void DrawChatTriggerConfig(dynamic t)
     {
         using var triggerConfigTabBar = ImRaii.TabBar("TriggerConfig", ImGuiTabBarFlags.None);
-        if (triggerConfigTabBar) {
-            DrawChatTriggerBasicTab(t);
+        if (!triggerConfigTabBar)
+            return;
 
-            DrawTriggerDevicesTab(t);
-
-            if (t.UseFilter) {
-                DrawChatTriggerFilterTab(t);
-            }
-
-            DrawTriggerPatternTab(t);
+        DrawChatTriggerBasicTab(t);
+        DrawTriggerDevicesTab(t);
+        if (t.UseFilter) {
+            DrawChatTriggerFilterTab(t);
         }
+
+        DrawTriggerPatternTab(t);
     }
 
     /// <summary>
