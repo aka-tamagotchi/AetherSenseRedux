@@ -293,7 +293,7 @@ internal class PluginUi : IDisposable
         ImGui.Spacing();
         using var statusChild = ImRaii.Child("status", new Vector2(0, 0), true);
         if (statusChild) {
-            if (_plugin.WaitType == WaitType.Slow_Timer) {
+            if (_plugin.WaitType == WaitType.SlowTimer) {
                 ImGui.TextColored(new Vector4(1, 0, 0, 1),
                                   "High resolution timers not available, patterns will be inaccurate.");
             }

@@ -5,44 +5,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AetherSenseRedux.Pattern
+namespace AetherSenseRedux.Pattern;
+
+internal class RampPattern : IPattern
 {
-    internal class RampPattern : IPattern
+    public           DateTime Expires { get; set; }
+    private readonly double   _startLevel;
+    private readonly double   _endLevel;
+    private readonly long     _duration;
+
+
+    public RampPattern(RampPatternConfig config)
     {
-        public DateTime Expires { get; set; }
-        private readonly double startLevel;
-        private readonly double endLevel;
-        private readonly long duration;
-
-
-        public RampPattern(RampPatternConfig config)
-        {
-            startLevel = config.Start;
-            endLevel = config.End;
-            this.duration = config.Duration;
-            Expires = DateTime.UtcNow + TimeSpan.FromMilliseconds(duration);
-        }
-
-        public double GetIntensityAtTime(DateTime time)
-        {
-            if (Expires < time)
-            {
-                throw new PatternExpiredException();
-            }
-            double progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)duration*10000));
-            return (endLevel - startLevel) * progress + startLevel;
-        }
-
-        public static PatternConfig GetDefaultConfiguration()
-        {
-            return new RampPatternConfig();
-        }
+        _startLevel    = config.Start;
+        _endLevel      = config.End;
+        _duration = config.Duration;
+        Expires       = DateTime.UtcNow + TimeSpan.FromMilliseconds(_duration);
     }
-    [Serializable]
-    public class RampPatternConfig : PatternConfig
+
+    public double GetIntensityAtTime(DateTime time)
     {
-        public override string Type { get; } = "Ramp";
-        public double Start { get; set; } = 0;
-        public double End { get; set; } = 1;
+        if (Expires < time)
+        {
+            throw new PatternExpiredException();
+        }
+        var progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)_duration *10000));
+        return (_endLevel      - _startLevel) * progress + _startLevel;
     }
+
+    public static PatternConfig GetDefaultConfiguration()
+    {
+        return new RampPatternConfig();
+    }
+}
+[Serializable]
+public class RampPatternConfig : PatternConfig
+{
+    public override string Type  { get; }      = "Ramp";
+    public          double Start { get; set; } = 0;
+    public          double End   { get; set; } = 1;
 }

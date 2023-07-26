@@ -1,96 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AetherSenseRedux.Pattern
+namespace AetherSenseRedux.Pattern;
+
+internal class PatternFactory
 {
-    internal class PatternFactory
+    public static IPattern GetPatternFromObject(PatternConfig settings)
     {
-        public static IPattern GetPatternFromObject(PatternConfig settings)
+        return settings.Type switch
         {
-            switch (settings.Type)
-            {
-                case "Constant":
-                    return new ConstantPattern((ConstantPatternConfig)settings);
-                case "Ramp":
-                    return new RampPattern((RampPatternConfig)settings);
-                case "Saw":
-                    return new SawPattern((SawPatternConfig)settings);
-                case "Random":
-                    return new RandomPattern((RandomPatternConfig)settings);
-                case "Square":
-                    return new SquarePattern((SquarePatternConfig)settings);
-                default:
-                    throw new ArgumentException(String.Format("Invalid pattern {0} specified", settings.Type));
-            }
-        }
+            "Constant" => new ConstantPattern((ConstantPatternConfig)settings),
+            "Ramp"     => new RampPattern((RampPatternConfig)settings),
+            "Saw"      => new SawPattern((SawPatternConfig)settings),
+            "Random"   => new RandomPattern((RandomPatternConfig)settings),
+            "Square"   => new SquarePattern((SquarePatternConfig)settings),
+            _          => throw new ArgumentException($"Invalid pattern {settings.Type} specified")
+        };
+    }
 
-        public static PatternConfig GetDefaultsFromString(string name)
+    public static PatternConfig GetDefaultsFromString(string name)
+    {
+        return name switch
         {
-            switch (name)
-            {
-                case "Constant":
-                    return ConstantPattern.GetDefaultConfiguration();
-                case "Ramp":
-                    return RampPattern.GetDefaultConfiguration();
-                case "Saw":
-                    return SawPattern.GetDefaultConfiguration();
-                case "Random":
-                    return RandomPattern.GetDefaultConfiguration();
-                case "Square":
-                    return SquarePattern.GetDefaultConfiguration();
-                default:
-                    throw new ArgumentException(String.Format("Invalid pattern {0} specified", name));
-            }
-        }
+            "Constant" => ConstantPattern.GetDefaultConfiguration(),
+            "Ramp"     => RampPattern.GetDefaultConfiguration(),
+            "Saw"      => SawPattern.GetDefaultConfiguration(),
+            "Random"   => RandomPattern.GetDefaultConfiguration(),
+            "Square"   => SquarePattern.GetDefaultConfiguration(),
+            _          => throw new ArgumentException($"Invalid pattern {name} specified")
+        };
+    }
 
-        public static PatternConfig GetPatternConfigFromObject(dynamic o)
+    public static PatternConfig GetPatternConfigFromObject(dynamic o)
+    {
+        return (string)o.Type switch
         {
-            switch ((string)o.Type)
-            {
-                case "Constant":
-                    return new ConstantPatternConfig()
-                    {
-                        Duration = (long)o.Duration,
-                        Level = (double)o.Level
-                    };
-                case "Ramp":
-                    return new RampPatternConfig()
-                    {
-                        Duration = (long)o.Duration,
-                        Start = (double)o.Start,
-                        End = (double)o.End
-                    };
-                case "Saw":
-                    return new SawPatternConfig()
-                    {
-                        Duration = (long)o.Duration,
-                        Start = (double)o.Start,
-                        End = (double)o.End,
-                        Duration1 = (long)o.Duration1
-                    };
-                case "Random":
-                    return new RandomPatternConfig()
-                    {
-                        Duration = (long)o.Duration,
-                        Minimum = (double)o.Minimum,
-                        Maximum = (double)o.Maximum
-                    };
-                case "Square":
-                    return new SquarePatternConfig()
-                    {
-                        Duration = (long)o.Duration,
-                        Duration1 = (long)o.Duration1,
-                        Duration2 = (long)o.Duration2,
-                        Level1 = (double)o.Level1,
-                        Level2 = (double)o.Level2,
-                        Offset = (long)o.Offset
-                    };
-                default:
-                    throw new ArgumentException(String.Format("Invalid pattern {0} specified", o.Type));
-            }
-        }
+            "Constant" => new ConstantPatternConfig { Duration = (long)o.Duration, Level = (double)o.Level },
+            "Ramp" => new RampPatternConfig
+                      {
+                          Duration = (long)o.Duration, Start = (double)o.Start, End = (double)o.End
+                      },
+            "Saw" => new SawPatternConfig
+                     {
+                         Duration  = (long)o.Duration,
+                         Start     = (double)o.Start,
+                         End       = (double)o.End,
+                         Duration1 = (long)o.Duration1,
+                     },
+            "Random" => new RandomPatternConfig
+                        {
+                            Duration = (long)o.Duration, Minimum = (double)o.Minimum, Maximum = (double)o.Maximum
+                        },
+            "Square" => new SquarePatternConfig
+                        {
+                            Duration  = (long)o.Duration,
+                            Duration1 = (long)o.Duration1,
+                            Duration2 = (long)o.Duration2,
+                            Level1    = (double)o.Level1,
+                            Level2    = (double)o.Level2,
+                            Offset    = (long)o.Offset,
+                        },
+            _ => throw new ArgumentException(string.Format("Invalid pattern {0} specified", o.Type))
+        };
     }
 }

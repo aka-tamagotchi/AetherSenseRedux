@@ -484,7 +484,7 @@ public sealed class Plugin : IDalamudPlugin
     /// <returns></returns>
     public static async Task<WaitType> DoBenchmark()
     {
-        var       result   = WaitType.Slow_Timer;
+        var       result   = WaitType.SlowTimer;
         var       times    = new long[10];
         var       averages = new double[2];
         long      sum      = 0;
@@ -526,18 +526,18 @@ public sealed class Plugin : IDalamudPlugin
         PluginLog.Debug("Average: {0}", averages[1]);
 
         if (averages[0] < 3) {
-            result = WaitType.Use_Delay;
+            result = WaitType.UseDelay;
 
         } else if (averages[1] < 3) {
-            result = WaitType.Use_Sleep;
+            result = WaitType.UseSleep;
 
         }
 
         switch (result) {
-            case WaitType.Use_Delay:
+            case WaitType.UseDelay:
                 PluginLog.Information("High resolution Task.Delay found, using delay in timing loops.");
                 break;
-            case WaitType.Use_Sleep:
+            case WaitType.UseSleep:
                 PluginLog.Information("High resolution Thread.Sleep found, using sleep in timing loops.");
                 break;
             default:
