@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e47a539c-dac9-4896-a98f-38a08dee8cb2" name="Changes" comment="switch to using a window and rename project">
+      <change afterPath="$PROJECT_DIR$/.idea/.idea.AetherSenseRedux/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/AetherSenseRedux.json" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.csproj" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/250368f9c5fb45afa48627c67d7a08ff17fa10/60/1d0b1c16/Window.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cdb25906f45248baac5d91f7c356aeb38ae10/59/12388105/ImGuiCond.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cdb25906f45248baac5d91f7c356aeb38ae10/68/401fc200/ImGui.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dddd226811884077ba70a0ac45862408d800/6f/f3457fc8/ButtplugClient.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6879c9ed20391a5ccfea363be5964fbcfe4f1dfde9558aa84b36df6b6ec92c6/List.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AetherSenseRedux/PluginUI.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/Device.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/Plugin.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/UserInterface/WindowManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/WindowManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectId" id="2T2uJjAFJYJLvs3QtsTMzneLoLN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;RiderNuGetOptionsPageId&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;C:\\Users\\Empir\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\DecompilerCache&quot;,
+      &quot;C:\\Users\\Empir\\AppData\\Roaming\\JetBrains\\Rider2023.1\\resharper-host\\SourcesCache&quot;,
+      &quot;C:\\Users\\Empir\\AppData\\Local\\Symbols\\src&quot;
+    ]
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e47a539c-dac9-4896-a98f-38a08dee8cb2" name="Changes" comment="" />
+      <created>1690253428532</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1690253428532</updated>
+      <workItem from="1690253429755" duration="7518000" />
+      <workItem from="1690287366490" duration="3941000" />
+      <workItem from="1690343195080" duration="2936000" />
+      <workItem from="1690915269521" duration="9518000" />
+    </task>
+    <task id="LOCAL-00001" summary="Builds and loads">
+      <option name="closed" value="true" />
+      <created>1690253694041</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1690253694041</updated>
+    </task>
+    <task id="LOCAL-00002" summary="ImRaii support">
+      <option name="closed" value="true" />
+      <created>1690255044000</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1690255044000</updated>
+    </task>
+    <task id="LOCAL-00003" summary="update dependancies and fix loading">
+      <option name="closed" value="true" />
+      <created>1690260848569</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1690260848569</updated>
+    </task>
+    <task id="LOCAL-00004" summary="formatting and style">
+      <option name="closed" value="true" />
+      <created>1690291609078</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1690291609078</updated>
+    </task>
+    <task id="LOCAL-00005" summary="formatting and style">
+      <option name="closed" value="true" />
+      <created>1690291730454</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1690291730455</updated>
+    </task>
+    <task id="LOCAL-00006" summary="formatting and style">
+      <option name="closed" value="true" />
+      <created>1690292569745</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1690292569745</updated>
+    </task>
+    <task id="LOCAL-00007" summary="begin refactoring ui">
+      <option name="closed" value="true" />
+      <created>1690293956092</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1690293956092</updated>
+    </task>
+    <task id="LOCAL-00008" summary="formatting and style">
+      <option name="closed" value="true" />
+      <created>1690345353820</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1690345353820</updated>
+    </task>
+    <task id="LOCAL-00009" summary="more formatting">
+      <option name="closed" value="true" />
+      <created>1690918016098</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1690918016098</updated>
+    </task>
+    <task id="LOCAL-00010" summary="switch to using a window and rename project">
+      <option name="closed" value="true" />
+      <created>1690927599912</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1690927599912</updated>
+    </task>
+    <task id="LOCAL-00011" summary="switch to using a window and rename project">
+      <option name="closed" value="true" />
+      <created>1690927652901</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1690927652901</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Builds and loads" />
+    <MESSAGE value="ImRaii support" />
+    <MESSAGE value="update dependancies and fix loading" />
+    <MESSAGE value="begin refactoring ui" />
+    <MESSAGE value="formatting and style" />
+    <MESSAGE value="more formatting" />
+    <MESSAGE value="switch to using a window and rename project" />
+    <option name="LAST_COMMIT_MESSAGE" value="switch to using a window and rename project" />
+  </component>
+</project>

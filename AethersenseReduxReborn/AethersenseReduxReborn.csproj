@@ -62,7 +62,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <None Update="AetherSenseRedux.json">
+        <None Update="AethersenseReduxReborn.json">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </None>
     </ItemGroup>
