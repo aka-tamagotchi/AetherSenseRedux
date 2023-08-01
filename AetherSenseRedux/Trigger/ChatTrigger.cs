@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Dalamud.Logging;
 using System.Collections.Concurrent;
+using AetherSenseRedux.XIVChatTypes;
 using XIVChatTypes;
 
 namespace AetherSenseRedux.Trigger;
@@ -18,7 +19,7 @@ internal class ChatTrigger : ITrigger
     private List<Device>  Devices         { get; init; }
     private List<string>  EnabledDevices  { get; init; }
     private PatternConfig PatternSettings { get; init; }
-    private XIVChatFilter Filter          { get; init; }
+    private XivChatFilter Filter          { get; init; }
     private bool          UseFilter       { get; init; }
 
     // ChatTrigger properties
@@ -27,7 +28,7 @@ internal class ChatTrigger : ITrigger
     private          long                         RetriggerDelay { get; init; }
     private          DateTime                     RetriggerTime  { get; set; }
     private          Guid                         Guid           { get; set; }
-        
+
     /// <summary>
     /// Instantiates a new ChatTrigger.
     /// </summary>
@@ -46,7 +47,7 @@ internal class ChatTrigger : ITrigger
         Regex          = new Regex(configuration.Regex);
         RetriggerDelay = configuration.RetriggerDelay;
         UseFilter      = configuration.UseFilter;
-        Filter         = new XIVChatFilter(configuration.FilterTable);
+        Filter         = new XivChatFilter(configuration.FilterTable);
 
         _messages     = new ConcurrentQueue<ChatMessage>();
         RetriggerTime = DateTime.MinValue;
@@ -60,9 +61,9 @@ internal class ChatTrigger : ITrigger
     /// <param name="message">The chat message.</param>
     public void Queue(ChatMessage message)
     {
-        if (!Enabled) 
+        if (!Enabled)
             return;
-        
+
         PluginLog.Verbose("{0} ({1}): Received message to queue", Name, Guid.ToString());
 
         _messages.Enqueue(message);
@@ -73,25 +74,20 @@ internal class ChatTrigger : ITrigger
     /// </summary>
     private void OnTrigger()
     {
-        if (RetriggerDelay > 0)
-        {
-            if (DateTime.UtcNow < RetriggerTime)
-            {
+        if (RetriggerDelay > 0) {
+            if (DateTime.UtcNow < RetriggerTime) {
                 PluginLog.Debug("Trigger discarded, too soon");
                 return;
-            }
-            else
-            {
+            } else {
                 RetriggerTime = DateTime.UtcNow + TimeSpan.FromMilliseconds(RetriggerDelay);
             }
         }
-        lock (Devices)
-        {
+
+        lock (Devices) {
             foreach (var device in Devices) {
-                if (!EnabledDevices.Contains(device.Name)) 
+                if (!EnabledDevices.Contains(device.Name))
                     continue;
-                lock (device.Patterns)
-                {
+                lock (device.Patterns) {
                     device.Patterns.Add(PatternFactory.GetPatternFromObject(PatternSettings));
                 }
 
@@ -104,16 +100,14 @@ internal class ChatTrigger : ITrigger
     /// </summary>
     public void Start()
     {
-        Task.Run(MainLoop).ConfigureAwait(false); ;
+        Task.Run(MainLoop).ConfigureAwait(false);
+        ;
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public void Stop()
-    {
-        Enabled = false;
-    }
+    public void Stop() { Enabled = false; }
 
     /// <summary>
     /// 
@@ -121,32 +115,26 @@ internal class ChatTrigger : ITrigger
     /// <returns></returns>
     public async Task MainLoop()
     {
-        while (Enabled)
-        {
-            if (_messages.TryDequeue(out var message))
-            {
+        while (Enabled) {
+            if (_messages.TryDequeue(out var message)) {
                 PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
-                if (UseFilter && !Filter.Match(message.ChatType))
-                {
+                if (UseFilter && !Filter.Match(message.ChatType)) {
                     continue;
                 }
-                if (!Regex.IsMatch(message.ToString()))
-                {
+
+                if (!Regex.IsMatch(message.ToString())) {
                     continue;
                 }
-                    
+
                 OnTrigger();
                 PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
-            } else
-            {
+            } else {
                 await Task.Delay(50);
             }
         }
     }
-    static TriggerConfig GetDefaultConfiguration()
-    {
-        return new ChatTriggerConfig();
-    }
+
+    static TriggerConfig GetDefaultConfiguration() { return new ChatTriggerConfig(); }
 }
 
 [Serializable]
@@ -157,23 +145,24 @@ public class ChatTriggerConfig : TriggerConfig
     public          string Regex          { get; set; } = "Your Regex Here";
     public          long   RetriggerDelay { get; set; } = 0;
     public          bool   UseFilter      { get; set; } = false;
-    public bool[][] FilterTable { get;           set; } = new bool[14][]
-                                                          {
-                                                              new bool[27], //General
-                                                              new bool[16], // Battle: You
-                                                              new bool[16], // Battle: Party
-                                                              new bool[16], // Battle: Alliance
-                                                              new bool[16], // Battle: Other PC
-                                                              new bool[16], // Battle: Engaged
-                                                              new bool[16], // Battle: Unengaged
-                                                              new bool[16], // Battle: Friendly
-                                                              new bool[16], // Battle: Pet
-                                                              new bool[16], // Battle: Party Pet
-                                                              new bool[16], // Battle: Alliance Pet
-                                                              new bool[16], // Battle: Other's Pet
-                                                              new bool[33], // Misc
-                                                              new bool[15]  // GM Messages
-                                                          };
+
+    public bool[][] FilterTable { get; set; } = new bool[14][]
+                                                {
+                                                    new bool[27], //General
+                                                    new bool[16], // Battle: You
+                                                    new bool[16], // Battle: Party
+                                                    new bool[16], // Battle: Alliance
+                                                    new bool[16], // Battle: Other PC
+                                                    new bool[16], // Battle: Engaged
+                                                    new bool[16], // Battle: Unengaged
+                                                    new bool[16], // Battle: Friendly
+                                                    new bool[16], // Battle: Pet
+                                                    new bool[16], // Battle: Party Pet
+                                                    new bool[16], // Battle: Alliance Pet
+                                                    new bool[16], // Battle: Other's Pet
+                                                    new bool[33], // Misc
+                                                    new bool[15]  // GM Messages
+                                                };
 
 }
 

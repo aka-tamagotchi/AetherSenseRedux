@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using XIVChatTypes;
 
-namespace XIVChatTypes;
+namespace AetherSenseRedux.XIVChatTypes;
 
-internal class XIVChatFilter
+internal class XivChatFilter
 {
     //public bool[][] FilterTable = new bool[14][]
     //        {
@@ -28,7 +26,7 @@ internal class XIVChatFilter
     //    }
     //}
 
-    public static string[] FilterCategoryNames = new string[14]
+    public static string[] FilterCategoryNames =
                                                  {
                                                      "General",
                                                      "Battle: You",
@@ -46,9 +44,9 @@ internal class XIVChatFilter
                                                      "GM Messages"
                                                  };
 
-    public static string[][] FilterNames = new string[14][]
+    public static string[][] FilterNames = 
                                            {
-                                               new string[27] // General
+                                               new[] // General
                                                {
                                                    "Say",
                                                    "Yell",
@@ -78,7 +76,7 @@ internal class XIVChatFilter
                                                    "Emotes (Standard)",
                                                    "Emotes (Custom)"
                                                },
-                                               new string[16] // Battle: You
+                                               new[] // Battle: You
                                                {
                                                    "Your AttackHit",
                                                    "Your AttackMiss",
@@ -97,7 +95,7 @@ internal class XIVChatFilter
                                                    "Your BuffEnd",
                                                    "Your DebuffEnd",
                                                },   
-                                               new string[16] // Battle: Party
+                                               new[] // Battle: Party
                                                {
                                                    "Party's AttackHit",
                                                    "Party's AttackMiss",
@@ -116,7 +114,7 @@ internal class XIVChatFilter
                                                    "Party's BuffEnd",
                                                    "Party's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Alliance
+                                               new[] // Battle: Alliance
                                                {
                                                    "Alliance's AttackHit",
                                                    "Alliance's AttackMiss",
@@ -135,7 +133,7 @@ internal class XIVChatFilter
                                                    "Alliance's BuffEnd",
                                                    "Alliance's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Other PC
+                                               new[] // Battle: Other PC
                                                {
                                                    "Other PC's AttackHit",
                                                    "Other PC's AttackMiss",
@@ -154,7 +152,7 @@ internal class XIVChatFilter
                                                    "Other PC's BuffEnd",
                                                    "Other PC's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Engaged
+                                               new[] // Battle: Engaged
                                                {
                                                    "Engaged Enemy's AttackHit",
                                                    "Engaged Enemy's AttackMiss",
@@ -173,7 +171,7 @@ internal class XIVChatFilter
                                                    "Engaged Enemy's BuffEnd",
                                                    "Engaged Enemy's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Unengaged
+                                               new[] // Battle: Unengaged
                                                {
                                                    "Unengaged Enemy's AttackHit",
                                                    "Unengaged Enemy's AttackMiss",
@@ -192,7 +190,7 @@ internal class XIVChatFilter
                                                    "Unengaged Enemy's BuffEnd",
                                                    "Unengaged Enemy's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Friendly
+                                               new[] // Battle: Friendly
                                                {
                                                    "Friendly NPC's AttackHit",
                                                    "Friendly NPC's AttackMiss",
@@ -211,7 +209,7 @@ internal class XIVChatFilter
                                                    "Friendly NPC's BuffEnd",
                                                    "Friendly NPC's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Pet
+                                               new[] // Battle: Pet
                                                {
                                                    "Pet's AttackHit",
                                                    "Pet's AttackMiss",
@@ -230,7 +228,7 @@ internal class XIVChatFilter
                                                    "Pet's BuffEnd",
                                                    "Pet's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Party Pet
+                                               new[] // Battle: Party Pet
                                                {
                                                    "Party Pet's AttackHit",
                                                    "Party Pet's AttackMiss",
@@ -249,7 +247,7 @@ internal class XIVChatFilter
                                                    "Party Pet's BuffEnd",
                                                    "Party Pet's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Alliance Pet
+                                               new[] // Battle: Alliance Pet
                                                {
                                                    "Alliance Pet's AttackHit",
                                                    "Alliance Pet's AttackMiss",
@@ -268,7 +266,7 @@ internal class XIVChatFilter
                                                    "Alliance Pet's BuffEnd",
                                                    "Alliance Pet's DebuffEnd",
                                                },
-                                               new string[16] // Battle: Other's Pet
+                                               new[] // Battle: Other's Pet
                                                {
                                                    "Other Pet's AttackHit",
                                                    "Other Pet's AttackMiss",
@@ -287,7 +285,7 @@ internal class XIVChatFilter
                                                    "Other Pet's BuffEnd",
                                                    "Other Pet's DebuffEnd",
                                                },
-                                               new string[33] // Misc
+                                               new[] // Misc
                                                {
                                                    "Debug",
                                                    "Notice",
@@ -323,7 +321,7 @@ internal class XIVChatFilter
                                                    "Orchestrion Notifications",
                                                    "Estate Message Book Alerts"
                                                },
-                                               new string[15] // GM Messages
+                                               new[] // GM Messages
                                                {
                                                    "[GM] Say",
                                                    "[GM] Shout",
@@ -343,256 +341,255 @@ internal class XIVChatFilter
                                                }   
                                            };
 
-    private static readonly (Group?, Group?, Channel)[][][] FilterMasks = new (Group?, Group?, Channel)[14][][]
-                                                                          {
-                                                                              new (Group?, Group?, Channel)[27][] 
+    private static readonly (Group?, Group?, Channel)[][][] FilterMasks = {
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Say) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Yell) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Shout) },
-                                                                                  new (Group?, Group?, Channel)[2] { (null, null, Channel.TellOutgoing), (null, null, Channel.TellIncoming) },
-                                                                                  new (Group?, Group?, Channel)[2] { (null, null, Channel.Party), (null, null, Channel.CrossWorldParty) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Alliance) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.FreeCompany) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.PvPTeam) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls1) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls2) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls3) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls4) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls5) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls6) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls7) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Cwls8) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls1) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls2) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls3) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls4) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls5) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls6) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls7) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Ls8) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.NoviceNetwork) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.StandardEmote) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.CustomEmote) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Say) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Yell) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Shout) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.TellOutgoing), (null, null, Channel.TellIncoming) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Party), (null, null, Channel.CrossWorldParty) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Alliance) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.FreeCompany) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.PvPTeam) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls1) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls2) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls3) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls4) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls5) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls6) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls7) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Cwls8) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls1) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls2) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls3) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls4) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls5) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls6) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls7) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Ls8) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.NoviceNetwork) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.StandardEmote) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.CustomEmote) },
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][] 
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.You, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.You, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Party, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Party, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Alliance, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Alliance, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Alliance, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Alliance, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Other, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Other, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Other, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Other, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.EngagedHostile, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.EngagedHostile, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.EngagedHostile, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.EngagedHostile, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.UnengagedHostile, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.UnengagedHostile, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.UnengagedHostile, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.UnengagedHostile, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.FriendlyNPC, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.FriendlyNPC, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.FriendlyNPC, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.FriendlyNPC, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.Pet, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Pet, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.Pet, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Pet, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.PartyPet, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.PartyPet, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.PartyPet, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.PartyPet, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.AlliancePet, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.AlliancePet, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.AlliancePet, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.AlliancePet, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[16][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.AttackHit) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.AttackMiss) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.Action) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.Item) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.Healing) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.Buff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, Group.OtherPet, Channel.Debuff) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.BuffEnd) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.OtherPet, null, Channel.DebuffEnd) }
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.AttackHit) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.AttackMiss) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.Action) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.Item) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.Healing) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.Buff) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, Group.OtherPet, Channel.Debuff) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.BuffEnd) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.OtherPet, null, Channel.DebuffEnd) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[33][]
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Debug) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Urgent) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Notice) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Alarm) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.SystemMessage) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.BattleSystemMessage) },
-                                                                                  new (Group?, Group?, Channel)[10] 
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Debug) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Urgent) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Notice) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Alarm) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.SystemMessage) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.BattleSystemMessage) },
+                                                                                  new (Group?, Group?, Channel)[] 
                                                                                   {
                                                                                       (Group.Party, null, Channel.BattleSystemMessage), 
                                                                                       (Group.Alliance, null, Channel.BattleSystemMessage), 
@@ -605,21 +602,21 @@ internal class XIVChatFilter
                                                                                       (Group.AlliancePet, null, Channel.BattleSystemMessage), 
                                                                                       (Group.OtherPet, null, Channel.BattleSystemMessage) 
                                                                                   },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GatheringSystemMessage) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Error) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.Echo) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.NoviceNetworkNotification) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.FreeCompanyAnnouncement) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.PvPTeamAnnouncement) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.FreeCompanyLogin) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.PvPLogin) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.RetainerSale) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.NPCDialogue) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.NPCAnnouncement) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.LootNotice) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.ProgressionMessage) },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.ProgressionMessage) },
-                                                                                  new (Group?, Group?, Channel)[8] 
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GatheringSystemMessage) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Error) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.Echo) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.NoviceNetworkNotification) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.FreeCompanyAnnouncement) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.PvPTeamAnnouncement) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.FreeCompanyLogin) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.PvPLogin) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.RetainerSale) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.NPCDialogue) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.NPCAnnouncement) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.LootNotice) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.ProgressionMessage) },
+                                                                                  new (Group?, Group?, Channel)[] { (Group.Party, null, Channel.ProgressionMessage) },
+                                                                                  new (Group?, Group?, Channel)[] 
                                                                                   {
                                                                                       (Group.Alliance, null, Channel.ProgressionMessage),
                                                                                       (Group.Other, null, Channel.ProgressionMessage),
@@ -630,63 +627,63 @@ internal class XIVChatFilter
                                                                                       (Group.AlliancePet, null, Channel.ProgressionMessage),
                                                                                       (Group.OtherPet, null, Channel.ProgressionMessage)
                                                                                   },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.LootMessage) },
-                                                                                  new (Group?, Group?, Channel)[3] 
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.LootMessage) },
+                                                                                  new (Group?, Group?, Channel)[] 
                                                                                   { 
                                                                                       (Group.Party, null, Channel.LootMessage), 
                                                                                       (Group.Alliance, null, Channel.LootMessage), 
                                                                                       (Group.Other, null, Channel.LootMessage) 
                                                                                   },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.SynthesisMessage) },
-                                                                                  new (Group?, Group?, Channel)[3] 
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.SynthesisMessage) },
+                                                                                  new (Group?, Group?, Channel)[] 
                                                                                   { 
                                                                                       (Group.Party, null, Channel.SynthesisMessage), 
                                                                                       (Group.Alliance, null, Channel.SynthesisMessage), 
                                                                                       (Group.Other, null, Channel.SynthesisMessage) 
                                                                                   },
-                                                                                  new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.GatheringMessage) },
-                                                                                  new (Group?, Group?, Channel)[3] 
+                                                                                  new (Group?, Group?, Channel)[] { (Group.You, null, Channel.GatheringMessage) },
+                                                                                  new (Group?, Group?, Channel)[] 
                                                                                   { 
                                                                                       (Group.Party, null, Channel.GatheringMessage), 
                                                                                       (Group.Alliance, null, Channel.GatheringMessage), 
                                                                                       (Group.Other, null, Channel.GatheringMessage) 
                                                                                   },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.PartySearch) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.RaidMarkers) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.RandomNumberMessage) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.OrchestrionNotification) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.MessageBookAlert) }
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.PartySearch) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.RaidMarkers) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.RandomNumberMessage) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.OrchestrionNotification) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.MessageBookAlert) }
                                                                               },
-                                                                              new (Group?, Group?, Channel)[15][] 
+                                                                              new[]
                                                                               {
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMSay) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMShout) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMTell) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMParty) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMFreeCompany) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMNoviceNetwork) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMYell) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs1) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs2) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs3) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs4) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs5) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs6) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs7) },
-                                                                                  new (Group?, Group?, Channel)[1] { (null, null, Channel.GMLs8) }
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMSay) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMShout) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMTell) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMParty) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMFreeCompany) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMNoviceNetwork) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMYell) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs1) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs2) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs3) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs4) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs5) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs6) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs7) },
+                                                                                  new (Group?, Group?, Channel)[] { (null, null, Channel.GMLs8) }
                                                                               }
                                                                           };
 
-    private List<(Group, Group, Channel)> filterList;
+    private List<(Group, Group, Channel)> _filterList;
 
-    public XIVChatFilter()
+    public XivChatFilter()
     {
-        filterList = new();
+        _filterList = new List<(Group, Group, Channel)>();
     }
 
-    public XIVChatFilter(bool[][] filtertable)
+    public XivChatFilter(bool[][] filtertable)
     {
-        filterList = new();
+        _filterList = new List<(Group, Group, Channel)>();
         ParseFilterTable(filtertable);
     }
 
@@ -703,9 +700,9 @@ internal class XIVChatFilter
     {            
         foreach (var item in ExpandFilter(filter))
         {
-            if (!filterList.Contains(item))
+            if (!_filterList.Contains(item))
             {
-                filterList.Add(item);
+                _filterList.Add(item);
             }
         }
     }
@@ -730,7 +727,7 @@ internal class XIVChatFilter
     {
         foreach (var item in ExpandFilter(filter))
         {
-            filterList.Remove(item);
+            _filterList.Remove(item);
         }
     }
 
@@ -742,7 +739,7 @@ internal class XIVChatFilter
 
     public bool Match((Group, Group, Channel) chatType)
     {
-        return filterList.Contains(chatType);
+        return _filterList.Contains(chatType);
     }
 
     public bool Match(uint magic)

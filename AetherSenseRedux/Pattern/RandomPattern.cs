@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AetherSenseRedux.Pattern;
 
@@ -16,28 +12,24 @@ internal class RandomPattern : IPattern
     public RandomPattern(RandomPatternConfig config)
     {
         Expires = DateTime.UtcNow + TimeSpan.FromMilliseconds(config.Duration);
-        _min     = config.Minimum;
-        _max     = config.Maximum;
+        _min    = config.Minimum;
+        _max    = config.Maximum;
     }
 
     public double GetIntensityAtTime(DateTime time)
     {
-        if (Expires < time)
-        {
+        if (Expires < time) {
             throw new PatternExpiredException();
         }
+
         return Scale(_rand.NextDouble(), _min, _max);
     }
-    private static double Scale(double value, double min, double max)
-    {
-        return value * (max - min) + min;
-    }
 
-    public static PatternConfig GetDefaultConfiguration()
-    {
-        return new RandomPatternConfig();
-    }
+    private static double Scale(double value, double min, double max) { return value * (max - min) + min; }
+
+    public static PatternConfig GetDefaultConfiguration() { return new RandomPatternConfig(); }
 }
+
 [Serializable]
 public class RandomPatternConfig : PatternConfig
 {

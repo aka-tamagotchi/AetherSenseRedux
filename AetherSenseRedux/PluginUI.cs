@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using AetherSenseRedux.XIVChatTypes;
 using XIVChatTypes;
 
 namespace AetherSenseRedux;
@@ -191,7 +192,7 @@ internal class PluginUi : IDisposable
 
     private void DrawTriggersTab()
     {
-        using var triggersTab = ImRaii.TabItem("triggers");
+        using var triggersTab = ImRaii.TabItem("Triggers");
         if (!triggersTab)
             return;
 
@@ -464,10 +465,10 @@ internal class PluginUi : IDisposable
             return;
 
         using var filterCategoryCombo =
-            ImRaii.Combo("##filtercategory", XIVChatFilter.FilterCategoryNames[_selectedFilterCategory]);
+            ImRaii.Combo("##filtercategory", XivChatFilter.FilterCategoryNames[_selectedFilterCategory]);
         if (filterCategoryCombo) {
             var k = 0;
-            foreach (var name in XIVChatFilter.FilterCategoryNames) {
+            foreach (var name in XivChatFilter.FilterCategoryNames) {
                 if (name == "GM Messages") {
                     // don't show the GM chat options for this filter configuration.
                     k++;
@@ -487,7 +488,7 @@ internal class PluginUi : IDisposable
         if (filterListChild) {
             var  i        = 0;
             var modified = false;
-            foreach (var name in XIVChatFilter.FilterNames[_selectedFilterCategory]) {
+            foreach (var name in XivChatFilter.FilterNames[_selectedFilterCategory]) {
                 if (name is "Novice Network" or "Novice Network Notifications") {
                     // don't show novice network as selectable filters either.
                     i++;

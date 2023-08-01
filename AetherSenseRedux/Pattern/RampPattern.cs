@@ -1,9 +1,4 @@
-﻿using Dalamud.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace AetherSenseRedux.Pattern;
 
@@ -17,27 +12,25 @@ internal class RampPattern : IPattern
 
     public RampPattern(RampPatternConfig config)
     {
-        _startLevel    = config.Start;
-        _endLevel      = config.End;
-        _duration = config.Duration;
-        Expires       = DateTime.UtcNow + TimeSpan.FromMilliseconds(_duration);
+        _startLevel = config.Start;
+        _endLevel   = config.End;
+        _duration   = config.Duration;
+        Expires     = DateTime.UtcNow + TimeSpan.FromMilliseconds(_duration);
     }
 
     public double GetIntensityAtTime(DateTime time)
     {
-        if (Expires < time)
-        {
+        if (Expires < time) {
             throw new PatternExpiredException();
         }
-        var progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)_duration *10000));
-        return (_endLevel      - _startLevel) * progress + _startLevel;
+
+        var progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)_duration * 10000));
+        return (_endLevel  - _startLevel) * progress + _startLevel;
     }
 
-    public static PatternConfig GetDefaultConfiguration()
-    {
-        return new RampPatternConfig();
-    }
+    public static PatternConfig GetDefaultConfiguration() { return new RampPatternConfig(); }
 }
+
 [Serializable]
 public class RampPatternConfig : PatternConfig
 {

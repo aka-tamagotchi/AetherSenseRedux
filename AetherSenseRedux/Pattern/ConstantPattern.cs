@@ -1,6 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace AetherSenseRedux.Pattern;
 
@@ -17,17 +15,16 @@ internal class ConstantPattern : IPattern
 
     public double GetIntensityAtTime(DateTime time)
     {
-        if (Expires < time)
-        {
+        if (Expires < time) {
             throw new PatternExpiredException();
         }
+
         return _level;
     }
-    public static PatternConfig GetDefaultConfiguration()
-    {
-        return new ConstantPatternConfig();
-    }
+
+    public static PatternConfig GetDefaultConfiguration() { return new ConstantPatternConfig(); }
 }
+
 [Serializable]
 public class ConstantPatternConfig : PatternConfig
 {

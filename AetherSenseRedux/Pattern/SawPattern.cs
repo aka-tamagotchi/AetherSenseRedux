@@ -1,9 +1,4 @@
-﻿using Dalamud.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace AetherSenseRedux.Pattern;
 
@@ -20,25 +15,25 @@ internal class SawPattern : IPattern
         _startLevel = config.Start;
         _endLevel   = config.End;
         var duration = config.Duration;
-        _duration1  = config.Duration1;
-        Expires     = DateTime.UtcNow + TimeSpan.FromMilliseconds(duration);
+        _duration1 = config.Duration1;
+        Expires    = DateTime.UtcNow + TimeSpan.FromMilliseconds(duration);
     }
 
     public double GetIntensityAtTime(DateTime time)
     {
-        if (Expires < time)
-        {
+        if (Expires < time) {
             throw new PatternExpiredException();
         }
-        var progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)_duration1*10000) % 1.0); // we only want the floating point remainder here
+
+        var progress =
+            1.0 - ((Expires.Ticks - time.Ticks) / ((double)_duration1 * 10000) %
+                   1.0); // we only want the floating point remainder here
         return (_endLevel - _startLevel) * progress + _startLevel;
     }
 
-    public static PatternConfig GetDefaultConfiguration()
-    {
-        return new SawPatternConfig();
-    }
+    public static PatternConfig GetDefaultConfiguration() { return new SawPatternConfig(); }
 }
+
 [Serializable]
 public class SawPatternConfig : PatternConfig
 {

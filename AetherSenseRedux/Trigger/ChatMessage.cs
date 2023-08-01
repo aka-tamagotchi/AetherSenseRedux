@@ -13,7 +13,12 @@ internal struct ChatMessage
     /// <param name="sender"></param>
     /// <param name="message"></param>
     /// <param name="isHandled"></param>
-    public ChatMessage(XivChatType chatType, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+    public ChatMessage(
+        XivChatType  chatType,
+        uint         senderId,
+        ref SeString sender,
+        ref SeString message,
+        ref bool     isHandled)
     {
         ChatType = (uint)chatType;
         //SenderId = senderId;
@@ -23,13 +28,11 @@ internal struct ChatMessage
     }
 
     public uint ChatType;
+
     //public uint SenderId;
     public string Sender;
     public string Message;
     public bool   IsHandled;
 
-    public override string ToString()
-    {
-        return $"<{Sender}> {Message}";
-    }
+    public override string ToString() { return $"<{Sender}> {Message}"; }
 }

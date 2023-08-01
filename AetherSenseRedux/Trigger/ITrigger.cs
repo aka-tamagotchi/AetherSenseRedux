@@ -15,6 +15,7 @@ internal interface ITrigger
     Task MainLoop();
 
 }
+
 [Serializable]
 public abstract class TriggerConfig
 {

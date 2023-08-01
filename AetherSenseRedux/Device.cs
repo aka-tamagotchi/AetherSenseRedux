@@ -121,7 +121,7 @@ internal class Device : IDisposable
     {
 
         List<double> intensities      = new();
-        DateTime     t                = DateTime.UtcNow;
+        var          t                = DateTime.UtcNow;
         var          patternsToRemove = new List<IPattern>();
 
         lock (Patterns)

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AetherSenseRedux.Pattern;
 
@@ -18,31 +14,30 @@ internal class SquarePattern : IPattern
 
     public SquarePattern(SquarePatternConfig config)
     {
-        _level1         = config.Level1;
-        _level2         = config.Level2;
-        _duration1      = config.Duration1;
-        _offset         = config.Offset;
+        _level1        = config.Level1;
+        _level2        = config.Level2;
+        _duration1     = config.Duration1;
+        _offset        = config.Offset;
         Expires        = DateTime.UtcNow + TimeSpan.FromMilliseconds(config.Duration);
-        _totalDuration = _duration1       + config.Duration2;
+        _totalDuration = _duration1      + config.Duration2;
     }
 
     public double GetIntensityAtTime(DateTime time)
     {
-        if (Expires < time)
-        {
+        if (Expires < time) {
             throw new PatternExpiredException();
         }
+
         var patternTime = DateTime.UtcNow.Ticks / 10000 + _offset;
 
         var progress = patternTime % _totalDuration;
 
-        return (progress < _duration1)? _level1 : _level2;
+        return (progress < _duration1) ? _level1 : _level2;
     }
-    public static PatternConfig GetDefaultConfiguration()
-    {
-        return new SquarePatternConfig();
-    }
+
+    public static PatternConfig GetDefaultConfiguration() { return new SquarePatternConfig(); }
 }
+
 [Serializable]
 public class SquarePatternConfig : PatternConfig
 {
