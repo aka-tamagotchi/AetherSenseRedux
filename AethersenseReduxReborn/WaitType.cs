@@ -1,4 +1,4 @@
-﻿namespace AetherSenseRedux;
+﻿namespace AethersenseReduxReborn;
 
 public enum WaitType
 {

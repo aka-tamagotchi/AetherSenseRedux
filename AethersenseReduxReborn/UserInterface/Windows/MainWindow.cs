@@ -1,75 +1,55 @@
-﻿using AetherSenseRedux.Pattern;
-using AetherSenseRedux.Trigger;
-using Dalamud.Logging;
-using Dalamud.Interface.Raii;
-using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using AetherSenseRedux.XIVChatTypes;
-using XIVChatTypes;
+using AethersenseReduxReborn.Pattern;
+using AethersenseReduxReborn.Trigger;
+using AethersenseReduxReborn.XIVChatTypes;
+using Dalamud.Interface.Raii;
+using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
+using ImGuiNET;
 
-namespace AetherSenseRedux;
+namespace AethersenseReduxReborn.UserInterface.Windows;
 
-// It is good to have this be disposable in general, in case you ever need it
-// to do any cleanup
-internal class PluginUi : IDisposable
+public sealed class MainWindow : Window, IDisposable
 {
-    private readonly Configuration _configuration;
     private readonly Plugin        _plugin;
+    private readonly Configuration _configuration;
 
-    private bool _settingsVisible;
-    public bool SettingsVisible
-    {
-        get => _settingsVisible;
-        set => _settingsVisible = value;
-    }
-
+    private readonly Vector2          _windowSize  = new(640, 400);
+    private const    ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar;
+    
     private int _selectedTrigger;
     private int _selectedFilterCategory;
+
+    public const string Name = "Aethersense Redux Reborn";
 
     // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
     private Configuration? _workingCopy;
 
-    public PluginUi(Configuration configuration, Plugin plugin)
+    public MainWindow(Plugin plugin, Configuration configuration)
+        : base(Name)
     {
-        _configuration = configuration;
         _plugin        = plugin;
+        _configuration = configuration;
+
+        SizeConstraints = new WindowSizeConstraints
+                          {
+                              MinimumSize = _windowSize,
+                              MaximumSize = _windowSize,
+                          };
+
+        Flags = WindowFlags;
     }
 
-    /// <summary>
-    /// Would dispose of any unmanaged resources if we used any here. Since we don't, we probably don't need this.
-    /// </summary>
-    public void Dispose()
+    public void Dispose() { }
+
+    public override void Draw()
     {
-
-    }
-
-    /// <summary>
-    /// Draw handler for plugin UI
-    /// </summary>
-    public void Draw()
-    {
-        // This is our only draw handler attached to UIBuilder, so it needs to be
-        // able to draw any windows we might have open.
-        // Each method checks its own visibility/state to ensure it only draws when
-        // it actually makes sense.
-        // There are other ways to do this, but it is generally best to keep the number of
-        // draw delegates as low as possible.
-
-        DrawSettingsWindow();
-    }
-
-    /// <summary>
-    /// Draws the settings window and does a little housekeeping with the working copy of the config. 
-    /// </summary>
-    private void DrawSettingsWindow()
-    {
-        if (!SettingsVisible)
-        {
+        if (!IsOpen) {
             // if we aren't drawing the window we don't need a working copy of the configuration
-            if (_workingCopy == null) 
+            if (_workingCopy == null)
                 return;
             PluginLog.Debug("Making WorkingCopy null.");
             _workingCopy = null;
@@ -78,39 +58,26 @@ internal class PluginUi : IDisposable
         }
 
         // we can only get here if we know we're going to draw the settings window, so let's get our working copy back
-        if (_workingCopy == null)
-        {
+        if (_workingCopy == null) {
             PluginLog.Debug("WorkingCopy was null, importing current config.");
             _workingCopy = new Configuration();
             _workingCopy.Import(_configuration);
         }
 
-        ////
-        ////    SETTINGS WINDOW
-        ////
-        ImGui.SetNextWindowSize(new Vector2(640, 400), ImGuiCond.Appearing);
-        if (ImGui.Begin("AetherSense Redux", ref _settingsVisible, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.MenuBar))
-        {
-               
-            DrawMenuBar();
 
-            ////
-            ////    BODY
-            ////
-            ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
-                
-            ImGui.Indent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+        DrawMenuBar();
 
-            DrawSettingsTabBar();
+        ImGui.BeginChild("body", new Vector2(0, -ImGui.GetFrameHeightWithSpacing()), false);
 
-            ImGui.Unindent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+        ImGui.Indent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
 
-            ImGui.EndChild();
-                
-            DrawFooter();
-        }
+        DrawSettingsTabBar();
 
-        ImGui.End();
+        ImGui.Unindent(1); //for some reason the UI likes to cut off a pixel on the left side if we don't do this
+
+        ImGui.EndChild();
+
+        DrawFooter();
     }
 
     private void DrawFooter()
@@ -712,4 +679,5 @@ internal class PluginUi : IDisposable
             pattern.Offset = (long)offset;
         }
     }
+
 }

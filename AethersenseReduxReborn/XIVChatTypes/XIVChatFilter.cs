@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using XIVChatTypes;
 
-namespace AetherSenseRedux.XIVChatTypes;
+namespace AethersenseReduxReborn.XIVChatTypes;
 
 internal class XivChatFilter
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AetherSenseRedux.Pattern;
+namespace AethersenseReduxReborn.Pattern;
 
 public class PatternException : Exception
 {

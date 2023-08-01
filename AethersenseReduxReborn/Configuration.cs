@@ -1,12 +1,12 @@
-﻿using AetherSenseRedux.Pattern;
-using AetherSenseRedux.Trigger;
-using Dalamud.Configuration;
+﻿using Dalamud.Configuration;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using System;
 using System.Collections.Generic;
+using AethersenseReduxReborn.Pattern;
+using AethersenseReduxReborn.Trigger;
 
-namespace AetherSenseRedux;
+namespace AethersenseReduxReborn;
 
 [Serializable]
 public class Configuration : IPluginConfiguration

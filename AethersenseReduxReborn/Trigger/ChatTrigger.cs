@@ -1,14 +1,14 @@
-﻿using AetherSenseRedux.Pattern;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Dalamud.Logging;
 using System.Collections.Concurrent;
-using AetherSenseRedux.XIVChatTypes;
+using AethersenseReduxReborn.Pattern;
+using AethersenseReduxReborn.XIVChatTypes;
 using XIVChatTypes;
 
-namespace AetherSenseRedux.Trigger;
+namespace AethersenseReduxReborn.Trigger;
 
 internal class ChatTrigger : ITrigger
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AetherSenseRedux.Pattern;
+namespace AethersenseReduxReborn.Pattern;
 
 internal class RandomPattern : IPattern
 {

@@ -9,15 +9,16 @@ using Dalamud.Game.Text.SeStringHandling;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using AetherSenseRedux.Trigger;
-using AetherSenseRedux.Pattern;
 using System.Diagnostics;
 using System.Threading;
+using AethersenseReduxReborn.Pattern;
+using AethersenseReduxReborn.Trigger;
+using AethersenseReduxReborn.UserInterface;
+using AethersenseReduxReborn.UserInterface.Windows;
 using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
 
-namespace AetherSenseRedux;
+namespace AethersenseReduxReborn;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public sealed class Plugin : IDalamudPlugin
@@ -76,7 +77,7 @@ public sealed class Plugin : IDalamudPlugin
             Dictionary<string, double> result = new();
             lock (_devicePool) {
                 foreach (var device in _devicePool) {
-                    result[device.Name] = device.UPS;
+                    result[device.Name] = device.Ups;
                 }
             }
 
@@ -84,15 +85,15 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    public Exception? LastException { get; set; }
+    public Exception? LastException { get; private set; }
 
     public                  WaitType               WaitType        { get; set; }
     private                 DalamudPluginInterface PluginInterface { get; init; }
     private                 CommandManager         CommandManager  { get; init; }
     private                 Configuration          Configuration   { get; set; }
     [PluginService] private ChatGui                ChatGui         { get; init; } = null!;
-    private                 PluginUi               PluginUi        { get; init; }
-
+    private                 WindowManager          WindowManager   { get; init; }
+    
     private ButtplugClient? _buttplug;
 
     private List<Device> _devicePool;
@@ -112,6 +113,7 @@ public sealed class Plugin : IDalamudPlugin
 
         PluginInterface = pluginInterface;
         CommandManager  = commandManager;
+
 
         PluginInterface.Inject(this);
 
@@ -136,11 +138,12 @@ public sealed class Plugin : IDalamudPlugin
             Configuration.LoadDefaults();
         }
 
-        PluginUi = new PluginUi(Configuration, this);
+        WindowManager = new WindowManager();
+        WindowManager.AddWindow(MainWindow.Name, new MainWindow(this, Configuration));
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnShowUI)
                                                {
-                                                   HelpMessage = "Opens the Aether Sense Redux configuration window"
+                                                   HelpMessage = "Opens the Aether Sense Redux configuration window",
                                                });
 
         PluginInterface.UiBuilder.Draw         += DrawUi;
@@ -156,11 +159,11 @@ public sealed class Plugin : IDalamudPlugin
     public void Dispose()
     {
         Stop(true);
-        PluginUi.Dispose();
+        WindowManager.Dispose();
         CommandManager.RemoveHandler(CommandName);
     }
 
-    // EVENT HANDLERS
+#region Event Handlers
     /// <summary>
     /// 
     /// </summary>
@@ -268,11 +271,12 @@ public sealed class Plugin : IDalamudPlugin
     private void OnShowUI(string command, string args)
     {
         // in response to the slash command, just display our main ui
-        PluginUi.SettingsVisible = true;
+        WindowManager.OpenWindow(MainWindow.Name);
     }
-    // END EVENT HANDLERS
 
-    // SOME FUNCTIONS THAT DO THINGS
+#endregion
+
+#region SOME FUNCTIONS THAT DO THINGS
     /// <summary>
     /// 
     /// </summary>
@@ -304,9 +308,9 @@ public sealed class Plugin : IDalamudPlugin
             PluginLog.Error(ex, "Asynchronous scanning failed.");
         }
     }
-    // END SOME FUNCTIONS THAT DO THINGS
+#endregion
 
-    // START AND STOP FUNCTIONS
+#region START AND STOP FUNCTIONS
     /// <summary>
     /// 
     /// </summary>
@@ -467,16 +471,16 @@ public sealed class Plugin : IDalamudPlugin
 
         CleanButtplug();
     }
-    // END START AND STOP FUNCTIONS
+#endregion
 
-    // UI FUNCTIONS
+#region UI
     /// <summary>
     /// 
     /// </summary>
-    private void DrawUi() { PluginUi.Draw(); }
+    private void DrawUi() { WindowManager.Draw(); }
 
-    private void DrawConfigUi() { PluginUi.SettingsVisible = !PluginUi.SettingsVisible; }
-    // END UI FUNCTIONS
+    private void DrawConfigUi() { WindowManager.ToggleWindow(MainWindow.Name); }
+#endregion
 
     /// <summary>
     /// 

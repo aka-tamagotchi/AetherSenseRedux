@@ -3,28 +3,28 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AetherSenseRedux.Pattern;
 using Dalamud.Logging;
 using System.Threading;
+using AethersenseReduxReborn.Pattern;
 using Buttplug.Client;
 
-namespace AetherSenseRedux;
+namespace AethersenseReduxReborn;
 
 internal class Device : IDisposable
 {
     public readonly ButtplugClientDevice ClientDevice;
-    public          List<IPattern>       Patterns;
-    public          string               Name { get => ClientDevice.Name; }
-    
+    public readonly List<IPattern>       Patterns;
+    public          string               Name => ClientDevice.Name;
+
     // The actual UPS counter is derived from this internal average time per update value
-    public double UPS => 1000 / _ups;
+    public double Ups => 1000 / _ups;
         
 
     private          double   _ups = 16; // we initialize this to the target time per update value just to avoid confusing users
     private          double   _lastIntensity;
     private          bool     _active;
-    private readonly int      frameTime = 16; // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
-    private          WaitType _waitType;
+    private readonly int      _frameTime = 16; // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
+    private readonly WaitType _waitType;
 
     public Device(ButtplugClientDevice clientDevice, WaitType waitType)
     {
@@ -62,7 +62,7 @@ internal class Device : IDisposable
             timer.Restart();
             await OnTick();
             var t = timer.ElapsedMilliseconds;
-            if (t < frameTime)
+            if (t < _frameTime)
             {
                 switch (_waitType)
                 {
@@ -74,7 +74,7 @@ internal class Device : IDisposable
                         // Worst case it performs just as poorly as Task.Delay, but best case we get accuracy
                         // to every other millisecond. Which is less cpu intensive than a SpinWait but also more
                         // than good enough for butts.
-                        while (timer.ElapsedMilliseconds < frameTime)
+                        while (timer.ElapsedMilliseconds < _frameTime)
                         {
                             Thread.Sleep(1);
                         }
@@ -82,21 +82,22 @@ internal class Device : IDisposable
                     case WaitType.UseDelay:
                         // The odds of us getting here are low but it's better to plan for possible future changes
                         // to Task.Delay than to get caught off guard.
-                        while (timer.ElapsedMilliseconds < frameTime)
+                        while (timer.ElapsedMilliseconds < _frameTime)
                         {
                             await Task.Delay(1);
                         }
                         break;
+                    case WaitType.SlowTimer:
                     default:
                         // if we're stuck with low resolution waits there's no point to spinning.
-                        await Task.Delay(frameTime - (int)timer.ElapsedMilliseconds);
+                        await Task.Delay(_frameTime - (int)timer.ElapsedMilliseconds);
                         break;
                 }
 
             } 
             else
             {
-                PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
+                PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - _frameTime);
             }
             _ups = _ups * 0.9 + timer.ElapsedMilliseconds * 0.1;
         }
@@ -108,7 +109,9 @@ internal class Device : IDisposable
     public void Stop()
     {
         _active = false;
-        Patterns.Clear();
+        lock (Patterns) {
+            Patterns.Clear();
+        }
 
         var t = Task.Run(() => Write(0));
         t.Wait();

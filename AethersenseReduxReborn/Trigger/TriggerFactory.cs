@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using AetherSenseRedux.Pattern;
+using AethersenseReduxReborn.Pattern;
 using Microsoft.CSharp.RuntimeBinder;
 
-namespace AetherSenseRedux.Trigger;
+namespace AethersenseReduxReborn.Trigger;
 
 internal class TriggerFactory
 {

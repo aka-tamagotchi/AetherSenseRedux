@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using AetherSenseRedux.Pattern;
+using AethersenseReduxReborn.Pattern;
 
-namespace AetherSenseRedux.Trigger;
+namespace AethersenseReduxReborn.Trigger;
 
 internal interface ITrigger
 {

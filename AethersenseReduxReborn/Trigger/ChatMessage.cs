@@ -1,7 +1,7 @@
 ﻿using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 
-namespace AetherSenseRedux.Trigger;
+namespace AethersenseReduxReborn.Trigger;
 
 internal struct ChatMessage
 {
