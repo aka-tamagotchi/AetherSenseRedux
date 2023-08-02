@@ -4,10 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e47a539c-dac9-4896-a98f-38a08dee8cb2" name="Changes" comment="switch to using a window and rename project">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.AetherSenseRedux/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/AetherSenseRedux.json" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/AethersenseReduxReborn.csproj" afterDir="false" />
+    <list default="true" id="e47a539c-dac9-4896-a98f-38a08dee8cb2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/ITab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/ITabBar.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/AdvancedTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/IntifaceTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/MainWindowTabBar.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggerConfigBasicTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggerConfigDevicesTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggerConfigFilterTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggerConfigPatternTab.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggerConfigTabBar.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/TriggersTab/TriggersTab.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.AetherSenseRedux/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AetherSenseRedux/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/Configuration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/Configuration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow/MainWindow.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,17 +27,21 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/162ea644256e4c8ea7896e868e174c4a9e10/9b/6aa7bc33/ImRaii.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/250368f9c5fb45afa48627c67d7a08ff17fa10/60/1d0b1c16/Window.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cdb25906f45248baac5d91f7c356aeb38ae10/59/12388105/ImGuiCond.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/cdb25906f45248baac5d91f7c356aeb38ae10/68/401fc200/ImGui.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dddd226811884077ba70a0ac45862408d800/6f/f3457fc8/ButtplugClient.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6879c9ed20391a5ccfea363be5964fbcfe4f1dfde9558aa84b36df6b6ec92c6/List.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AetherSenseRedux/PluginUI.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/Configuration.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/Device.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/Plugin.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/UserInterface/WindowManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/WindowManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Empir/source/repos/AetherSenseReduxReborn/AethersenseReduxReborn/UserInterface/Windows/MainWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/AethersenseReduxReborn/UserInterface/Windows/MainWindow.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -74,7 +90,7 @@
       <workItem from="1690253429755" duration="7518000" />
       <workItem from="1690287366490" duration="3941000" />
       <workItem from="1690343195080" duration="2936000" />
-      <workItem from="1690915269521" duration="9518000" />
+      <workItem from="1690915269521" duration="27945000" />
     </task>
     <task id="LOCAL-00001" summary="Builds and loads">
       <option name="closed" value="true" />
@@ -164,7 +180,23 @@
       <option name="project" value="LOCAL" />
       <updated>1690927652901</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="update metadata">
+      <option name="closed" value="true" />
+      <created>1690928672682</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1690928672682</updated>
+    </task>
+    <task id="LOCAL-00013" summary="update README.md">
+      <option name="closed" value="true" />
+      <created>1690929028961</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1690929028961</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -179,6 +211,8 @@
     <MESSAGE value="formatting and style" />
     <MESSAGE value="more formatting" />
     <MESSAGE value="switch to using a window and rename project" />
-    <option name="LAST_COMMIT_MESSAGE" value="switch to using a window and rename project" />
+    <MESSAGE value="update metadata" />
+    <MESSAGE value="update README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="update README.md" />
   </component>
 </project>

@@ -15,6 +15,7 @@ using AethersenseReduxReborn.Pattern;
 using AethersenseReduxReborn.Trigger;
 using AethersenseReduxReborn.UserInterface;
 using AethersenseReduxReborn.UserInterface.Windows;
+using AethersenseReduxReborn.UserInterface.Windows.MainWindow;
 using Buttplug.Client;
 using Buttplug.Client.Connectors.WebsocketConnector;
 
@@ -263,14 +264,8 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="args"></param>
     private void OnShowUI(string command, string args)
     {
-        // in response to the slash command, just display our main ui
         WindowManager.OpenWindow(MainWindow.Name);
     }
 

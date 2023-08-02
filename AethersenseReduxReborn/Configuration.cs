@@ -11,7 +11,7 @@ namespace AethersenseReduxReborn;
 [Serializable]
 public class Configuration : IPluginConfiguration
 {
-    public int           Version { get; set; } = 2;
+    public int           Version { get; set; } = 1;
     public bool          FirstRun = true;
     public bool          LogChat     { get; set; } = false;
     public string        Address     { get; set; } = "ws://127.0.0.1:12345";
@@ -19,7 +19,7 @@ public class Configuration : IPluginConfiguration
     public List<dynamic> Triggers    { get; set; } = new List<dynamic>();
 
     [NonSerialized]
-    private DalamudPluginInterface? pluginInterface;
+    private DalamudPluginInterface? _pluginInterface;
 
     /// <summary>
     /// Stores a reference to the plugin interface to allow us to save this configuration and reload it from disk.
@@ -27,7 +27,7 @@ public class Configuration : IPluginConfiguration
     /// <param name="pluginInterface">The DalamudPluginInterface instance in this plugin</param>
     public void Initialize(DalamudPluginInterface pluginInterface)
     {
-        this.pluginInterface = pluginInterface;
+        _pluginInterface = pluginInterface;
     }
 
     /// <summary>
@@ -49,11 +49,11 @@ public class Configuration : IPluginConfiguration
     }
 
     /// <summary>
-    /// 
+    /// Creates a default configuration.
     /// </summary>
     public void LoadDefaults()
     {
-        Version  = 2;
+        Version  = 1;
         FirstRun = false;
         Triggers = new List<dynamic>() {
                                            new ChatTriggerConfig()
@@ -90,47 +90,47 @@ public class Configuration : IPluginConfiguration
     /// </summary>
     public void Save()
     {
-        pluginInterface!.SavePluginConfig(this);
+        _pluginInterface!.SavePluginConfig(this);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="o"></param>
-    public void Import(dynamic o)
-    {
-        try
-        {
-            if (o.Version != 2)
-            {
-                return;
-            }
-            FirstRun    = o.FirstRun;
-            LogChat     = o.LogChat;
-            Address     = o.Address;
-            SeenDevices = new List<string>(o.SeenDevices);
-            Triggers    = o.Triggers;
-            FixDeserialization();
-        }
-        catch (Exception ex)
-        {
-            PluginLog.Error(ex, "Attempted to import a bad configuration.");
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NullReferenceException"></exception>
-    public Configuration CloneConfigurationFromDisk()
-    {
-        if (pluginInterface == null)
-        {
-            throw new NullReferenceException("Attempted to load the plugin configuration from a clone.");
-        }
-        var config = pluginInterface!.GetPluginConfig() as Configuration ?? throw new NullReferenceException("No configuration exists on disk.");
-        config.FixDeserialization();
-        return config;
-    }
+//    /// <summary>
+//    /// 
+//    /// </summary>
+//    /// <param name="o"></param>
+//    public void Import(dynamic o)
+//    {
+//        try
+//        {
+//            if (o.Version != 1)
+//            {
+//                return;
+//            }
+//            FirstRun    = o.FirstRun;
+//            LogChat     = o.LogChat;
+//            Address     = o.Address;
+//            SeenDevices = new List<string>(o.SeenDevices);
+//            Triggers    = o.Triggers;
+//            FixDeserialization();
+//        }
+//        catch (Exception ex)
+//        {
+//            PluginLog.Error(ex, "Attempted to import a bad configuration.");
+//        }
+//    }
+//
+//    /// <summary>
+//    /// 
+//    /// </summary>
+//    /// <returns></returns>
+//    /// <exception cref="NullReferenceException"></exception>
+//    public Configuration CloneConfigurationFromDisk()
+//    {
+//        if (_pluginInterface == null)
+//        {
+//            throw new NullReferenceException("Attempted to load the plugin configuration from a clone.");
+//        }
+//        var config = _pluginInterface!.GetPluginConfig() as Configuration ?? throw new NullReferenceException("No configuration exists on disk.");
+//        config.FixDeserialization();
+//        return config;
+//    }
 }
