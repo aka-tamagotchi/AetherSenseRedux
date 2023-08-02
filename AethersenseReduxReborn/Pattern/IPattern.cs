@@ -2,7 +2,7 @@
 
 namespace AethersenseReduxReborn.Pattern;
 
-internal interface IPattern
+public interface IPattern
 {
     DateTime Expires { get; set; }
     double   GetIntensityAtTime(DateTime currTime);

@@ -63,13 +63,6 @@ public class IntifaceTab : ITab
             }
         }
 
-        //if (ImGui.Button(plugin.Scanning ? "Scanning..." : "Scan Now")){
-        //    if (!plugin.Scanning)
-        //    {
-        //        Task.Run(plugin.DoScan);
-        //    }
-        //}
-
         ImGui.Spacing();
         using var statusChild = ImRaii.Child("status", new Vector2(0, 0), true);
         if (statusChild) {
@@ -90,12 +83,58 @@ public class IntifaceTab : ITab
             ImGui.Unindent();
             if (_plugin.Status == ButtplugStatus.Connected) {
                 ImGui.Text("Devices Connected:");
-                ImGui.Indent();
-                foreach (var device in _plugin.ConnectedDevices) {
-                    ImGui.Text($"{device.Key} [{(int)device.Value}]");
-                }
 
-                ImGui.Unindent();
+                foreach (var device in _plugin.DevicePool) {
+                    ImGui.Text("-");
+                    ImGui.SameLine();
+                    ImGui.Indent();
+                    ImGui.Text($"{device.Name} [{(int)device.Ups}]");
+                    if (device.HasBattery)
+                        ImGui.Text($"Battery: {device.Battery}");
+                    if (device.HasVibrate) {
+                        ImGui.Text("Vibrators:");
+                        foreach (var attribute in device.Vibrators) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    if (device.HasRotate) {
+                        ImGui.Text("Rotators:");
+                        foreach (var attribute in device.Rotators) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    if (device.HasOscillate) {
+                        ImGui.Text("Oscillators:");
+                        foreach (var attribute in device.Oscillators) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    if (device.HasConstrict) {
+                        ImGui.Text("Constrictors:");
+                        foreach (var attribute in device.Constrictors) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    if (device.HasInflate) {
+                        ImGui.Text("Inflators:");
+                        foreach (var attribute in device.Inflators) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    if (device.HasPosition) {
+                        ImGui.Text("Positioners:");
+                        foreach (var attribute in device.Positioners) {
+                            ImGui.Text($"{attribute.Index} - Description: {attribute.FeatureDescriptor}. Steps Available: {attribute.StepCount}");
+                        }
+                    }
+
+                    ImGui.Unindent();
+                }
             }
         }
     }

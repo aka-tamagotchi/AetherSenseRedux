@@ -101,7 +101,6 @@ internal class ChatTrigger : ITrigger
     public void Start()
     {
         Task.Run(MainLoop).ConfigureAwait(false);
-        ;
     }
 
     /// <summary>

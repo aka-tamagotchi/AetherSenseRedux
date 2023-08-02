@@ -15,7 +15,7 @@ public class Configuration : IPluginConfiguration
     public bool          LogChat     { get; set; } = false;
     public string        Address     { get; set; } = "ws://127.0.0.1:12345";
     public List<string>  SeenDevices { get; set; } = new();
-    public List<dynamic> Triggers    { get; set; } = new List<dynamic>();
+    public List<dynamic> Triggers    { get; set; } = new();
 
     [NonSerialized]
     private DalamudPluginInterface? _pluginInterface;

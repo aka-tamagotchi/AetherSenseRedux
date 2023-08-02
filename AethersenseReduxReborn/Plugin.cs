@@ -71,18 +71,13 @@ public sealed class Plugin : IDalamudPlugin
 
     private bool Connected => _buttplug is { Connected: true };
 
-    public Dictionary<string, double> ConnectedDevices
+    public List<Device> DevicePool
     {
         get
         {
-            Dictionary<string, double> result = new();
             lock (_devicePool) {
-                foreach (var device in _devicePool) {
-                    result[device.Name] = device.Ups;
-                }
+                return _devicePool;
             }
-
-            return result;
         }
     }
 
@@ -99,7 +94,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private List<Device> _devicePool;
 
-    private readonly List<ChatTrigger> _chatTriggerPool;
+    private readonly List<ChatTrigger>       _chatTriggerPool;
+    
 
     /// <summary>
     /// 
@@ -127,13 +123,6 @@ public sealed class Plugin : IDalamudPlugin
         Configuration.FixDeserialization();
 
         _status = ButtplugStatus.Disconnected;
-
-        // Update the configuration if it's an older version
-        if (Configuration.Version == 1) {
-            Configuration.Version  = 2;
-            Configuration.FirstRun = false;
-            Configuration.Save();
-        }
 
         if (Configuration.FirstRun) {
             Configuration.LoadDefaults();
@@ -175,9 +164,8 @@ public sealed class Plugin : IDalamudPlugin
 
         PluginLog.Information("Device {0} added", e.Device.Name);
         Device newDevice = new(e.Device, WaitType);
-        lock (_devicePool) {
-            _devicePool.Add(newDevice);
-        }
+        DevicePool.Add(newDevice);
+        
 
         if (!Configuration.SeenDevices.Contains(newDevice.Name)) {
             Configuration.SeenDevices.Add(newDevice.Name);
@@ -255,8 +243,8 @@ public sealed class Plugin : IDalamudPlugin
         ref bool     isHandled)
     {
         ChatMessage chatMessage = new(type, senderId, ref sender, ref message, ref isHandled);
-        foreach (ChatTrigger t in _chatTriggerPool) {
-            t.Queue(chatMessage);
+        foreach (var trigger in _chatTriggerPool) {
+            trigger.Queue(chatMessage);
         }
 
         if (Configuration.LogChat) {
@@ -283,7 +271,7 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         lock (_devicePool) {
-            foreach (var device in this._devicePool) {
+            foreach (var device in _devicePool) {
                 lock (device.Patterns) {
                     device.Patterns.Add(PatternFactory.GetPatternFromObject(patternConfig));
                 }
@@ -311,11 +299,11 @@ public sealed class Plugin : IDalamudPlugin
     /// </summary>
     private async Task InitButtplug()
     {
-        LastException = null;
-        _status       = ButtplugStatus.Connecting;
+        LastException            = null;
+        _status                  = ButtplugStatus.Connecting;
 
         if (_buttplug == null) {
-            _buttplug                  =  new ButtplugClient("AetherSense Redux");
+            _buttplug                  =  new ButtplugClient("Aethersense Redux Reborn");
             _buttplug.DeviceAdded      += OnDeviceAdded;
             _buttplug.DeviceRemoved    += OnDeviceRemoved;
             _buttplug.ScanningFinished += OnScanComplete;
@@ -324,7 +312,7 @@ public sealed class Plugin : IDalamudPlugin
 
         if (!Connected) {
             try {
-                ButtplugWebsocketConnector wsOptions = new(new Uri(Configuration.Address));
+                var wsOptions = new ButtplugWebsocketConnector(new Uri(Configuration.Address));
                 await _buttplug.ConnectAsync(wsOptions);
                 var t = DoScan();
             } catch (Exception ex) {
@@ -346,15 +334,15 @@ public sealed class Plugin : IDalamudPlugin
     /// </summary>
     private void DisconnectButtplug()
     {
-        if (Status == ButtplugStatus.Connected) {
-            _status = ButtplugStatus.Disconnecting;
-            try {
-                var t = _buttplug!.DisconnectAsync();
-                t.Wait();
-                PluginLog.Information("Buttplug disconnected.");
-            } catch (Exception ex) {
-                PluginLog.Error(ex, "Buttplug failed to disconnect.");
-            }
+        if (Status != ButtplugStatus.Connected) 
+            return;
+        _status = ButtplugStatus.Disconnecting;
+        try {
+            var t = _buttplug!.DisconnectAsync();
+            t.Wait();
+            PluginLog.Information("Buttplug disconnected.");
+        } catch (Exception ex) {
+            PluginLog.Error(ex, "Buttplug failed to disconnect.");
         }
     }
 
@@ -468,14 +456,9 @@ public sealed class Plugin : IDalamudPlugin
     }
 #endregion
 
-#region UI
-    /// <summary>
-    /// 
-    /// </summary>
     private void DrawUi() { WindowManager.Draw(); }
 
     private void DrawConfigUi() { WindowManager.ToggleWindow(MainWindow.Name); }
-#endregion
 
     /// <summary>
     /// 
