@@ -1,10 +1,9 @@
-﻿using Dalamud.Configuration;
-using Dalamud.Logging;
-using Dalamud.Plugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using AethersenseReduxReborn.Pattern;
 using AethersenseReduxReborn.Trigger;
+using Dalamud.Configuration;
+using Dalamud.Plugin;
 
 namespace AethersenseReduxReborn;
 
@@ -55,82 +54,38 @@ public class Configuration : IPluginConfiguration
     {
         Version  = 1;
         FirstRun = false;
-        Triggers = new List<dynamic>() {
-                                           new ChatTriggerConfig()
+        Triggers = new List<dynamic> {
+                                           new ChatTriggerConfig
                                            {
                                                Name           = "Casted",
                                                EnabledDevices = new List<string>(),
-                                               PatternSettings = new ConstantPatternConfig()
+                                               PatternSettings = new ConstantPatternConfig
                                                                  {
                                                                      Level    = 1,
-                                                                     Duration = 200
+                                                                     Duration = 200,
                                                                  },
                                                Regex          = "You cast",
-                                               RetriggerDelay = 0
+                                               RetriggerDelay = 0,
                                            },
-                                           new ChatTriggerConfig()
+                                           new ChatTriggerConfig
                                            {
 
                                                Name           = "Casting",
                                                EnabledDevices = new List<string>(),
-                                               PatternSettings = new RampPatternConfig()
+                                               PatternSettings = new RampPatternConfig
                                                                  {
                                                                      Start    = 0,
                                                                      End      = 0.75,
-                                                                     Duration = 2500
+                                                                     Duration = 2500,
                                                                  },
                                                Regex          = "You begin casting",
-                                               RetriggerDelay = 250
+                                               RetriggerDelay = 250,
                                            }
                                        };
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
+    
     public void Save()
     {
         _pluginInterface!.SavePluginConfig(this);
     }
-
-//    /// <summary>
-//    /// 
-//    /// </summary>
-//    /// <param name="o"></param>
-//    public void Import(dynamic o)
-//    {
-//        try
-//        {
-//            if (o.Version != 1)
-//            {
-//                return;
-//            }
-//            FirstRun    = o.FirstRun;
-//            LogChat     = o.LogChat;
-//            Address     = o.Address;
-//            SeenDevices = new List<string>(o.SeenDevices);
-//            Triggers    = o.Triggers;
-//            FixDeserialization();
-//        }
-//        catch (Exception ex)
-//        {
-//            PluginLog.Error(ex, "Attempted to import a bad configuration.");
-//        }
-//    }
-//
-//    /// <summary>
-//    /// 
-//    /// </summary>
-//    /// <returns></returns>
-//    /// <exception cref="NullReferenceException"></exception>
-//    public Configuration CloneConfigurationFromDisk()
-//    {
-//        if (_pluginInterface == null)
-//        {
-//            throw new NullReferenceException("Attempted to load the plugin configuration from a clone.");
-//        }
-//        var config = _pluginInterface!.GetPluginConfig() as Configuration ?? throw new NullReferenceException("No configuration exists on disk.");
-//        config.FixDeserialization();
-//        return config;
-//    }
 }
