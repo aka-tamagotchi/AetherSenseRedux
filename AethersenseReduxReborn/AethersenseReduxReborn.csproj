@@ -25,9 +25,9 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Buttplug" Version="3.0.1" GeneratePathProperty="true" />
-        <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1" />
-        <PackageReference Include="DalamudPackager" Version="2.1.11" GeneratePathProperty="true" />
+        <PackageReference Include="Buttplug" Version="3.0.1" GeneratePathProperty="true"/>
+        <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1"/>
+        <PackageReference Include="DalamudPackager" Version="2.1.11" GeneratePathProperty="true"/>
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>

@@ -6,34 +6,40 @@ namespace AethersenseReduxReborn.UserInterface;
 
 public sealed class WindowManager : IDisposable
 {
-    private readonly Dictionary<string, Window> windows      = new();
-    private readonly WindowSystem               windowSystem = new("Aethersense Redux Reborn");
+    private readonly Dictionary<string, Window> _windows      = new();
+    private readonly WindowSystem               _windowSystem = new("Aethersense Redux Reborn");
 
     public void AddWindow(string name, Window window)
     {
-        windows.Add(name, window);
-        windowSystem.AddWindow(window);
+        _windows.Add(name, window);
+        _windowSystem.AddWindow(window);
     }
 
     public void OpenWindow(string name)
     {
-        if (windows.TryGetValue(name, out var window))
+        if (_windows.TryGetValue(name, out var window))
             window.IsOpen = true;
     }
 
     public void CloseWindow(string name)
     {
-        if (windows.TryGetValue(name, out var window))
+        if (_windows.TryGetValue(name, out var window))
             window.IsOpen = false;
     }
 
     public void ToggleWindow(string name)
     {
-        if (windows.TryGetValue(name, out var window))
+        if (_windows.TryGetValue(name, out var window))
             window.IsOpen = !window.IsOpen;
     }
 
-    public void Draw() { windowSystem.Draw(); }
+    public void Draw() { _windowSystem.Draw(); }
 
-    public void Dispose() { windowSystem.RemoveAllWindows(); }
+    public void Dispose()
+    {
+        foreach (var (name, window) in _windows)
+            if (window is IDisposable disposable)
+                disposable.Dispose();
+        _windowSystem.RemoveAllWindows();
+    }
 }
