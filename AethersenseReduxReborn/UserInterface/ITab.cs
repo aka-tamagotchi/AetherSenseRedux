@@ -1,10 +1,8 @@
 ﻿using System;
-using Dalamud.Interface.Raii;
-using ImGuiNET;
 
 namespace AethersenseReduxReborn.UserInterface;
 
-public interface ITab : IDisposable
+public interface ITab: IDisposable
 {
     public string Name { get; }
 

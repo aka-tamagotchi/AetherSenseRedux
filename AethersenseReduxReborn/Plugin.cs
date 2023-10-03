@@ -1,65 +1,47 @@
-﻿using Dalamud.Game.Command;
-using Dalamud.Plugin;
-using AethersenseReduxReborn.Configurations;
-using AethersenseReduxReborn.Services;
-using AethersenseReduxReborn.Services.Interfaces;
+﻿using AethersenseReduxReborn.Configurations;
 using AethersenseReduxReborn.UserInterface;
 using AethersenseReduxReborn.UserInterface.Windows.MainWindow;
+using Dalamud.Game.Command;
+using Dalamud.Plugin;
 
 namespace AethersenseReduxReborn;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public sealed class Plugin : IDalamudPlugin
+public sealed class Plugin: IDalamudPlugin
 {
-    public string Name => "Aethersense Redux Reborn";
-
-    private ButtplugServerConfiguration _serverConfiguration;
-    private IntensityConfiguration      _intensityConfiguration;
-
-    private const string CommandName = "/arr";
-
-    private readonly CommandManager    _commandManager;
-    private readonly IButtplugService  _buttplugService;
-    private readonly IDeviceService    _deviceService;
-    private readonly IIntensityService _intensityService;
-    private readonly WindowManager     _windowManager;
-    private readonly DalamudLogger     _dalamudLogger;
+    private readonly WindowManager               _windowManager;
+    private readonly ButtplugWrapper             _buttplugWrapper;
+    private readonly SignalService               _signalService;
+    private readonly ButtplugServerConfiguration _serverConfiguration;
+    private readonly SignalConfiguration         _signalConfiguration;
+    public           string                      Name => "Aethersense Redux Reborn";
+    private const    string                      CommandName = "/arr";
 
 
-    public Plugin(
-        DalamudPluginInterface pluginInterface,
-        CommandManager         commandManager)
+    public Plugin(DalamudPluginInterface pluginInterface)
     {
-        _dalamudLogger = new DalamudLogger();
+        pluginInterface.Create<Service>();
+        Service.CommandManager.AddHandler(CommandName,
+                                          new CommandInfo(OnShowUI) {
+                                                                        HelpMessage = "Opens the Aether Sense Redux configuration window",
+                                                                    });
+        Service.PluginInterface.UiBuilder.Draw         += DrawUi;
+        Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUi;
 
-        _serverConfiguration    = new ButtplugServerConfiguration();
-        _intensityConfiguration = IntensityConfiguration.DefaultConfiguration();
+        _serverConfiguration = new ButtplugServerConfiguration();
+        _buttplugWrapper     = new ButtplugWrapper(Name, _serverConfiguration);
+        _signalConfiguration = SignalConfiguration.DefaultConfiguration();
+        _signalService       = new SignalService(_buttplugWrapper, _signalConfiguration);
 
-        _commandManager = commandManager;
-        _windowManager  = new WindowManager();
-
-        _buttplugService  = new ButtplugService(_serverConfiguration, _dalamudLogger);
-        _deviceService    = new DeviceService(_buttplugService, _dalamudLogger);
-        _intensityService = new IntensityService(_buttplugService, _deviceService, _intensityConfiguration, _dalamudLogger);
-
-        _windowManager.AddWindow(MainWindow.Name, new MainWindow(_buttplugService, _deviceService, _intensityService, _dalamudLogger));
-        _commandManager.AddHandler(CommandName, new CommandInfo(OnShowUI)
-                                                {
-                                                    HelpMessage = "Opens the Aether Sense Redux configuration window",
-                                                });
-
-        pluginInterface.UiBuilder.Draw         += DrawUi;
-        pluginInterface.UiBuilder.OpenConfigUi += DrawConfigUi;
+        _windowManager = new WindowManager();
+        _windowManager.AddWindow(MainWindow.Name, new MainWindow(_buttplugWrapper, _signalService));
     }
 
 
     public void Dispose()
     {
-        _buttplugService.DisconnectFromServer();
-        _buttplugService.Dispose();
-        _deviceService.Dispose();
-        _windowManager.Dispose();
-        _commandManager.RemoveHandler(CommandName);
+        _buttplugWrapper.Dispose();
+        Service.CommandManager.RemoveHandler(CommandName);
     }
 
 #region UI Handlers

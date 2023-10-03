@@ -4,7 +4,7 @@ using Dalamud.Interface.Windowing;
 
 namespace AethersenseReduxReborn.UserInterface;
 
-public sealed class WindowManager : IDisposable
+public sealed class WindowManager: IDisposable
 {
     private readonly Dictionary<string, Window> _windows      = new();
     private readonly WindowSystem               _windowSystem = new("Aethersense Redux Reborn");
@@ -37,9 +37,11 @@ public sealed class WindowManager : IDisposable
 
     public void Dispose()
     {
-        foreach (var (name, window) in _windows)
+        foreach (var (name, window) in _windows){
             if (window is IDisposable disposable)
                 disposable.Dispose();
+        }
+
         _windowSystem.RemoveAllWindows();
     }
 }

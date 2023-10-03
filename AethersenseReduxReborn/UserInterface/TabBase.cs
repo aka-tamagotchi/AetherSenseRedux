@@ -1,10 +1,10 @@
 ﻿using System;
-using Dalamud.Interface.Raii;
+using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 
 namespace AethersenseReduxReborn.UserInterface;
 
-public class TabBase : ITab
+public class TabBase: ITab
 {
     public virtual string Name => "";
 
@@ -20,7 +20,7 @@ public class TabBase : ITab
 
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing) { }
+        if (disposing){ }
     }
 
     public void Dispose()

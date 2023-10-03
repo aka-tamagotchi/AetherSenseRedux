@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Numerics;
-using Dalamud.Interface.Raii;
-using Dalamud.Logging;
+using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 
-namespace AethersenseReduxReborn.IntensitySource;
+namespace AethersenseReduxReborn.SignalSources;
 
 [Serializable]
 public class SimplePattern
 {
-    private long _elapsedTime;
+    private double _elapsedTime;
 
     private readonly SimplePatternType _patternType;
 
@@ -31,41 +30,37 @@ public class SimplePattern
         _intensity2    = intensity2;
     }
 
-    public double Update(long elapsedMilliseconds)
+    public double Update(double elapsedMilliseconds)
     {
         _elapsedTime += elapsedMilliseconds;
-        var weight = double.Clamp((double)_elapsedTime / _totalDuration,0, 1);
+        var weight = double.Clamp(_elapsedTime / _totalDuration, 0, 1);
 
         if (_elapsedTime >= _totalDuration)
             IsCompleted = true;
-        var value = _patternType switch
-        {
+        
+        var value = _patternType switch {
             SimplePatternType.Constant => _intensity1,
             SimplePatternType.Ramp     => Lerp(_intensity1, _intensity2, weight),
             SimplePatternType.Saw      => Lerp(_intensity1, _intensity2, weight % 1),
-            SimplePatternType.Square   => _elapsedTime % _duration1 + _duration2 < _duration1 ? _intensity1 : _intensity2,
+            SimplePatternType.Square   => _elapsedTime                          % _duration1 + _duration2 < _duration1 ? _intensity1 : _intensity2,
             SimplePatternType.Random   => Lerp(_intensity1, _intensity2, Random.Shared.NextDouble()),
             _                          => 0,
         };
-        PluginLog.Verbose("time:{0}, weight:{1}, value:{2}", _elapsedTime, weight, value);
+        Service.PluginLog.Verbose("time:{0}, weight:{1}, value:{2}", _elapsedTime, weight, value);
         return value;
     }
 
     private static T Lerp<T>(T start, T end, T weight)
-        where T : INumber<T>, INumberBase<T>
-    {
-        return start * (T.One - weight) + end * weight;
-    }
+        where T: INumber<T>, INumberBase<T> =>
+        start * (T.One - weight) + end * weight;
 
-    public static SimplePattern CreatePatternFromConfig(SimplePatternConfig patternConfig)
-    {
-        return new SimplePattern(patternConfig.PatternType,
-                                 patternConfig.TotalDuration,
-                                 patternConfig.Duration1,
-                                 patternConfig.Duration2,
-                                 patternConfig.Intensity1,
-                                 patternConfig.Intensity2);
-    }
+    public static SimplePattern CreatePatternFromConfig(SimplePatternConfig patternConfig) =>
+        new(patternConfig.PatternType,
+            patternConfig.TotalDuration,
+            patternConfig.Duration1,
+            patternConfig.Duration2,
+            patternConfig.Intensity1,
+            patternConfig.Intensity2);
 }
 
 public class SimplePatternConfig
@@ -78,32 +73,27 @@ public class SimplePatternConfig
 
     public SimplePatternType PatternType { get; set; }
 
-    public int TotalDuration
-    {
+    public int TotalDuration {
         get => _totalDuration;
         init => _totalDuration = value;
     }
 
-    public int Duration1
-    {
+    public int Duration1 {
         get => _duration1;
         init => _duration1 = value;
     }
 
-    public int Duration2
-    {
+    public int Duration2 {
         get => _duration2;
         init => _duration2 = value;
     }
 
-    public double Intensity1
-    {
+    public double Intensity1 {
         get => _intensity1;
         init => _intensity1 = value;
     }
 
-    public double Intensity2
-    {
+    public double Intensity2 {
         get => _intensity2;
         init => _intensity2 = value;
     }
@@ -111,19 +101,19 @@ public class SimplePatternConfig
     public void DrawConfigOptions()
     {
         const ImGuiComboFlags patternTypeSelectorFlags = ImGuiComboFlags.PopupAlignLeft;
-        using (var patternTypeSelector = ImRaii.Combo("Pattern Type", PatternType.ToString(), patternTypeSelectorFlags)) {
+        using (var patternTypeSelector = ImRaii.Combo("Pattern Type", PatternType.ToString(), patternTypeSelectorFlags)){
             if (patternTypeSelector)
-                foreach (var patternType in Enum.GetValues<SimplePatternType>()) {
+                foreach (var patternType in Enum.GetValues<SimplePatternType>()){
                     var isSelected = patternType == PatternType;
 
-                    if (ImGui.Selectable(patternType.ToString(), isSelected)) 
+                    if (ImGui.Selectable(patternType.ToString(), isSelected))
                         PatternType = patternType;
                 }
         }
 
         InputDuration("Total Duration (ms)", ref _totalDuration);
 
-        switch (PatternType) {
+        switch (PatternType){
             case SimplePatternType.Constant:
                 InputIntensity("Intensity", ref _intensity1);
                 break;
@@ -164,14 +154,11 @@ public class SimplePatternConfig
         }
     }
 
-    public static SimplePatternConfig DefaultConstantPattern()
-    {
-        return new SimplePatternConfig
-               {
-                   TotalDuration = 250,
-                   Intensity1    = 1,
-               };
-    }
+    public static SimplePatternConfig DefaultConstantPattern() =>
+        new() {
+                  TotalDuration = 250,
+                  Intensity1    = 1,
+              };
 }
 
 public enum SimplePatternType
