@@ -2,6 +2,8 @@
 using AethersenseReduxReborn.UserInterface;
 using AethersenseReduxReborn.UserInterface.Windows.MainWindow;
 using Dalamud.Game.Command;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Plugin;
 
 namespace AethersenseReduxReborn;
@@ -35,6 +37,15 @@ public sealed class Plugin: IDalamudPlugin
 
         _windowManager = new WindowManager();
         _windowManager.AddWindow(MainWindow.Name, new MainWindow(_buttplugWrapper, _signalService));
+
+        Service.ChatGui.ChatMessage+=(      XivChatType type,
+                                            uint senderId,
+                                            ref SeString sender,
+                                            ref SeString message,
+                                            ref bool isHandled)=>Service.PluginLog.Information("Type:{0} SenderId:{1} Sender:{2} Message:{3} IsHandled:{4}", type, senderId, sender, message, isHandled);
+#if DEBUG
+        _windowManager.ToggleWindow(MainWindow.Name);
+#endif
     }
 
 

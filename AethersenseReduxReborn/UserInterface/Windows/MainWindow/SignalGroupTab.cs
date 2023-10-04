@@ -98,11 +98,17 @@ public class SignalGroupTab: TabBase
                     break;
             }
 
+        var signalGroupId = 0;
         foreach (var signalSource in signalGroup.SignalSources){
+            ImRaii.PushId(signalGroupId);
             signalSource.DrawConfig();
+            if (ImGui.Button("Remove"))
+                _selectedSignalGroup.RemoveSignalSource(signalSource);
+            ImGui.Separator();
+            signalGroupId++;
         }
 
-        ImGui.Separator();
+        
         return;
 
         void DrawActuatorCombo()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Buttplug.Client;
 using Buttplug.Core.Messages;
 
@@ -38,7 +39,8 @@ public class Device
         // Only send the new value if it has changed enough to result in a new response from the device. 
         if (processedValue.Item2){
             Service.PluginLog.Debug("Sending value {0} to device {1} actuator {2}", processedValue.Item1, Name, actuator.Description);
-            _internalDevice.ScalarAsync(new ScalarCmd.ScalarSubcommand(actuator.Index, processedValue.Item1, actuator.ActuatorType)).Start();
+            Task.Run(async () => await _internalDevice.ScalarAsync(new ScalarCmd.ScalarSubcommand(actuator.Index, processedValue.Item1, actuator.ActuatorType)));
+//            _internalDevice.ScalarAsync(new ScalarCmd.ScalarSubcommand(actuator.Index, processedValue.Item1, actuator.ActuatorType));
         }
     }
 }

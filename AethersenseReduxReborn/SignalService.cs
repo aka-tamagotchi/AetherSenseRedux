@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AethersenseReduxReborn.Configurations;
 using AethersenseReduxReborn.SignalSources;
 using Dalamud.Plugin.Services;
@@ -28,9 +29,18 @@ public sealed class SignalService: IDisposable
     {
         if(_buttplugWrapper.Connected == false) 
             return;
-        foreach (var signalGroup in SignalGroups){
+        foreach (var signalGroup in SignalGroups.Where(signalGroup => signalGroup.Enabled)){
             signalGroup.UpdateSources(framework.UpdateDelta.TotalMilliseconds);
-            _buttplugWrapper.SendCommandToDevice(signalGroup.DeviceName, signalGroup.ActuatorIndex, signalGroup.Signal);
+            try{
+                _buttplugWrapper.SendCommandToDevice(signalGroup.DeviceName, signalGroup.ActuatorIndex, signalGroup.Signal);
+            }
+            catch(InvalidOperationException){
+                signalGroup.Enabled = false;
+            }
+            catch (Exception e){
+                Service.PluginLog.Warning("Exception while sending command to device {0}:\n{1}", signalGroup.DeviceName, e);
+                signalGroup.Enabled = false;
+            }
         }
     }
 }

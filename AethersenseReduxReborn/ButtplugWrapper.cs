@@ -32,8 +32,9 @@ public sealed class ButtplugWrapper: IDisposable
     {
         try{
             Devices.Single(device => device.Name == name).SendCommandToActuator(index, value);
-        } catch (Exception e){
+        } catch (InvalidOperationException e){
             Service.PluginLog.Error("Could not locate device with name {0}", name);
+            throw;
         }
     }
 
@@ -55,7 +56,11 @@ public sealed class ButtplugWrapper: IDisposable
         _buttplugCts?.Cancel();
     }
 
-    private void DeviceAdded(object? sender, DeviceAddedEventArgs args) { Devices.Add(new Device(args.Device)); }
+    private void DeviceAdded(object? sender, DeviceAddedEventArgs args)
+    {
+        Service.PluginLog.Information("Device added: {0}", args.Device.Name);
+        Devices.Add(new Device(args.Device));
+    }
 
     private void DeviceRemoved(object? sender, DeviceRemovedEventArgs args)
     {

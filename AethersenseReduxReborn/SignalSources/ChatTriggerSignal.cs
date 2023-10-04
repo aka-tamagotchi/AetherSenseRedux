@@ -4,6 +4,7 @@ using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
+using XIVChatTools;
 
 namespace AethersenseReduxReborn.SignalSources;
 
@@ -20,9 +21,12 @@ public class ChatTriggerSignal: SignalBase
 
     private void OnChatMessageReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
     {
-        if (type != _config.ChatType)
+        var channel = XIVChatTypeEx.Decode((uint)type).Item3;
+        
+        if (channel != _config.ChatType)
             return;
         try{
+            Service.PluginLog.Debug("Evaluating string regex [{0}] against [{1}]", _config.Regex, message.TextValue);
             var match = _config.Regex.Match(message.TextValue);
             if (!match.Success)
                 return;
@@ -52,7 +56,6 @@ public class ChatTriggerSignal: SignalBase
 
     public override void DrawConfig()
     {
-        using var id = ImRaii.PushId(Name);
         ImGui.Text(Name);
         ImGui.Text($"Intensity: {Value}");
         _config.DrawConfigOptions();
@@ -67,20 +70,20 @@ public class ChatTriggerSignalConfig
 {
     public required SimplePatternConfig PatternConfig { get; set; }
     public required Regex               Regex         { get; set; }
-    public required XivChatType         ChatType      { get; set; }
+    public required Channel         ChatType      { get; set; }
 
     public static ChatTriggerSignalConfig DefaultConfig() =>
         new() {
                   PatternConfig = SimplePatternConfig.DefaultConstantPattern(),
                   Regex         = new Regex(""),
-                  ChatType      = XivChatType.None,
+                  ChatType      = Channel.BattleSystemMessage,
               };
 
     public void DrawConfigOptions()
     {
         using (var chatTypeCombo = ImRaii.Combo("Chat Type", ChatType.ToString())){
             if (chatTypeCombo){
-                foreach (var chatType in Enum.GetValues<XivChatType>()){
+                foreach (var chatType in Enum.GetValues<Channel>()){
                     if (ImGui.Selectable(chatType.ToString(), chatType == ChatType))
                         ChatType = chatType;
                 }
