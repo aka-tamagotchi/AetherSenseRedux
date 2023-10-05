@@ -44,7 +44,7 @@ public sealed class Plugin: IDalamudPlugin
                                             ref SeString message,
                                             ref bool isHandled)=>Service.PluginLog.Information("Type:{0} SenderId:{1} Sender:{2} Message:{3} IsHandled:{4}", type, senderId, sender, message, isHandled);
 #if DEBUG
-        _windowManager.ToggleWindow(MainWindow.Name);
+//        _windowManager.ToggleWindow(MainWindow.Name);
 #endif
     }
 

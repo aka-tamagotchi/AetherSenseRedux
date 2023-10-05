@@ -4,11 +4,12 @@
         <Authors>X'pahtalo</Authors>
         <Version>0.0.1.0</Version>
         <PackageProjectUrl>https://github.com/Xpahtalo/AetherSenseReduxReborn</PackageProjectUrl>
+        <Configurations>Debug;Release</Configurations>
     </PropertyGroup>
 
     <PropertyGroup>
         <TargetFramework>net7.0-windows</TargetFramework>
-        <Platforms>x64</Platforms>
+        <Platforms>x64;AnyCPU</Platforms>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
