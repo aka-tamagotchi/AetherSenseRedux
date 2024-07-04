@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AetherSenseRedux.Pattern;
-using Buttplug;
+using Buttplug.Client;
 using Dalamud.Logging;
 using System.Threading;
 
@@ -43,7 +43,7 @@ namespace AetherSenseRedux
         {
             _active = false;
             Patterns.Clear();
-            ClientDevice.Dispose();
+            //ClientDevice.Dispose();
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace AetherSenseRedux
 
             try
             {
-                await ClientDevice.SendVibrateCmd(clampedIntensity);
+                await ClientDevice.VibrateAsync(clampedIntensity);
 
             } catch (Exception)
             {
