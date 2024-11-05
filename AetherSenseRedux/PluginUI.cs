@@ -1,6 +1,6 @@
 ﻿using AetherSenseRedux.Pattern;
 using AetherSenseRedux.Trigger;
-using Dalamud.Logging;
+// using Dalamud.Logging;
 using ImGuiNET;
 using System;
 using System.Collections.Generic;
@@ -70,7 +70,7 @@ namespace AetherSenseRedux
                 // if we aren't drawing the window we don't need a working copy of the configuration
                 if (WorkingCopy != null)
                 {
-                    PluginLog.Debug("Making WorkingCopy null.");
+                    Plugin.PluginLog.Debug("Making WorkingCopy null.");
                     WorkingCopy = null;
                 }
 
@@ -81,7 +81,7 @@ namespace AetherSenseRedux
 
             if (WorkingCopy == null)
             {
-                PluginLog.Debug("WorkingCopy was null, importing current config.");
+                Plugin.PluginLog.Debug("WorkingCopy was null, importing current config.");
                 WorkingCopy = new Configuration();
                 WorkingCopy.Import(configuration);
             }
@@ -304,7 +304,7 @@ namespace AetherSenseRedux
                     }
                     catch (Exception ex)
                     {
-                        PluginLog.Error(ex, "Could not restore configuration.");
+                        Plugin.PluginLog.Error(ex, "Could not restore configuration.");
                     }
 
                 }

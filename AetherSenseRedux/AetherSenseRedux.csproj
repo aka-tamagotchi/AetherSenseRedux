@@ -7,7 +7,7 @@
 	<Description>Buttplugs on the moon</Description>
 	<Copyright>All Rights Reserved</Copyright>
 	<PackageProjectUrl>https://github.com/digital-pet/AetherSenseRedux</PackageProjectUrl>
-	<TargetFramework>net7.0-windows</TargetFramework>
+	<TargetFramework>net8.0-windows</TargetFramework>
 	<Platforms>x64</Platforms>
 	<Nullable>enable</Nullable>
 	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -24,9 +24,9 @@
 	
 	
   <ItemGroup>
-    <PackageReference Include="Buttplug" Version="3.0.0" GeneratePathProperty="true" />
-    <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.0" />
-    <PackageReference Include="DalamudPackager" Version="2.1.10" GeneratePathProperty="true" />
+    <PackageReference Include="Buttplug" Version="3.0.1" GeneratePathProperty="true" />
+    <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1" />
+    <PackageReference Include="DalamudPackager" Version="2.1.13" GeneratePathProperty="true" />
 	  <Reference Include="FFXIVClientStructs">
 		  <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
 		  <Private>false</Private>
