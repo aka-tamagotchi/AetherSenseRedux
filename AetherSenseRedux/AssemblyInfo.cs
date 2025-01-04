@@ -10,5 +10,5 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyProductAttribute("AetherSenseRedux")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AetherSenseRedux")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.7.*")]
-[assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
-[assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
+[assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows10.0")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows10.0")]

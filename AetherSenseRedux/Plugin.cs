@@ -1,14 +1,12 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using Dalamud.Logging;
-using Dalamud.Game.Gui;
+using Dalamud.Plugin.Services;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 using Buttplug.Client;
@@ -17,14 +15,23 @@ using AetherSenseRedux.Trigger;
 using AetherSenseRedux.Pattern;
 using System.Diagnostics;
 using System.Threading;
+using Dalamud.Interface.Windowing;
 
-namespace AetherSenseRedux
-{
+namespace AetherSenseRedux;
+
     public sealed class Plugin : IDalamudPlugin
     {
-        public string Name => "AetherSense Redux";
+        [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+        [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
+        [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
+        [PluginService] internal static IPluginLog PluginLog { get; private set; } = null!;
+        [PluginService] private IChatGui ChatGui { get; init; } = null!;
 
         private const string commandName = "/asr";
+
+        public Configuration Configuration { get; set; }
+
+        public string Name => "AetherSense Redux";
 
         private ButtplugStatus _status;
 
@@ -107,10 +114,7 @@ namespace AetherSenseRedux
         public Exception? LastException { get; set; }
 
         public WaitType WaitType { get; set; }
-        private DalamudPluginInterface PluginInterface { get; init; }
-        private CommandManager CommandManager { get; init; }
-        private Configuration Configuration { get; set; }
-        [PluginService] private ChatGui ChatGui { get; init; } = null!;
+
         private PluginUI PluginUi { get; init; }
 
         private ButtplugClient? Buttplug;
@@ -124,14 +128,9 @@ namespace AetherSenseRedux
         /// </summary>
         /// <param name="pluginInterface"></param>
         /// <param name="commandManager"></param>
-        public Plugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] CommandManager commandManager)
+        public Plugin()
         {
             var t = DoBenchmark();
-
-            PluginInterface = pluginInterface;
-            CommandManager = commandManager;
 
             PluginInterface.Inject(this);
 
@@ -139,7 +138,6 @@ namespace AetherSenseRedux
             this.ChatTriggerPool = new List<ChatTrigger>();
 
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            Configuration.Initialize(PluginInterface);
 
             Configuration.FixDeserialization();
 
@@ -165,7 +163,7 @@ namespace AetherSenseRedux
                 HelpMessage = "Opens the Aether Sense Redux configuration window"
             });
 
-            this.PluginInterface.UiBuilder.Draw += DrawUI;
+            PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
             t.Wait();
@@ -269,9 +267,9 @@ namespace AetherSenseRedux
             PluginLog.Error("Unexpected disconnect.");
         }
 
-        private void OnChatReceived(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+        private void OnChatReceived(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
         {
-            ChatMessage chatMessage = new(type, senderId, ref sender, ref message, ref isHandled);
+            ChatMessage chatMessage = new(type, timestamp, ref sender, ref message, ref isHandled);
             foreach (ChatTrigger t in ChatTriggerPool)
             {
                 t.Queue(chatMessage);
@@ -602,7 +600,8 @@ namespace AetherSenseRedux
             return result;
 
         }
+
     }
 
     
-}
+

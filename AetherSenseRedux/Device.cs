@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AetherSenseRedux.Pattern;
 using Buttplug.Client;
-using Dalamud.Logging;
 using System.Threading;
 
 namespace AetherSenseRedux
@@ -100,7 +99,7 @@ namespace AetherSenseRedux
                 } 
                 else
                 {
-                    PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
+                    Plugin.PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
                 }
                 _ups = _ups * 0.9 + timer.ElapsedMilliseconds * 0.1;
             }

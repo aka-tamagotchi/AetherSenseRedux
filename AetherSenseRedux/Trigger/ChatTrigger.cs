@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Dalamud.Logging;
 using System.Collections.Concurrent;
 using XIVChatTypes;
 
@@ -66,7 +65,7 @@ namespace AetherSenseRedux.Trigger
         {
             if (Enabled)
             {
-                PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
+                Plugin.PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
 
                 _messages.Enqueue(message);
             }
@@ -81,7 +80,7 @@ namespace AetherSenseRedux.Trigger
             {
                 if (DateTime.UtcNow < RetriggerTime)
                 {
-                    PluginLog.Debug("Trigger discarded, too soon");
+                    Plugin.PluginLog.Debug("Trigger discarded, too soon");
                     return;
                 }
                 else
@@ -132,7 +131,7 @@ namespace AetherSenseRedux.Trigger
                 ChatMessage message;
                 if (_messages.TryDequeue(out message))
                 {
-                    PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
+                    Plugin.PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
                     if (UseFilter && !Filter.Match(message.ChatType))
                     {
                         continue;
@@ -143,7 +142,7 @@ namespace AetherSenseRedux.Trigger
                     }
                     
                     OnTrigger();
-                    PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
+                    Plugin.PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
                 } else
                 {
                     await Task.Delay(50);
@@ -194,7 +193,7 @@ namespace AetherSenseRedux.Trigger
         /// <param name="sender"></param>
         /// <param name="message"></param>
         /// <param name="isHandled"></param>
-        public ChatMessage(XivChatType chatType, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+        public ChatMessage(XivChatType chatType, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
         {
             ChatType = (uint)chatType;
             //SenderId = senderId;
