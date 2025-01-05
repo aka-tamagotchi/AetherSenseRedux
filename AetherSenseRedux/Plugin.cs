@@ -17,8 +17,8 @@ using System.Diagnostics;
 using System.Threading;
 using Dalamud.Interface.Windowing;
 
-namespace AetherSenseRedux;
-
+namespace AetherSenseRedux
+{
     public sealed class Plugin : IDalamudPlugin
     {
         [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
@@ -35,7 +35,9 @@ namespace AetherSenseRedux;
 
         private ButtplugStatus _status;
 
-        public ButtplugStatus Status { get
+        public ButtplugStatus Status
+        {
+            get
             {
                 try
                 {
@@ -54,7 +56,8 @@ namespace AetherSenseRedux;
                     else if (!Buttplug.Connected && _status == ButtplugStatus.Connected)
                     {
                         return ButtplugStatus.Error;
-                    } else if (_status == ButtplugStatus.Disconnecting)
+                    }
+                    else if (_status == ButtplugStatus.Disconnecting)
                     {
                         return ButtplugStatus.Disconnecting;
                     }
@@ -73,11 +76,13 @@ namespace AetherSenseRedux;
                     return ButtplugStatus.Error;
                 }
 
-                
+
             }
         }
 
-        public bool Scanning { get
+        public bool Scanning
+        {
+            get
             {
                 if (Buttplug == null)
                 {
@@ -89,26 +94,29 @@ namespace AetherSenseRedux;
             }
         }
 
-        private bool Connected { 
-            get {
+        private bool Connected
+        {
+            get
+            {
                 if (Buttplug != null)
                 {
                     return Buttplug.Connected;
                 }
                 return false;
-            } 
+            }
         }
 
-        public Dictionary<string,double> ConnectedDevices { 
+        public Dictionary<string, double> ConnectedDevices
+        {
             get
             {
-                Dictionary<string,double> result = new();
+                Dictionary<string, double> result = new();
                 foreach (Device device in DevicePool)
                 {
                     result[device.Name] = device.UPS;
                 }
                 return result;
-            } 
+            }
         }
 
         public Exception? LastException { get; set; }
@@ -150,7 +158,7 @@ namespace AetherSenseRedux;
                 Configuration.FirstRun = false;
                 Configuration.Save();
             }
-            
+
             if (Configuration.FirstRun)
             {
                 Configuration.LoadDefaults();
@@ -192,7 +200,8 @@ namespace AetherSenseRedux;
             PluginLog.Information("Device {0} added", e.Device.Name);
             Device newDevice = new(e.Device, WaitType);
             this.DevicePool.Add(newDevice);
-            if (!Configuration.SeenDevices.Contains(newDevice.Name)){
+            if (!Configuration.SeenDevices.Contains(newDevice.Name))
+            {
                 Configuration.SeenDevices.Add(newDevice.Name);
             }
             newDevice.Start();
@@ -206,7 +215,7 @@ namespace AetherSenseRedux;
         /// <param name="e"></param>
         private void OnDeviceRemoved(object? sender, DeviceRemovedEventArgs e)
         {
-            if(Status != ButtplugStatus.Connected)
+            if (Status != ButtplugStatus.Connected)
             {
                 return;
             }
@@ -237,7 +246,7 @@ namespace AetherSenseRedux;
                 {
                     this.DevicePool.Remove(device);
                 }
-                    
+
             }
         }
 
@@ -304,14 +313,15 @@ namespace AetherSenseRedux;
                 return;
             }
 
-            lock (DevicePool) {
+            lock (DevicePool)
+            {
                 foreach (var device in this.DevicePool)
                 {
                     lock (device.Patterns)
                     {
                         device.Patterns.Add(PatternFactory.GetPatternFromObject(patternConfig));
                     }
-            }
+                }
             }
         }
 
@@ -382,7 +392,7 @@ namespace AetherSenseRedux;
             if (Status == ButtplugStatus.Connected)
             {
                 _status = ButtplugStatus.Disconnecting;
-                try 
+                try
                 {
                     var t = Buttplug!.DisconnectAsync();
                     t.Wait();
@@ -392,7 +402,7 @@ namespace AetherSenseRedux;
                 {
                     PluginLog.Error(ex, "Buttplug failed to disconnect.");
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -459,7 +469,7 @@ namespace AetherSenseRedux;
                 if (Trigger.Type == "ChatTrigger")
                 {
                     ChatTriggerPool.Add((ChatTrigger)Trigger);
-                } 
+                }
                 else
                 {
                     PluginLog.Error("Invalid trigger type {0} created.", Trigger.Type);
@@ -468,7 +478,7 @@ namespace AetherSenseRedux;
 
             foreach (ChatTrigger t in ChatTriggerPool)
             {
-                PluginLog.Debug("Starting chat trigger {0}",t.Name);
+                PluginLog.Debug("Starting chat trigger {0}", t.Name);
                 t.Start();
             }
 
@@ -541,7 +551,7 @@ namespace AetherSenseRedux;
 
 
             PluginLog.Debug("Testing Task.Delay");
-            
+
             for (int i = 0; i < times.Length; i++)
             {
                 timer.Restart();
@@ -572,7 +582,7 @@ namespace AetherSenseRedux;
             }
             averages[1] = (double)sum / times.Length / 10000;
             PluginLog.Debug("Average: {0}", averages[1]);
-            
+
             if (averages[0] < 3)
             {
                 result = WaitType.Use_Delay;
@@ -581,7 +591,7 @@ namespace AetherSenseRedux;
             else if (averages[1] < 3)
             {
                 result = WaitType.Use_Sleep;
-                
+
             }
 
             switch (result)
@@ -602,6 +612,5 @@ namespace AetherSenseRedux;
         }
 
     }
-
+}
     
-
