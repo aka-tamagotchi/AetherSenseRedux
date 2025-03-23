@@ -10,16 +10,6 @@
 	<TargetFramework>net9.0</TargetFramework>
 	<Platforms>x64</Platforms>
 	<Nullable>enable</Nullable>
-	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	<Deterministic>false</Deterministic>
-	<DebugType>none</DebugType>
-	  
-  
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  
-  
     <LangVersion>13</LangVersion>
   </PropertyGroup>
 	
