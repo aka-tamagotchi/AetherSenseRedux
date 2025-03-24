@@ -1,4 +1,4 @@
-﻿<Project  Sdk="Dalamud.NET.SDK/11.0.0">
+﻿<Project Sdk="Dalamud.NET.SDK/11.0.0">
 
   <PropertyGroup>
 	<Authors>Tama Gotchi (digital-pet)</Authors>
@@ -10,9 +10,10 @@
 	<TargetFramework>net9.0</TargetFramework>
 	<Platforms>x64</Platforms>
 	<Nullable>enable</Nullable>
-    <LangVersion>13</LangVersion>
+	<LangVersion>13</LangVersion>
   </PropertyGroup>
 	
+    
   <ItemGroup>
     <PackageReference Include="Buttplug" Version="3.0.1" GeneratePathProperty="true" />
     <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1" />
