@@ -11,9 +11,16 @@
 	<Platforms>x64</Platforms>
 	<Nullable>enable</Nullable>
 	<LangVersion>13</LangVersion>
+	
+	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	<Deterministic>false</Deterministic>
+	<DebugType>none</DebugType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
   </PropertyGroup>
 	
-    
   <ItemGroup>
     <PackageReference Include="Buttplug" Version="3.0.1" GeneratePathProperty="true" />
     <PackageReference Include="Buttplug.Client.Connectors.WebsocketConnector" Version="3.0.1" />
