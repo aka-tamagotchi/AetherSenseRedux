@@ -1,0 +1,17 @@
+[
+    {
+      "Author": "digital pet, emesinae",
+      "Name": "AetherSense Redux (18+)",
+      "InternalName": "AetherSenseRedux",
+      "Description": "An advanced haptic feedback plugin for game controllers, adult toys, and more using the Buttplug.io library. Requires Intiface Desktop to operate.",
+      "ApplicableVersion": "any",
+      "Punchline": "Advanced haptic feedback using Intiface",
+      "RepoUrl": "https://github.com/emesinae/AetherSenseRedux",
+      "AcceptsFeedback": true,
+      "DalamudApiLevel": 12,
+      "AssemblyVersion": "0.1.0.1",
+      "DownloadLinkInstall": "https://github.com/emesinae/AetherSenseRedux/releases/download/TBD/AetherSenseRedux.zip",
+      "DownloadLinkUpdate": "https://github.com/emesinae/AetherSenseRedux/releases/download/TBD/AetherSenseRedux.zip"
+    }
+  ]
+  
