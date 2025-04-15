@@ -1,30 +1,36 @@
-# AetherSense Redux
+# AetherSense Redux (🐝 _Cool Bug's_ Fork)
 
-[![volkswagen status](https://auchenberg.github.io/volkswagen/volkswargen_ci.svg?v=1)](https://github.com/auchenberg/volkswagen)
+![build status](https://github.com/emesinae/AetherSenseRedux/actions/workflows/build.yml/badge.svg) ![release status](https://github.com/emesinae/AetherSenseRedux/actions/workflows/release.yml/badge.svg?branch=)
 
 Turn your Warrior of Light into the Warrior of Butt with regex-powered realtime log parsing. Configure custom vibration patterns for game controllers, bluetooth-enabled sex toys, and more!
 
-Inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense), powered by [Buttplug](https://buttplug.io/), controlled by you.
+## About
 
-### Installation
+This is a fork of [digital pet's AetherSense Redux plugin](https://github.com/aka-tamagotchi/AetherSenseRedux),
+which was inspired by [AetherSense](https://github.com/Ms-Tress/AetherSense). It is powered by [Buttplug](https://buttplug.io/), controlled by you.
 
-#### Preferred Method
- 
-Add `https://raw.githubusercontent.com/aka-tamagotchi/EgirlPlugins/main/repo.json` to your custom repo list and then install through Dalamud.
+## Installation
 
-#### Manual Method
+### Pre-requisites
 
-Unzip into %appdata%\XIVLauncher\devPlugins\ and restart the game.
+- This requires [Intiface Central](https://intiface.com/central) to be installed and running on your computer.
 
-Requires Intiface Desktop, XIVLauncher, and Dalamud to operate.
+### Preferred Method
 
-### Usage
+1. Open the Dalamud settings window (by typing `/xlsettings` in chat).
+2. Go to the "Experimental" tab.
+3. Scroll down to the "Custom Plugin Repositories" section.
+4. Add a new entry using `https://raw.githubusercontent.com/emesinae/AetherSenseRedux/main/repo.json` as the URL.
+5. **Make sure to save changes by hitting the save icon 💾 at the bottom right of the settings.**
+6. Return to the plugin page (`/xlplugins`) and search for "AetherSense Redux" to install it.
+
+## Usage
 
 TODO: Write usage instructions
 
-### Development
+## Development
 
-#### Environment Config
+### Environment Config
 
 - XIVLauncher must be installed and present.
   - If a custom path is required for Dalamud's dev directory, it must be set with the `DALAMUD_HOME` environment variable. The correct path will be to Dalamud's `Hooks/dev` directory. Examples of this are:
@@ -37,5 +43,6 @@ This project is a labor of love, and I don't earn any money for developing it. B
 
 ### Credits
 
+- Digital pet's [original AetherSense Redux plugin](https://github.com/aka-tamagotchi/AetherSenseRedux).
 - Uses [XIVChatTools](https://github.com/digital-pet/XIVChatTools) for extended filtering capabilities.
 - Inspired by the original [AetherSense](https://github.com/Ms-Tress/AetherSense) plugin by Ms Tress.
