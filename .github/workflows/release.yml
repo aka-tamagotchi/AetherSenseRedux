@@ -47,7 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
-          release_name: AetherSenseRedux ${{ github.ref }}
+          name: AetherSenseRedux ${{ github.ref }}
           draft: false
           prerelease: false
           generate_release_notes: true
