@@ -106,14 +106,14 @@ namespace AetherSenseRedux
             }
         }
 
-        public Dictionary<string, double> ConnectedDevices
+        public Dictionary<string, DeviceStatus> ConnectedDevices
         {
             get
             {
-                Dictionary<string, double> result = new();
+                Dictionary<string, DeviceStatus> result = new();
                 foreach (Device device in DevicePool)
                 {
-                    result[device.Name] = device.UPS;
+                    result[device.Name] = device.Status;
                 }
                 return result;
             }

@@ -29,6 +29,18 @@ namespace AetherSenseRedux
         private int frameTime = 16;     // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
         private WaitType _waitType;
 
+        public DeviceStatus Status
+        {
+            get
+            {
+                return new DeviceStatus
+                {
+                    LastIntensity = _lastIntensity,
+                    UPS = UPS,
+                };
+            }
+        }
+
         public Device(ButtplugClientDevice clientDevice,WaitType waitType)
         {
             ClientDevice = clientDevice;
