@@ -1,11 +1,11 @@
 {
   "changelog": {
-    "header": "Change Log",
+    "header": "# Change Log",
     "includeAllCommits": true,
     "sections": [
       {
         "type": "feat",
-        "section": "✨ Features",
+        "section": "🌱 Features",
         "hidden": false
       },
       {
@@ -15,7 +15,7 @@
       },
       {
         "type": "perf",
-        "section": "🚀 Performance",
+        "section": "🪽 Performance",
         "hidden": false
       }
     ]
