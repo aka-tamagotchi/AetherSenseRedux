@@ -32,10 +32,24 @@ TODO: Write usage instructions
 
 ### Environment Config
 
+#### FFXIV and Dalamud
+
 - XIVLauncher must be installed and present.
   - If a custom path is required for Dalamud's dev directory, it must be set with the `DALAMUD_HOME` environment variable. The correct path will be to Dalamud's `Hooks/dev` directory. Examples of this are:
     - Windows: `$APPDATA\XIVLauncher\addon\Hooks\dev\`
     - Linux: `$HOME/.xlcore/dalamud/Hooks/dev`
+
+#### Development Dependencies
+
+If you want to try to contribute, ensure .NET dependencies and tools are installed by running:
+
+```sh
+dotnet restore
+dotnet tool restore
+```
+
+The latter is required to ensure you have [Husky](https://alirezanet.github.io/Husky.Net/) installed. If you attempt to commit changes and receive errors
+mentioning `husky`, then you probably need to make sure it is actually installed.
 
 ### Support
 
