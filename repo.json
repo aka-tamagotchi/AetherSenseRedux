@@ -9,8 +9,8 @@
     "RepoUrl": "https://github.com/emesinae/AetherSenseRedux",
     "AcceptsFeedback": true,
     "DalamudApiLevel": 12,
-    "AssemblyVersion": "0.1.0.2",
-    "DownloadLinkInstall": "https://github.com/emesinae/AetherSenseRedux/releases/download/0.1.0.2/AetherSenseRedux.zip",
-    "DownloadLinkUpdate": "https://github.com/emesinae/AetherSenseRedux/releases/download/0.1.0.2/AetherSenseRedux.zip"
+    "AssemblyVersion": "0.1.0",
+    "DownloadLinkInstall": "https://github.com/emesinae/AetherSenseRedux/releases/download/0.1.0/AetherSenseRedux.zip",
+    "DownloadLinkUpdate": "https://github.com/emesinae/AetherSenseRedux/releases/download/0.1.0/AetherSenseRedux.zip"
   }
 ]

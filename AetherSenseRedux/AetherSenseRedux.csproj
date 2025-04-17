@@ -1,4 +1,4 @@
-﻿<Project  Sdk="Dalamud.NET.SDK/12.0.2">
+<Project Sdk="Dalamud.NET.SDK/12.0.2">
 
   <PropertyGroup>
     <Authors>Tama Gotchi (digital-pet),Emesinae</Authors>
