@@ -76,7 +76,7 @@ namespace AetherSenseRedux
         /// </summary>
         public void Save()
         {
-            Plugin.PluginInterface!.SavePluginConfig(this);
+            Service.PluginInterface!.SavePluginConfig(this);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace AetherSenseRedux
             }
             catch (Exception ex)
             {
-                Plugin.PluginLog.Error(ex, "Attempted to import a bad configuration.");
+                Service.PluginLog.Error(ex, "Attempted to import a bad configuration.");
             }
         }
 
@@ -111,11 +111,11 @@ namespace AetherSenseRedux
         /// <exception cref="NullReferenceException"></exception>
         public Configuration CloneConfigurationFromDisk()
         {
-            if (Plugin.PluginInterface == null)
+            if (Service.PluginInterface == null)
             {
                 throw new NullReferenceException("Attempted to load the plugin configuration from a clone.");
             }
-            var config = Plugin.PluginInterface!.GetPluginConfig() as Configuration ?? throw new NullReferenceException("No configuration exists on disk.");
+            var config = Service.PluginInterface!.GetPluginConfig() as Configuration ?? throw new NullReferenceException("No configuration exists on disk.");
             config.FixDeserialization();
             return config;
         }

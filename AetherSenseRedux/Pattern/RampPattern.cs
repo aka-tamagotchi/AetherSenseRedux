@@ -29,7 +29,7 @@ namespace AetherSenseRedux.Pattern
             {
                 throw new PatternExpiredException();
             }
-            double progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)duration*10000));
+            double progress = 1.0 - ((Expires.Ticks - time.Ticks) / ((double)duration * 10000));
             return (endLevel - startLevel) * progress + startLevel;
         }
 

@@ -96,7 +96,7 @@ namespace XIVChatTypes
                 "Debuff You",
                 "Your BuffEnd",
                 "Your DebuffEnd",
-            },   
+            },
             new string[16]      // Battle: Party
             {
                 "Party's AttackHit",
@@ -340,12 +340,12 @@ namespace XIVChatTypes
                 "[GM] Linkshell 6",
                 "[GM] Linkshell 7",
                 "[GM] Linkshell 8"
-            }   
+            }
         };
 
         private static readonly (Group?, Group?, Channel)[][][] FilterMasks = new (Group?, Group?, Channel)[14][][]
         {
-            new (Group?, Group?, Channel)[27][] 
+            new (Group?, Group?, Channel)[27][]
             {
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.Say) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.Yell) },
@@ -375,7 +375,7 @@ namespace XIVChatTypes
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.StandardEmote) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.CustomEmote) },
             },
-            new (Group?, Group?, Channel)[16][] 
+            new (Group?, Group?, Channel)[16][]
             {
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.AttackHit) },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.AttackMiss) },
@@ -592,18 +592,18 @@ namespace XIVChatTypes
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.Alarm) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.SystemMessage) },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.BattleSystemMessage) },
-                new (Group?, Group?, Channel)[10] 
+                new (Group?, Group?, Channel)[10]
                 {
-                    (Group.Party, null, Channel.BattleSystemMessage), 
-                    (Group.Alliance, null, Channel.BattleSystemMessage), 
+                    (Group.Party, null, Channel.BattleSystemMessage),
+                    (Group.Alliance, null, Channel.BattleSystemMessage),
                     (Group.Other, null, Channel.BattleSystemMessage),
-                    (Group.EngagedHostile, null, Channel.BattleSystemMessage), 
-                    (Group.UnengagedHostile, null, Channel.BattleSystemMessage), 
+                    (Group.EngagedHostile, null, Channel.BattleSystemMessage),
+                    (Group.UnengagedHostile, null, Channel.BattleSystemMessage),
                     (Group.FriendlyNPC, null, Channel.BattleSystemMessage),
                     (Group.Pet, null, Channel.BattleSystemMessage),
-                    (Group.PartyPet, null, Channel.BattleSystemMessage), 
-                    (Group.AlliancePet, null, Channel.BattleSystemMessage), 
-                    (Group.OtherPet, null, Channel.BattleSystemMessage) 
+                    (Group.PartyPet, null, Channel.BattleSystemMessage),
+                    (Group.AlliancePet, null, Channel.BattleSystemMessage),
+                    (Group.OtherPet, null, Channel.BattleSystemMessage)
                 },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.GatheringSystemMessage) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.Error) },
@@ -619,7 +619,7 @@ namespace XIVChatTypes
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.LootNotice) },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.ProgressionMessage) },
                 new (Group?, Group?, Channel)[1] { (Group.Party, null, Channel.ProgressionMessage) },
-                new (Group?, Group?, Channel)[8] 
+                new (Group?, Group?, Channel)[8]
                 {
                     (Group.Alliance, null, Channel.ProgressionMessage),
                     (Group.Other, null, Channel.ProgressionMessage),
@@ -631,25 +631,25 @@ namespace XIVChatTypes
                     (Group.OtherPet, null, Channel.ProgressionMessage)
                 },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.LootMessage) },
-                new (Group?, Group?, Channel)[3] 
-                { 
-                    (Group.Party, null, Channel.LootMessage), 
-                    (Group.Alliance, null, Channel.LootMessage), 
-                    (Group.Other, null, Channel.LootMessage) 
+                new (Group?, Group?, Channel)[3]
+                {
+                    (Group.Party, null, Channel.LootMessage),
+                    (Group.Alliance, null, Channel.LootMessage),
+                    (Group.Other, null, Channel.LootMessage)
                 },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.SynthesisMessage) },
-                new (Group?, Group?, Channel)[3] 
-                { 
-                    (Group.Party, null, Channel.SynthesisMessage), 
-                    (Group.Alliance, null, Channel.SynthesisMessage), 
-                    (Group.Other, null, Channel.SynthesisMessage) 
+                new (Group?, Group?, Channel)[3]
+                {
+                    (Group.Party, null, Channel.SynthesisMessage),
+                    (Group.Alliance, null, Channel.SynthesisMessage),
+                    (Group.Other, null, Channel.SynthesisMessage)
                 },
                 new (Group?, Group?, Channel)[1] { (Group.You, null, Channel.GatheringMessage) },
-                new (Group?, Group?, Channel)[3] 
-                { 
-                    (Group.Party, null, Channel.GatheringMessage), 
-                    (Group.Alliance, null, Channel.GatheringMessage), 
-                    (Group.Other, null, Channel.GatheringMessage) 
+                new (Group?, Group?, Channel)[3]
+                {
+                    (Group.Party, null, Channel.GatheringMessage),
+                    (Group.Alliance, null, Channel.GatheringMessage),
+                    (Group.Other, null, Channel.GatheringMessage)
                 },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.PartySearch) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.RaidMarkers) },
@@ -657,7 +657,7 @@ namespace XIVChatTypes
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.OrchestrionNotification) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.MessageBookAlert) }
             },
-            new (Group?, Group?, Channel)[15][] 
+            new (Group?, Group?, Channel)[15][]
             {
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.GMSay) },
                 new (Group?, Group?, Channel)[1] { (null, null, Channel.GMShout) },
@@ -700,7 +700,7 @@ namespace XIVChatTypes
         }
 
         public void Add((Group?, Group?, Channel) filter)
-        {            
+        {
             foreach (var item in ExpandFilter(filter))
             {
                 if (!filterList.Contains(item))
@@ -797,9 +797,9 @@ namespace XIVChatTypes
                 {
                     if (filtertable[i1][i2])
                     {
-                        
-                        Add(i1,i2);
-                        
+
+                        Add(i1, i2);
+
                     }
                 }
             }

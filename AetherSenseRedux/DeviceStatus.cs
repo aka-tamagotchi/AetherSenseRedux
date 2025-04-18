@@ -5,7 +5,7 @@ namespace AetherSenseRedux;
 /// </summary>
 public class DeviceStatus
 {
-    public double UPS {get; init;}
-    
-    public double LastIntensity {get; init;}
+    public double UPS { get; init; }
+
+    public double LastIntensity { get; init; }
 }

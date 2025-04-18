@@ -13,35 +13,26 @@ namespace AetherSenseRedux
     {
         public readonly ButtplugClientDevice ClientDevice;
         public List<IPattern> Patterns;
-        public string Name { get => ClientDevice.Name; }
-        public double UPS
-        {
-            get
-            {
-                // The actual UPS counter is derived from this internal average time per update value
-                return 1000 / _ups;
-            }
-        }
+        public string Name => ClientDevice.Name;
+
+        public double UPS =>
+            // The actual UPS counter is derived from this internal average time per update value
+            1000 / _ups;
 
         private double _ups = 16;       // we initialize this to the target time per update value just to avoid confusing users
         private double _lastIntensity;
         private bool _active;
-        private int frameTime = 16;     // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
-        private WaitType _waitType;
+        private const int FrameTime = 16; // The target time per update, in this case 16ms = ~60 ups, and also a pipe dream for BLE toys.
+        private readonly WaitType _waitType;
 
-        public DeviceStatus Status
-        {
-            get
+        public DeviceStatus Status =>
+            new()
             {
-                return new DeviceStatus
-                {
-                    LastIntensity = _lastIntensity,
-                    UPS = UPS,
-                };
-            }
-        }
+                LastIntensity = _lastIntensity,
+                UPS = UPS,
+            };
 
-        public Device(ButtplugClientDevice clientDevice,WaitType waitType)
+        public Device(ButtplugClientDevice clientDevice, WaitType waitType)
         {
             ClientDevice = clientDevice;
             Patterns = new List<IPattern>();
@@ -69,7 +60,7 @@ namespace AetherSenseRedux
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task MainLoop()
+        private async Task MainLoop()
         {
             Stopwatch timer = new();
             while (_active)
@@ -77,7 +68,7 @@ namespace AetherSenseRedux
                 timer.Restart();
                 await OnTick();
                 var t = timer.ElapsedMilliseconds;
-                if (t < frameTime)
+                if (t < FrameTime)
                 {
                     switch (_waitType)
                     {
@@ -89,29 +80,30 @@ namespace AetherSenseRedux
                             // Worst case it performs just as poorly as Task.Delay, but best case we get accuracy
                             // to every other millisecond. Which is less cpu intensive than a SpinWait but also more
                             // than good enough for butts.
-                            while (timer.ElapsedMilliseconds < frameTime)
+                            while (timer.ElapsedMilliseconds < FrameTime)
                             {
                                 Thread.Sleep(1);
                             }
                             break;
                         case WaitType.Use_Delay:
-                            // The odds of us getting here are low but it's better to plan for possible future changes
+                            // The odds of us getting here are low, but it's better to plan for possible future changes
                             // to Task.Delay than to get caught off guard.
-                            while (timer.ElapsedMilliseconds < frameTime)
+                            while (timer.ElapsedMilliseconds < FrameTime)
                             {
                                 await Task.Delay(1);
                             }
                             break;
+                        case WaitType.Slow_Timer:
                         default:
                             // if we're stuck with low resolution waits there's no point to spinning.
-                            await Task.Delay(frameTime - (int)timer.ElapsedMilliseconds);
+                            await Task.Delay(FrameTime - (int)timer.ElapsedMilliseconds);
                             break;
                     }
 
-                } 
+                }
                 else
                 {
-                    Plugin.PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - frameTime);
+                    Service.PluginLog.Verbose("OnTick for device {0} took {1}ms too long!", Name, t - FrameTime);
                 }
                 _ups = _ups * 0.9 + timer.ElapsedMilliseconds * 0.1;
             }
@@ -123,7 +115,10 @@ namespace AetherSenseRedux
         public void Stop()
         {
             _active = false;
-            Patterns.Clear();
+            lock (Patterns)
+            {
+                Patterns.Clear();
+            }
 
             var t = Task.Run(() => Write(0));
             t.Wait();
@@ -175,7 +170,7 @@ namespace AetherSenseRedux
             // clamp intensity before comparing to reduce unnecessary writes to device
             double clampedIntensity = Clamp(intensity, 0, 1);
 
-            if (_lastIntensity == clampedIntensity)
+            if (Math.Abs(_lastIntensity - clampedIntensity) < 0.00001)
             {
                 return;
             }
@@ -186,7 +181,8 @@ namespace AetherSenseRedux
             {
                 await ClientDevice.VibrateAsync(clampedIntensity);
 
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 // Connecting to an intiface server on Linux will spam the log with bluez errors
                 // so we just ignore all exceptions from this statement. Good? Probably not. Necessary? Yes.

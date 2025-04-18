@@ -30,7 +30,7 @@ namespace AetherSenseRedux.Trigger
         public long RetriggerDelay { get; init; }
         private DateTime RetriggerTime { get; set; }
         private Guid Guid { get; set; }
-        
+
         /// <summary>
         /// Instantiates a new ChatTrigger.
         /// </summary>
@@ -65,7 +65,7 @@ namespace AetherSenseRedux.Trigger
         {
             if (Enabled)
             {
-                Plugin.PluginLog.Verbose("{0} ({1}): Received message to queue",Name, Guid.ToString());
+                Service.PluginLog.Verbose("{0} ({1}): Received message to queue", Name, Guid.ToString());
 
                 _messages.Enqueue(message);
             }
@@ -80,7 +80,7 @@ namespace AetherSenseRedux.Trigger
             {
                 if (DateTime.UtcNow < RetriggerTime)
                 {
-                    Plugin.PluginLog.Debug("Trigger discarded, too soon");
+                    Service.PluginLog.Debug("Trigger discarded, too soon");
                     return;
                 }
                 else
@@ -131,7 +131,7 @@ namespace AetherSenseRedux.Trigger
                 ChatMessage message;
                 if (_messages.TryDequeue(out message))
                 {
-                    Plugin.PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
+                    Service.PluginLog.Verbose("{1}: Processing message: {0}", message.ToString(), Guid.ToString());
                     if (UseFilter && !Filter.Match(message.ChatType))
                     {
                         continue;
@@ -140,10 +140,11 @@ namespace AetherSenseRedux.Trigger
                     {
                         continue;
                     }
-                    
+
                     OnTrigger();
-                    Plugin.PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
-                } else
+                    Service.PluginLog.Debug("{1}: Triggered on message: {0}", message.ToString(), Guid.ToString());
+                }
+                else
                 {
                     await Task.Delay(50);
                 }

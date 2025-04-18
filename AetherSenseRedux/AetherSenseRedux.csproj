@@ -10,7 +10,7 @@
     <Description>Buttplugs on the moon</Description>
     <Copyright>All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/emesinae/AetherSenseRedux</PackageProjectUrl>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
     <LangVersion>13</LangVersion>

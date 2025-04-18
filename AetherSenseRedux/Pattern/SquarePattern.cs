@@ -33,7 +33,7 @@ namespace AetherSenseRedux.Pattern
 
             long progress = patternTime % total_duration;
 
-            return (progress < duration1)? level1 : level2;
+            return (progress < duration1) ? level1 : level2;
         }
         public static PatternConfig GetDefaultConfiguration()
         {

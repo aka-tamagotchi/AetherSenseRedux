@@ -70,7 +70,8 @@ namespace AetherSenseRedux.Trigger
                             FilterTable = filters,
                             UseFilter = o.UseFilter
                         };
-                    } catch (RuntimeBinderException)
+                    }
+                    catch (RuntimeBinderException)
                     {
                         // Handle version 1 configurations without filter tables that would otherwise crash the plugin
                         return new ChatTriggerConfig()
