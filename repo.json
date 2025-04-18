@@ -10,7 +10,7 @@
     "AcceptsFeedback": true,
     "DalamudApiLevel": 12,
     "AssemblyVersion": "1.0.0",
-    "DownloadLinkInstall": "https://github.com/emesinae/AetherSenseRedux/releases/download/1.0.0/AetherSenseRedux.zip",
-    "DownloadLinkUpdate": "https://github.com/emesinae/AetherSenseRedux/releases/download/1.0.0/AetherSenseRedux.zip"
+    "DownloadLinkInstall": "https://github.com/emesinae/AetherSenseRedux/releases/download/v1.0.0/AetherSenseRedux.zip",
+    "DownloadLinkUpdate": "https://github.com/emesinae/AetherSenseRedux/releases/download/v1.0.0/AetherSenseRedux.zip"
   }
 ]

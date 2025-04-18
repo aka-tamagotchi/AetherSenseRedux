@@ -85,8 +85,8 @@ jobs:
           $path = './repo.json'
           $json = Get-Content -Raw $path | ConvertFrom-Json
           $json[0].AssemblyVersion = $ver
-          $json[0].DownloadLinkInstall = $json.DownloadLinkInstall -replace '[^/]+/AetherSenseRedux.zip',"$ver/AetherSenseRedux.zip"
-          $json[0].DownloadLinkUpdate = $json.DownloadLinkUpdate -replace '[^/]+/AetherSenseRedux.zip',"$ver/AetherSenseRedux.zip"
+          $json[0].DownloadLinkInstall = $json.DownloadLinkInstall -replace '[^/]+/AetherSenseRedux.zip',"v$ver/AetherSenseRedux.zip"
+          $json[0].DownloadLinkUpdate = $json.DownloadLinkUpdate -replace '[^/]+/AetherSenseRedux.zip',"v$ver/AetherSenseRedux.zip"
           $content = $json | ConvertTo-Json -AsArray
           set-content -Path $path -Value $content
       - name: Commit repo.json
