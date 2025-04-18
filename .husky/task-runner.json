@@ -8,8 +8,8 @@
      {
        "name": "dotnet-format",
        "group": "pre-commit",
-       "command": "dotnet-format",
-       "args": ["--include", "${staged}"],
+       "command": "dotnet",
+       "args": ["format", "--include", "${staged}"],
        "include": ["**/*.cs"]
      }
    ]
