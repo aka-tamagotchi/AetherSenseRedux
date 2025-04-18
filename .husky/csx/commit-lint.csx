@@ -1,10 +1,17 @@
 using System.Text.RegularExpressions;
 
 private var pattern = @"(?m)^((?=.{1,90}$)(?:build|feat|ci|chore|docs|fix|perf|refactor|revert|style|test|wip)(?:\(.+\))*\!?(?::).{4,}(?:#\d+)*(?<![\.\s]))$(?:(?:\s*[\r\n]){2,}((?:.|[\r\n])*))?";
-private var msg = File.ReadAllLines(Args[0])[0];
+private string msg = File.ReadAllLines(Args[0])[0];
+
+if (msg.StartsWith("Merge branch") || msg.StartsWith("Revert \""))
+{
+    return 0;
+}
 
 if (Regex.IsMatch(msg, pattern))
+{
     return 0;
+}
 
 Console.ForegroundColor = ConsoleColor.Red;
 Console.WriteLine("Invalid commit message");
