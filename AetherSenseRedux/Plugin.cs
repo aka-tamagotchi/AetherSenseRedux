@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Buttplug.Client;
-using Buttplug.Client.Connectors.WebsocketConnector;
 using AetherSenseRedux.Trigger;
 using AetherSenseRedux.Pattern;
 using System.Diagnostics;
@@ -349,7 +348,7 @@ namespace AetherSenseRedux
             {
                 try
                 {
-                    ButtplugWebsocketConnector wsOptions = new(new Uri(Configuration.Address));
+                    var wsOptions = new ButtplugWebsocketConnector(new Uri(Configuration.Address));
                     await _buttplug.ConnectAsync(wsOptions);
                     _ = DoScan();
                 }
