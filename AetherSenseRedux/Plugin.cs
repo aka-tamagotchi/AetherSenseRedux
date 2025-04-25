@@ -14,6 +14,9 @@ using AetherSenseRedux.Pattern;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using AetherSenseRedux.Hooks;
+using AetherSenseRedux.Trigger.Emote;
+using Lumina.Excel.Sheets;
 
 namespace AetherSenseRedux
 {
@@ -26,6 +29,8 @@ namespace AetherSenseRedux
         private Configuration Configuration { get; set; }
 
         private ButtplugStatus _status;
+
+        private EmoteReaderHooks _emoteReaderHooks;
 
         public ButtplugStatus Status
         {
@@ -113,6 +118,7 @@ namespace AetherSenseRedux
         private List<Device> _devicePool;
 
         private readonly List<ChatTrigger> _chatTriggerPool;
+        private readonly List<EmoteTrigger> _emoteTriggerPool;
 
         /// <summary>
         /// 
@@ -129,6 +135,7 @@ namespace AetherSenseRedux
 
             this._devicePool = [];
             this._chatTriggerPool = [];
+            this._emoteTriggerPool = [];
 
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.FixDeserialization();
@@ -158,6 +165,9 @@ namespace AetherSenseRedux
             PluginInterface.UiBuilder.Draw += DrawUI;
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
+            this._emoteReaderHooks = new EmoteReaderHooks();
+            this._emoteReaderHooks.OnEmote += OnEmoteReceived;
+
             t.Wait();
             WaitType = t.Result;
         }
@@ -170,6 +180,7 @@ namespace AetherSenseRedux
             Stop(true);
             PluginUi.Dispose();
             Service.CommandManager.RemoveHandler(CommandName);
+            _emoteReaderHooks.Dispose();
         }
 
         // EVENT HANDLERS
@@ -270,6 +281,31 @@ namespace AetherSenseRedux
             if (Configuration.LogChat)
             {
                 Service.PluginLog.Debug(chatMessage.ToString());
+            }
+        }
+
+        private void OnEmoteReceived(EmoteEvent e)
+        {
+            var isPerformer = e.Instigator.GameObjectId == Service.ClientState.LocalPlayer?.GameObjectId;
+            var isTarget = e.Target?.GameObjectId == Service.ClientState.LocalPlayer?.GameObjectId;
+
+            var emote = Service.DataManager.GetExcelSheet<Emote>().GetRowOrDefault(e.EmoteId);
+
+            Service.PluginLog.Debug($"{e.Instigator.Name} performed emote {emote?.Name.ExtractText() ?? "UNKNOWN"} ({e.EmoteId})" + (e.Target != null ? $" on target {e.Target.Name}" : string.Empty));
+
+            var emoteLogItem = new EmoteLogItem
+            {
+                Instigator = e.Instigator,
+                Target = e.Target,
+                EmoteId = e.EmoteId,
+                PlayerIsPerformer = isPerformer,
+                PlayerIsTarget = isTarget,
+                Timestamp = DateTime.Now,
+            };
+
+            foreach (var trigger in _emoteTriggerPool)
+            {
+                trigger.Queue(emoteLogItem);
             }
         }
 
@@ -434,8 +470,15 @@ namespace AetherSenseRedux
                 Service.PluginLog.Debug("Stopping chat trigger {0}", t.Name);
                 t.Stop();
             }
+
+            foreach (var t in _emoteTriggerPool)
+            {
+                Service.PluginLog.Debug("Stopping emote trigger {0}", t.Name);
+                t.Stop();
+            }
             Service.ChatGui.ChatMessage -= OnChatReceived;
             _chatTriggerPool.Clear();
+            _emoteTriggerPool.Clear();
             Service.PluginLog.Debug("Triggers destroyed.");
         }
 
@@ -454,6 +497,10 @@ namespace AetherSenseRedux
                 {
                     _chatTriggerPool.Add((ChatTrigger)trigger);
                 }
+                else if (trigger.Type == "EmoteTrigger")
+                {
+                    _emoteTriggerPool.Add((EmoteTrigger)trigger);
+                }
                 else
                 {
                     Service.PluginLog.Error("Invalid trigger type {0} created.", trigger.Type);
@@ -463,6 +510,12 @@ namespace AetherSenseRedux
             foreach (var t in _chatTriggerPool)
             {
                 Service.PluginLog.Debug("Starting chat trigger {0}", t.Name);
+                t.Start();
+            }
+
+            foreach (var t in _emoteTriggerPool)
+            {
+                Service.PluginLog.Debug("Starting emote trigger {0}", t.Name);
                 t.Start();
             }
 

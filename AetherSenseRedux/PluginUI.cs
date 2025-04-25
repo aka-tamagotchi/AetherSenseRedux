@@ -5,6 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using AetherSenseRedux.Trigger.Emote;
+using AetherSenseRedux.UI;
+using AetherSenseRedux.Util;
+using Dalamud.Interface;
+using Dalamud.Interface.Colors;
+using Dalamud.Interface.Utility.Raii;
 using XIVChatTypes;
 
 namespace AetherSenseRedux
@@ -25,12 +31,15 @@ namespace AetherSenseRedux
         private int _selectedTrigger = 0;
         private int _selectedFilterCategory = 0;
 
+        private readonly EmoteSelectionModal _emoteSelectionModal;
+
         // In order to keep the UI from trampling all over the configuration as changes are being made, we keep a working copy here when needed.
         private Configuration? _workingCopy;
 
         public PluginUI(Configuration configuration)
         {
             this._configuration = configuration;
+            this._emoteSelectionModal = new EmoteSelectionModal("SelectEmotePopup");
         }
 
         /// <summary>
@@ -196,12 +205,29 @@ namespace AetherSenseRedux
 
                         ImGui.EndChild();
                         if (ImGui.Button("Add New"))
+                            ImGui.OpenPopup("SelectTriggerTypePopup");
+
+                        if (ImGui.BeginPopup("SelectTriggerTypePopup"))
                         {
                             var triggers = _workingCopy.Triggers;
-                            triggers.Add(new ChatTriggerConfig()
+
+                            if (ImGui.Selectable("Chat Trigger"))
                             {
-                                PatternSettings = new ConstantPatternConfig()
-                            });
+                                triggers.Add(new ChatTriggerConfig()
+                                {
+                                    PatternSettings = new ConstantPatternConfig()
+                                });
+                            }
+
+                            if (ImGui.Selectable("Emote Trigger"))
+                            {
+                                triggers.Add(new EmoteTriggerConfig()
+                                {
+                                    PatternSettings = new ConstantPatternConfig()
+                                });
+                            }
+
+                            ImGui.EndPopup();
                         }
                         ImGui.SameLine();
                         if (ImGui.Button("Remove"))
@@ -225,7 +251,7 @@ namespace AetherSenseRedux
                         }
                         else
                         {
-                            DrawChatTriggerConfig(_workingCopy.Triggers[_selectedTrigger]);
+                            DrawTriggerConfig(_workingCopy.Triggers[_selectedTrigger]);
                         }
                         ImGui.Unindent();
                         ImGui.EndChild();
@@ -306,6 +332,22 @@ namespace AetherSenseRedux
             ImGui.End();
         }
 
+        private void DrawTriggerConfig(dynamic t)
+        {
+            switch (t)
+            {
+                case ChatTriggerConfig config:
+                    DrawChatTriggerConfig(config);
+                    break;
+                case EmoteTriggerConfig config:
+                    DrawEmoteTriggerConfig(config);
+                    break;
+                default:
+                    Service.PluginLog.Error($"Trigger type {t.Type} is not supported.");
+                    break;
+            }
+        }
+
         /// <summary>
         /// Draws the configuration interface for chat triggers
         /// </summary>
@@ -369,6 +411,147 @@ namespace AetherSenseRedux
                 {
                     t.UseFilter = usefilter;
                 }
+
+                ImGui.EndTabItem();
+            }
+        }
+
+        /// <summary>
+        /// Draws the configuration interface for chat triggers
+        /// </summary>
+        /// <param name="t">A ChatTriggerConfig object containing the current configuration for the trigger.</param>
+        private void DrawEmoteTriggerConfig(EmoteTriggerConfig t)
+        {
+            if (ImGui.BeginTabBar("TriggerConfig", ImGuiTabBarFlags.None))
+            {
+                DrawEmoteTriggerBasicTab(t);
+                DrawTriggerDevicesTab(t);
+                DrawTriggerPatternTab(t);
+
+                ImGui.EndTabBar();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="t"></param>
+        private void DrawEmoteTriggerBasicTab(EmoteTriggerConfig t)
+        {
+            if (ImGui.BeginTabItem("Basic"))
+            {
+
+                //begin name field
+                var name = t.Name;
+                if (ImGui.InputText("Name", ref name, 64))
+                {
+                    t.Name = name;
+                }
+                //end name field
+
+                ImGui.Separator();
+
+                ImGui.Text("Trigger Emotes:");
+                if (t.EmoteIds.Count == 0)
+                {
+                    ImGui.TextColored(ImGuiColors.DalamudGrey, "None selected");
+                }
+                else
+                {
+                    List<ushort> toRemove = [];
+                    foreach (var emoteId in t.EmoteIds)
+                    {
+                        var selectedEmote = EmoteDataUtil.GetEmote(emoteId);
+                        ImGui.Bullet();
+                        ImGui.TextUnformatted(selectedEmote?.Name.ExtractText() ?? selectedEmote?.TextCommand.ValueNullable?.Command.ExtractText() ?? (emoteId > 0 ? $"ID {emoteId}" : null) ?? "Missing data");
+                        ImGui.SameLine();
+                        using (ImRaii.PushFont(UiBuilder.IconFont))
+                        {
+                            using (ImRaii.PushId(emoteId))
+                            {
+                                // You have no idea how much I want to somehow create an alias named `SmolButton`.
+                                if (ImGui.SmallButton(FontAwesomeIcon.TrashAlt.ToIconString()))
+                                {
+                                    toRemove.Add(emoteId);
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (var emoteId in toRemove)
+                    {
+                        t.EmoteIds.Remove(emoteId);
+                    }
+                }
+
+                //begin emote ID field
+                if (ImGui.Button("Add Emote"))
+                    _emoteSelectionModal.OpenModalPopup();
+
+                if (_emoteSelectionModal.DrawEmoteSelectionPopup("SelectEmotePopup", null, out var newEmoteId))
+                {
+                    if (!t.EmoteIds.Contains((ushort)newEmoteId))
+                    {
+                        t.EmoteIds.Add((ushort)newEmoteId);
+                    }
+                }
+                //end emote ID field
+
+                ImGui.NewLine();
+
+                ImGui.TextUnformatted("Activate this trigger when you are the:");
+                var triggerOnPerform = t.TriggerOnPerform;
+                if (ImGui.Checkbox("Performer", ref triggerOnPerform))
+                {
+                    t.TriggerOnPerform = triggerOnPerform;
+                }
+
+                ImGui.SameLine();
+                ImGui.TextDisabled("(?)");
+                if (ImGui.IsItemHovered())
+                {
+                    using (ImRaii.Tooltip())
+                    {
+                        ImGui.Text("Trigger when you perform the emote.");
+                        ImGui.TextDisabled("Ex: you /dote on someone.");
+                    }
+                }
+
+                var triggerOnTarget = t.TriggerOnTarget;
+                if (ImGui.Checkbox("Target", ref triggerOnTarget))
+                {
+                    t.TriggerOnTarget = triggerOnTarget;
+                }
+
+                ImGui.SameLine();
+                ImGui.TextDisabled("(?)");
+                if (ImGui.IsItemHovered())
+                {
+                    using (ImRaii.Tooltip())
+                    {
+                        ImGui.TextUnformatted("Trigger when you are the target");
+                        ImGui.TextUnformatted("of someone performing the emote.");
+                        ImGui.TextDisabled("Ex: someone /dotes on you.");
+                    }
+                }
+
+                if (!t.TriggerOnPerform && !t.TriggerOnTarget)
+                {
+                    using (ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed))
+                    {
+                        ImGui.TextWrapped("This trigger will never activate if neither of the options are selected!");
+                    }
+                }
+
+                ImGui.Separator();
+
+                //begin retrigger delay field
+                var retriggerDelay = (int)t.RetriggerDelay;
+                if (ImGui.InputInt("Retrigger Delay (ms)", ref retriggerDelay))
+                {
+                    t.RetriggerDelay = retriggerDelay;
+                }
+                //end retrigger delay field
 
                 ImGui.EndTabItem();
             }

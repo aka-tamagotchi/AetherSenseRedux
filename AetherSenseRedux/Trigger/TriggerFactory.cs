@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using AetherSenseRedux.Pattern;
+using AetherSenseRedux.Trigger.Emote;
 using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json.Linq;
 
 namespace AetherSenseRedux.Trigger
 {
@@ -10,13 +13,12 @@ namespace AetherSenseRedux.Trigger
     {
         public static ITrigger GetTriggerFromConfig(TriggerConfig config, ref List<Device> devices)
         {
-            switch (config.Type)
+            return config.Type switch
             {
-                case "Chat":
-                    return new ChatTrigger((ChatTriggerConfig)config, ref devices);
-                default:
-                    throw new ArgumentException(String.Format("Invalid trigger {0} specified", config.Type));
-            }
+                "Chat" => new ChatTrigger((ChatTriggerConfig)config, ref devices),
+                "Emote" => new EmoteTrigger((EmoteTriggerConfig)config, ref devices),
+                _ => throw new ArgumentException($"Invalid trigger {config.Type} specified")
+            };
         }
 
         public static TriggerConfig GetTriggerConfigFromObject(dynamic o)
@@ -83,8 +85,19 @@ namespace AetherSenseRedux.Trigger
                             PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings)
                         };
                     }
+                case "Emote":
+                    return new EmoteTriggerConfig()
+                    {
+                        Name = (string)o.Name,
+                        EmoteIds = o.EmoteIds is List<ushort> ? (List<ushort>)o.EmoteIds : ((ushort[])(o.EmoteIds.ToObject<ushort[]>())).ToList(),
+                        RetriggerDelay = (long)o.RetriggerDelay,
+                        EnabledDevices = devices,
+                        PatternSettings = PatternFactory.GetPatternConfigFromObject(o.PatternSettings),
+                        TriggerOnPerform = (bool)o.TriggerOnPerform,
+                        TriggerOnTarget = (bool)o.TriggerOnTarget,
+                    };
                 default:
-                    throw new ArgumentException(String.Format("Invalid trigger {0} specified", o.Type));
+                    throw new ArgumentException($"Invalid trigger {o.Type} specified");
             }
         }
     }
