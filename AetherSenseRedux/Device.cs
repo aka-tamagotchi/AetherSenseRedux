@@ -120,8 +120,7 @@ namespace AetherSenseRedux
                 Patterns.Clear();
             }
 
-            var t = Task.Run(() => Write(0));
-            t.Wait();
+            Write(0).Wait();
         }
 
         /// <summary>
@@ -180,10 +179,10 @@ namespace AetherSenseRedux
             try
             {
                 await ClientDevice.VibrateAsync(clampedIntensity);
-
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Service.PluginLog.Warning($"Error while trying to send vibration value to device '{this.Name}': {ex.Message}.");
                 // Connecting to an intiface server on Linux will spam the log with bluez errors
                 // so we just ignore all exceptions from this statement. Good? Probably not. Necessary? Yes.
             }
