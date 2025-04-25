@@ -114,6 +114,7 @@ namespace AetherSenseRedux
         private PluginUI PluginUi { get; init; }
 
         private ButtplugClient? _buttplug;
+        private ButtplugWebsocketConnector? _buttplugWebsocketConnector;
 
         private List<Device> _devicePool;
 
@@ -384,8 +385,8 @@ namespace AetherSenseRedux
             {
                 try
                 {
-                    var wsOptions = new ButtplugWebsocketConnector(new Uri(Configuration.Address));
-                    await _buttplug.ConnectAsync(wsOptions);
+                    _buttplugWebsocketConnector = new ButtplugWebsocketConnector(new Uri(Configuration.Address));
+                    await _buttplug.ConnectAsync(_buttplugWebsocketConnector);
                     _ = DoScan();
                 }
                 catch (Exception ex)
@@ -407,20 +408,33 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void DisconnectButtplug()
+        private async Task DisconnectButtplugAsync()
         {
-            if (Status == ButtplugStatus.Connected)
+            if (_buttplug?.Connected == true)
             {
-                _status = ButtplugStatus.Disconnecting;
                 try
                 {
-                    var t = _buttplug!.DisconnectAsync();
-                    t.Wait();
+                    if (_buttplugWebsocketConnector?.Connected ?? false)
+                    {
+                        Service.PluginLog.Debug("Websocket is still connected. Disconnecting...");
+                        await _buttplugWebsocketConnector.DisconnectAsync();
+                        _buttplugWebsocketConnector = null;
+                        Service.PluginLog.Debug("Websocket disconnected");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Service.PluginLog.Error(ex, "Failed to disconnect Buttplug websocket.");
+                }
+
+                try
+                {
+                    await _buttplug!.DisconnectAsync();
                     Service.PluginLog.Information("Buttplug disconnected.");
                 }
                 catch (Exception ex)
                 {
-                    Service.PluginLog.Error(ex, "Buttplug failed to disconnect.");
+                    Service.PluginLog.Error(ex, "Failed to disconnect Buttplug.");
                 }
             }
         }
@@ -446,7 +460,7 @@ namespace AetherSenseRedux
         /// <summary>
         /// 
         /// </summary>
-        private void CleanButtplug()
+        private async Task CleanButtplugAsync()
         {
             if (_buttplug == null)
             {
@@ -454,10 +468,27 @@ namespace AetherSenseRedux
                 return;
             }
 
-            _status = ButtplugStatus.Disconnected;
-            _buttplug.Dispose();
-            _buttplug = null;
+            try
+            {
+                _status = ButtplugStatus.Disconnecting;
+                await DisconnectButtplugAsync();
+            }
+            catch (Exception ex)
+            {
+                Service.PluginLog.Error(ex, $"Error thrown while trying to disconnect: {ex.Message}");
+            }
+            finally
+            {
+                _buttplug = null;
+                _status = ButtplugStatus.Disconnected;
+            }
+
             Service.PluginLog.Debug("Buttplug destroyed.");
+        }
+
+        private void CleanButtplug()
+        {
+            CleanButtplugAsync().Wait();
         }
 
         /// <summary>
@@ -549,10 +580,6 @@ namespace AetherSenseRedux
         {
             CleanTriggers();
             CleanDevices();
-            if (expected)
-            {
-                DisconnectButtplug();
-            }
             CleanButtplug();
         }
         // END START AND STOP FUNCTIONS
