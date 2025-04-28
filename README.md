@@ -24,6 +24,15 @@ Requires Intiface Desktop, XIVLauncher, and Dalamud to operate.
 
 TODO: Write usage instructions
 
+### Development
+
+#### Environment Config
+
+- XIVLauncher must be installed and present.
+  - If a custom path is required for Dalamud's dev directory, it must be set with the `DALAMUD_HOME` environment variable. The correct path will be to Dalamud's `Hooks/dev` directory. Examples of this are:
+    - Windows: `$APPDATA\XIVLauncher\addon\Hooks\dev\`
+    - Linux: `$HOME/.xlcore/dalamud/Hooks/dev`
+
 ### Support
 
 This project is a labor of love, and I don't earn any money for developing it. But if you've gotten something out of it and want to give back, please, buy me a coffee!
